@@ -5,20 +5,57 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   StatusBar,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import * as DocumentPicker from 'expo-document-picker';
 import { COLORS } from '../constants';
+import { ResumeData } from '../types';
 
 interface WelcomeScreenProps {
   onStartFresh: () => void;
-  onUploadData: () => void;
+  onUploadData: (data: ResumeData) => void;
 }
 
 export default function WelcomeScreen({ onStartFresh, onUploadData }: WelcomeScreenProps) {
+  const [isUploading, setIsUploading] = React.useState(false);
+
+  const handleUpload = async () => {
+    try {
+      setIsUploading(true);
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/json',
+        copyToCacheDirectory: true,
+      });
+
+      if (result.canceled || !result.assets || result.assets.length === 0) {
+        setIsUploading(false);
+        return;
+      }
+
+      const fileUri = result.assets[0].uri;
+      const response = await fetch(fileUri);
+      const text = await response.text();
+      const parsed = JSON.parse(text);
+
+      if (parsed.personalInfo && Array.isArray(parsed.experience)) {
+        onUploadData(parsed);
+      } else {
+        Alert.alert('Invalid File', 'The JSON file does not contain valid resume data. It must have "personalInfo" and "experience" fields.');
+      }
+    } catch (err) {
+      console.error(err);
+      Alert.alert('Upload Failed', 'Could not read the JSON file. Make sure it is valid JSON.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
@@ -44,16 +81,25 @@ export default function WelcomeScreen({ onStartFresh, onUploadData }: WelcomeScr
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.card} onPress={onUploadData} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={styles.card}
+            onPress={handleUpload}
+            activeOpacity={0.8}
+            disabled={isUploading}
+          >
             <View style={[styles.iconCircle, { backgroundColor: '#d1fae5' }]}>
-              <Ionicons name="cloud-upload" size={40} color={COLORS.success} />
+              {isUploading ? (
+                <ActivityIndicator size="large" color={COLORS.success} />
+              ) : (
+                <Ionicons name="cloud-upload" size={40} color={COLORS.success} />
+              )}
             </View>
             <Text style={styles.cardTitle}>Upload Data</Text>
             <Text style={styles.cardDescription}>
-              Already have resume data? Upload your existing JSON file to continue where you left off.
+              Already have a resume JSON file? Upload it to continue where you left off.
             </Text>
             <View style={[styles.button, { backgroundColor: COLORS.success }]}>
-              <Text style={styles.buttonText}>Upload JSON</Text>
+              <Text style={styles.buttonText}>{isUploading ? 'Uploading...' : 'Upload JSON'}</Text>
             </View>
           </TouchableOpacity>
         </View>

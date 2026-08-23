@@ -1,4 +1,10 @@
-import { ResumeData, ResumeTheme } from '../types';
+import { ResumeData, ResumeTheme, PaperSizeConfig } from '../types';
+
+export const PAPER_SIZES: PaperSizeConfig[] = [
+  { id: 'a4', name: 'A4', widthMm: 210, heightMm: 297, widthPx: 794, heightPx: 1123, css: '@page { size: A4; margin: 15mm; }' },
+  { id: 'letter', name: 'US Letter', widthMm: 216, heightMm: 279, widthPx: 816, heightPx: 1056, css: '@page { size: letter; margin: 15mm; }' },
+  { id: 'legal', name: 'Legal', widthMm: 216, heightMm: 356, widthPx: 816, heightPx: 1344, css: '@page { size: legal; margin: 15mm; }' },
+];
 
 export const RESUME_THEMES: ResumeTheme[] = [
   {

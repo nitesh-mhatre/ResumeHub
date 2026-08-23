@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { View, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import WelcomeScreen from '../components/WelcomeScreen';
 import TemplateSelector from '../components/TemplateSelector';
@@ -13,10 +12,22 @@ export default function HomeScreen() {
   const [resumeData, setResumeData] = useState<ResumeData>(INITIAL_RESUME);
   const [activeTemplate, setActiveTemplate] = useState<TemplateType>('modern');
 
-  const handleStartFresh = () => setCurrentStep('template');
+  const handleStartFresh = () => {
+    setResumeData(INITIAL_RESUME);
+    setCurrentStep('template');
+  };
 
-  const handleUploadData = () => {
-    Alert.alert('Upload', 'JSON file upload will be available in a future update. Starting with default data.');
+  const handleUploadData = (data: ResumeData) => {
+    setResumeData({
+      ...INITIAL_RESUME,
+      ...data,
+      projects: data.projects || [],
+      certificates: data.certificates || [],
+      awards: data.awards || [],
+      languages: data.languages || [],
+      interests: data.interests || [],
+      customSections: data.customSections || [],
+    });
     setCurrentStep('template');
   };
 

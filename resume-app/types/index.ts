@@ -138,4 +138,16 @@ export type TemplateType =
   | 'classic' | 'modern-executive' | 'executive-v2' | 'minimalist-v2' | 'creative-v2' | 'nitesh'
   | 'pro-clean' | 'pro-exec' | 'pro-two-col' | 'pro-sidebar' | 'pro-minimal';
 
+export type PaperSize = 'a4' | 'letter' | 'legal';
+
+export interface PaperSizeConfig {
+  id: PaperSize;
+  name: string;
+  widthMm: number;
+  heightMm: number;
+  widthPx: number;
+  heightPx: number;
+  css: string;
+}
+
 export type AppStep = 'welcome' | 'template' | 'editor' | 'builder';

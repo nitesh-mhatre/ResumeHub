@@ -5,9 +5,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   Modal,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { TemplateType } from '../types';
 import { COLORS, INITIAL_RESUME } from '../constants';
@@ -76,7 +76,7 @@ export default function TemplateSelector({ currentTemplate, onSelect, onBack }: 
   const [previewTemplate, setPreviewTemplate] = useState<TemplateType | null>(null);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color={COLORS.gray700} />
@@ -126,7 +126,7 @@ export default function TemplateSelector({ currentTemplate, onSelect, onBack }: 
         ))}
       </ScrollView>
 
-      <Modal visible={previewTemplate !== null} animationType="slide" presentationStyle="pageSheet">
+      <Modal visible={previewTemplate !== null} animationType="slide" presentationStyle="pageSheet" style={{ marginTop: 50 }}>
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Template Preview</Text>

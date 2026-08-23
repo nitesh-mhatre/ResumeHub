@@ -7,8 +7,8 @@ import {
   StyleSheet,
   ScrollView,
   Switch,
-  SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { ResumeData } from '../types';
 import { COLORS } from '../constants';
@@ -75,7 +75,7 @@ export default function ResumeEditor({ data, onChange, onNext, onBack }: ResumeE
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color={COLORS.gray700} />
