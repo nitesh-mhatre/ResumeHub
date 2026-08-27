@@ -204,7 +204,7 @@ function TemplateSelectorInner({ currentTemplate, onSelect, onBack }: TemplateSe
       </ScrollView>
 
       {/* Preview Modal */}
-      <Modal visible={previewTemplate !== null} animationType="slide" presentationStyle="pageSheet">
+      <Modal visible={previewTemplate !== null} animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Template Preview</Text>

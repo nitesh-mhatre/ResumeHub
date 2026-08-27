@@ -200,7 +200,7 @@ function generateCategory(
   return colorSets.map((c, i) => {
     const globalIdx = startIdx + i;
     return {
-      id: `${category.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${i + 1}`,
+      id: `${category.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${globalIdx + 1}`,
       name: makeName(baseName, i, category),
       category,
       colors: [c[0], c[1], c[2]],
