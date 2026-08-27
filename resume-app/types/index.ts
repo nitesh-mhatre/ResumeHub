@@ -130,13 +130,7 @@ export interface AwardItem {
   description: string;
 }
 
-export type TemplateType =
-  | 'modern' | 'professional' | 'minimal' | 'creative' | 'executive' | 'ats' | 'compact' | 'technical' | 'bold'
-  | 'academic' | 'startup' | 'swiss' | 'artistic' | 'corporate' | 'tech-dark' | 'fashion' | 'media' | 'legal' | 'medical' | 'infographic'
-  | 'monochrome' | 'playful' | 'structure' | 'elegant' | 'timeline' | 'urban' | 'nature' | 'glitch' | 'retro' | 'magazine' | 'horizontal'
-  | 'cards' | 'bubbles' | 'geometric' | 'borderless' | 'vintage' | 'centered' | 'asymmetric' | 'contrast' | 'customizable'
-  | 'classic' | 'modern-executive' | 'executive-v2' | 'minimalist-v2' | 'creative-v2' | 'nitesh'
-  | 'pro-clean' | 'pro-exec' | 'pro-two-col' | 'pro-sidebar' | 'pro-minimal';
+export type TemplateType = string;
 
 export type PaperSize = 'a4' | 'letter' | 'legal';
 

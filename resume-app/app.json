@@ -21,7 +21,8 @@
       "package": "com.resumehub.app"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "react-native-google-mobile-ads"
     ]
   }
 }

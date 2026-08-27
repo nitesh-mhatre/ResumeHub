@@ -15,10 +15,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system/legacy';
 
 import ResumePreview from '../components/ResumePreview';
+import AdModal from '../components/AdModal';
+import { useAds } from '../components/AdMobProvider';
 import { ResumeData, TemplateType, PaperSize } from '../types';
 import { INITIAL_RESUME, COLORS, PAPER_SIZES } from '../constants';
+import { generateResumeHTML } from '../utils/generateResumeHTML';
 
 export default function BuilderScreen() {
   const router = useRouter();
@@ -35,59 +39,21 @@ export default function BuilderScreen() {
   const [isExporting, setIsExporting] = useState(false);
   const [paperSize, setPaperSize] = useState<PaperSize>('a4');
   const [showPaperPicker, setShowPaperPicker] = useState(false);
+  const { showInterstitial, nativeAdsReady, BannerAdComponent } = useAds();
+  const [showAdModal, setShowAdModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState<'pdf' | 'json' | null>(null);
 
   const currentPaper = PAPER_SIZES.find(p => p.id === paperSize) || PAPER_SIZES[0];
 
   const generateHTML = (data: ResumeData, size: PaperSize): string => {
-    const paper = PAPER_SIZES.find(p => p.id === size) || PAPER_SIZES[0];
-    return `
-<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
-${paper.css}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1e293b;line-height:1.5;font-size:12px}
-.page{padding:32px;width:${paper.widthPx}px;margin:0 auto;background:#fff}
-h1{font-size:24px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.job-title{font-size:13px;font-weight:700;color:#4f46e5;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
-.contact{font-size:11px;color:#64748b;margin-bottom:16px}.contact span{margin-right:10px}
-.section{margin-bottom:16px}
-.section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#4f46e5;border-bottom:2px solid #e5e7eb;padding-bottom:3px;margin-bottom:8px}
-.item{margin-bottom:12px}.item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
-.item-title{font-weight:700;font-size:13px}.item-date{font-size:10px;color:#94a3b8}
-.item-company{font-size:11px;color:#4f46e5;margin-bottom:3px}.item-desc{font-size:11px;color:#475569;white-space:pre-line}
-.skills{display:flex;flex-wrap:wrap;gap:4px}
-.skill-tag{background:#e0e7ff;color:#4338ca;padding:3px 8px;border-radius:10px;font-size:10px;font-weight:600}
-.summary{font-size:11px;color:#475569}
-</style></head><body><div class="page">
-<h1>${data.personalInfo.fullName}</h1>
-<div class="job-title">${data.personalInfo.jobTitle}</div>
-<div class="contact">
-${data.personalInfo.email ? `<span>📧 ${data.personalInfo.email}</span>` : ''}
-${data.personalInfo.phone ? `<span>📱 ${data.personalInfo.phone}</span>` : ''}
-${data.personalInfo.location ? `<span>📍 ${data.personalInfo.location}</span>` : ''}
-${data.personalInfo.linkedin ? `<span>💼 ${data.personalInfo.linkedin}</span>` : ''}
-${data.personalInfo.website ? `<span>🌐 ${data.personalInfo.website}</span>` : ''}
-</div>
-${data.summary ? `<div class="section"><div class="section-title">Profile</div><div class="summary">${data.summary}</div></div>` : ''}
-<div class="section"><div class="section-title">Experience</div>
-${data.experience.map(exp => `<div class="item"><div class="item-header"><span class="item-title">${exp.title}</span><span class="item-date">${exp.startDate} – ${exp.current ? 'Present' : exp.endDate}</span></div><div class="item-company">${exp.company}</div><div class="item-desc">${exp.description}</div></div>`).join('')}
-</div>
-<div class="section"><div class="section-title">Education</div>
-${data.education.map(edu => `<div class="item"><div class="item-header"><span class="item-title">${edu.school}</span><span class="item-date">${edu.startDate} – ${edu.endDate}</span></div><div class="item-desc">${edu.degree}</div></div>`).join('')}
-</div>
-<div class="section"><div class="section-title">Skills</div><div class="skills">${data.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}</div></div>
-${data.projects.length > 0 ? `<div class="section"><div class="section-title">Projects</div>${data.projects.map(p => `<div class="item"><div class="item-title">${p.name}</div><div class="item-desc">${p.description}</div></div>`).join('')}</div>` : ''}
-${data.certificates.length > 0 ? `<div class="section"><div class="section-title">Certificates</div>${data.certificates.map(c => `<div class="item"><div class="item-title">${c.name}</div><div class="item-desc">${c.issuer} • ${c.date}</div></div>`).join('')}</div>` : ''}
-${data.awards.length > 0 ? `<div class="section"><div class="section-title">Awards</div>${data.awards.map(a => `<div class="item"><div class="item-header"><span class="item-title">${a.name}</span><span class="item-date">${a.date}</span></div><div class="item-desc">${a.description}</div></div>`).join('')}</div>` : ''}
-${data.languages.length > 0 ? `<div class="section"><div class="section-title">Languages</div><div class="skills">${data.languages.map(l => `<span class="skill-tag">${l}</span>`).join('')}</div></div>` : ''}
-${data.interests.length > 0 ? `<div class="section"><div class="section-title">Interests</div><div class="skills">${data.interests.map(i => `<span class="skill-tag">${i}</span>`).join('')}</div></div>` : ''}
-${data.customSections && data.customSections.length > 0 ? data.customSections.map(s => `<div class="section"><div class="section-title">${s.title}</div><div class="item-desc">${s.content}</div></div>`).join('') : ''}
-</div></body></html>`;
+    return generateResumeHTML(data, template, size);
   };
 
   const handleExportPDF = async () => {
     setIsExporting(true);
     try {
       const html = generateHTML(resumeData, paperSize);
+      console.log('PDF template:', template);
       const { uri } = await Print.printToFileAsync({ html, base64: false });
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: 'Export Resume as PDF', UTI: '.pdf' });
@@ -104,12 +70,19 @@ ${data.customSections && data.customSections.length > 0 ? data.customSections.ma
   const handleSaveJSON = async () => {
     try {
       const jsonString = JSON.stringify(resumeData, null, 2);
-      await Share.share({
-        message: jsonString,
-        title: `${resumeData.personalInfo.fullName}_Resume.json`,
-      });
+      const fileUri = (FileSystem.documentDirectory || FileSystem.cacheDirectory || '') + `${resumeData.personalInfo.fullName.replace(/[^a-zA-Z0-9]/g, '_')}_Resume.json`;
+      await FileSystem.writeAsStringAsync(fileUri, jsonString, { encoding: FileSystem.EncodingType.UTF8 });
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(fileUri, {
+          mimeType: 'application/json',
+          dialogTitle: 'Save Resume JSON',
+          UTI: '.json',
+        });
+      } else {
+        Alert.alert('File Saved', `JSON saved to: ${fileUri}`);
+      }
     } catch (error) {
-      Alert.alert('Save Failed', 'Could not share JSON file.');
+      Alert.alert('Save Failed', 'Could not save JSON file.');
     }
   };
 
@@ -119,26 +92,59 @@ ${data.customSections && data.customSections.length > 0 ? data.customSections.ma
     } catch {}
   };
 
+  const handlePDFPress = async () => {
+    if (nativeAdsReady) {
+      // Native ads available — show real interstitial directly
+      try {
+        await showInterstitial();
+      } catch {}
+      handleExportPDF();
+    } else {
+      // Fallback — show the custom AdModal
+      setPendingAction('pdf');
+      setShowAdModal(true);
+    }
+  };
+
+  const handleJSONPress = async () => {
+    if (nativeAdsReady) {
+      try {
+        await showInterstitial();
+      } catch {}
+      handleSaveJSON();
+    } else {
+      setPendingAction('json');
+      setShowAdModal(true);
+    }
+  };
+
+  const handleAdClose = () => {
+    setShowAdModal(false);
+    if (pendingAction === 'pdf') {
+      handleExportPDF();
+    } else if (pendingAction === 'json') {
+      handleSaveJSON();
+    }
+    setPendingAction(null);
+  };
+
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={COLORS.gray700} />
+          <Ionicons name="arrow-back" size={22} color={COLORS.gray700} />
         </TouchableOpacity>
         <View style={styles.headerText}>
           <Text style={styles.headerTitle}>Resume Builder</Text>
           <Text style={styles.headerSubtitle}>Template: {template}</Text>
         </View>
         <View style={styles.headerActions}>
-          <TouchableOpacity style={styles.headerButton} onPress={handleSaveJSON}>
-            <Ionicons name="save-outline" size={20} color={COLORS.gray600} />
-          </TouchableOpacity>
           <TouchableOpacity style={styles.headerButton} onPress={handleShare}>
-            <Ionicons name="share-outline" size={20} color={COLORS.gray600} />
+            <Ionicons name="share-outline" size={18} color={COLORS.gray600} />
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.headerButton, styles.exportButton]} onPress={handleExportPDF} disabled={isExporting}>
-            <Ionicons name="document-text-outline" size={20} color={COLORS.white} />
+          <TouchableOpacity style={styles.exportBtn} onPress={handlePDFPress} disabled={isExporting}>
+            <Ionicons name="document-text-outline" size={18} color={COLORS.white} />
           </TouchableOpacity>
         </View>
       </View>
@@ -152,30 +158,42 @@ ${data.customSections && data.customSections.length > 0 ? data.customSections.ma
       </TouchableOpacity>
 
       {/* Resume Preview */}
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         <ResumePreview data={resumeData} template={template} />
       </ScrollView>
 
-      {/* Bottom Bar */}
+      {/* Banner Ad */}
+      <View style={styles.bannerAdContainer}>
+        <BannerAdComponent style={styles.bannerAd} />
+      </View>
+
+      {/* Bottom Bar - NOT absolute, part of normal flow */}
       <View style={styles.bottomBar}>
         <TouchableOpacity style={styles.editButton} onPress={() => router.back()}>
-          <Ionicons name="create-outline" size={18} color={COLORS.primary} />
+          <Ionicons name="create-outline" size={16} color={COLORS.primary} />
           <Text style={styles.editButtonText}>Edit</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.jsonButton} onPress={handleSaveJSON}>
-          <Ionicons name="document-outline" size={18} color={COLORS.white} />
+        <TouchableOpacity style={styles.jsonButton} onPress={handleJSONPress}>
+          <Ionicons name="document-outline" size={16} color={COLORS.white} />
           <Text style={styles.jsonButtonText}>JSON</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.exportBarButton, isExporting && styles.disabled]} onPress={handleExportPDF} disabled={isExporting}>
-          <Ionicons name={isExporting ? 'hourglass-outline' : 'download-outline'} size={18} color={COLORS.white} />
+        <TouchableOpacity style={[styles.exportBarButton, isExporting && styles.disabled]} onPress={handlePDFPress} disabled={isExporting}>
+          <Ionicons name={isExporting ? 'hourglass-outline' : 'download-outline'} size={16} color={COLORS.white} />
           <Text style={styles.exportBarButtonText}>{isExporting ? 'Exporting...' : 'PDF'}</Text>
         </TouchableOpacity>
       </View>
 
+      {/* Ad Modal */}
+      <AdModal
+        visible={showAdModal}
+        onClose={handleAdClose}
+        title={pendingAction === 'pdf' ? 'Download PDF' : 'Save JSON'}
+      />
+
       {/* Paper Size Picker Modal */}
       <Modal visible={showPaperPicker} transparent animationType="fade">
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowPaperPicker(false)}>
-          <View style={styles.modalContent}>
+          <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
             <Text style={styles.modalTitle}>Select Paper Size</Text>
             {PAPER_SIZES.map((size) => (
               <TouchableOpacity
@@ -199,26 +217,29 @@ ${data.customSections && data.customSections.length > 0 ? data.customSections.ma
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.gray50 },
-  header: { flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: COLORS.white, borderBottomWidth: 1, borderBottomColor: COLORS.gray200, gap: 8 },
-  backButton: { padding: 6 },
-  headerText: { flex: 1 },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: COLORS.secondary },
-  headerSubtitle: { fontSize: 11, color: COLORS.gray500, textTransform: 'capitalize' },
-  headerActions: { flexDirection: 'row', gap: 6 },
-  headerButton: { padding: 7, borderRadius: 8, backgroundColor: COLORS.gray100 },
-  exportButton: { backgroundColor: COLORS.primary },
-  paperSelector: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 16, backgroundColor: COLORS.primaryLight, gap: 6 },
-  paperSelectorText: { fontSize: 12, fontWeight: '600', color: COLORS.primary, flex: 1 },
-  paperSelectorSize: { fontSize: 11, color: COLORS.gray500 },
-  scrollContent: { padding: 12, paddingBottom: 90 },
-  bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, flexDirection: 'row', padding: 12, backgroundColor: COLORS.white, borderTopWidth: 1, borderTopColor: COLORS.gray200, gap: 8 },
-  editButton: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 12, borderRadius: 10, borderWidth: 2, borderColor: COLORS.primary, gap: 6 },
-  editButtonText: { color: COLORS.primary, fontWeight: '700', fontSize: 14 },
-  jsonButton: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.gray700, paddingVertical: 12, borderRadius: 10, gap: 6 },
-  jsonButtonText: { color: COLORS.white, fontWeight: '700', fontSize: 14 },
-  exportBarButton: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.primary, paddingVertical: 12, borderRadius: 10, gap: 6 },
+  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 8, backgroundColor: COLORS.white, borderBottomWidth: 1, borderBottomColor: COLORS.gray200, gap: 6 },
+  backButton: { width: 36, height: 36, borderRadius: 8, justifyContent: 'center', alignItems: 'center', flexShrink: 0 },
+  headerText: { flex: 1, minWidth: 60 },
+  headerTitle: { fontSize: 15, fontWeight: '700', color: COLORS.secondary },
+  headerSubtitle: { fontSize: 9, color: COLORS.gray500, textTransform: 'capitalize' },
+  headerActions: { flexDirection: 'row', gap: 4, flexShrink: 0 },
+  headerButton: { width: 32, height: 32, borderRadius: 6, backgroundColor: COLORS.gray100, justifyContent: 'center', alignItems: 'center' },
+  exportBtn: { width: 32, height: 32, borderRadius: 6, backgroundColor: COLORS.primary, justifyContent: 'center', alignItems: 'center' },
+  paperSelector: { flexDirection: 'row', alignItems: 'center', paddingVertical: 6, paddingHorizontal: 12, backgroundColor: COLORS.primaryLight, gap: 6 },
+  paperSelectorText: { fontSize: 11, fontWeight: '600', color: COLORS.primary, flex: 1 },
+  paperSelectorSize: { fontSize: 10, color: COLORS.gray500 },
+  scrollView: { flex: 1 },
+  scrollContent: { padding: 12 },
+  bannerAdContainer: { alignItems: 'center', backgroundColor: COLORS.white, borderTopWidth: 1, borderTopColor: COLORS.gray200, minHeight: 50 },
+  bannerAd: { width: '100%', height: 50 },
+  bottomBar: { flexDirection: 'row', padding: 10, paddingBottom: 28, backgroundColor: COLORS.white, borderTopWidth: 1, borderTopColor: COLORS.gray200, gap: 8 },
+  editButton: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 44, borderRadius: 8, borderWidth: 2, borderColor: COLORS.primary, gap: 4 },
+  editButtonText: { color: COLORS.primary, fontWeight: '700', fontSize: 13 },
+  jsonButton: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 44, backgroundColor: COLORS.gray700, borderRadius: 8, gap: 4 },
+  jsonButtonText: { color: COLORS.white, fontWeight: '700', fontSize: 13 },
+  exportBarButton: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 44, backgroundColor: COLORS.primary, borderRadius: 8, gap: 4 },
   disabled: { backgroundColor: COLORS.gray400 },
-  exportBarButtonText: { color: COLORS.white, fontWeight: '700', fontSize: 14 },
+  exportBarButtonText: { color: COLORS.white, fontWeight: '700', fontSize: 13 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center', padding: 24 },
   modalContent: { backgroundColor: COLORS.white, borderRadius: 16, padding: 20, width: '100%', maxWidth: 340, elevation: 8 },
   modalTitle: { fontSize: 18, fontWeight: '700', color: COLORS.secondary, marginBottom: 16, textAlign: 'center' },

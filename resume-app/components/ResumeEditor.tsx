@@ -75,7 +75,7 @@ export default function ResumeEditor({ data, onChange, onNext, onBack }: ResumeE
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color={COLORS.gray700} />
@@ -86,7 +86,7 @@ export default function ResumeEditor({ data, onChange, onNext, onBack }: ResumeE
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scrollContent}>
         {/* Personal Info */}
         <View style={styles.section}>
           {renderSectionHeader('Personal Information', 'personal', 'person-outline')}
@@ -323,12 +323,12 @@ export default function ResumeEditor({ data, onChange, onNext, onBack }: ResumeE
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.gray50 },
-  header: { flexDirection: 'row', alignItems: 'center', padding: 16, backgroundColor: COLORS.white, borderBottomWidth: 1, borderBottomColor: COLORS.gray200, gap: 12 },
-  backButton: { padding: 8 },
-  headerText: { flex: 1 },
-  headerTitle: { fontSize: 20, fontWeight: '700', color: COLORS.secondary },
-  headerSubtitle: { fontSize: 12, color: COLORS.gray500 },
-  scrollContent: { padding: 16, paddingBottom: 100 },
+  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 8, backgroundColor: COLORS.white, borderBottomWidth: 1, borderBottomColor: COLORS.gray200, gap: 6 },
+  backButton: { width: 36, height: 36, borderRadius: 8, justifyContent: 'center', alignItems: 'center', flexShrink: 0 },
+  headerText: { flex: 1, minWidth: 60 },
+  headerTitle: { fontSize: 15, fontWeight: '700', color: COLORS.secondary },
+  headerSubtitle: { fontSize: 9, color: COLORS.gray500 },
+  scrollContent: { padding: 16, paddingBottom: 24 },
   section: { marginBottom: 12, backgroundColor: COLORS.white, borderRadius: 12, borderWidth: 1, borderColor: COLORS.gray200, overflow: 'hidden' },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, backgroundColor: COLORS.gray50 },
   sectionHeaderLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
   typeButtonActive: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
   typeButtonText: { fontSize: 12, fontWeight: '600', color: COLORS.gray600 },
   typeButtonTextActive: { color: COLORS.white },
-  bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 16, backgroundColor: COLORS.white, borderTopWidth: 1, borderTopColor: COLORS.gray200 },
+  bottomBar: { padding: 12, paddingBottom: 28, backgroundColor: COLORS.white, borderTopWidth: 1, borderTopColor: COLORS.gray200 },
   nextButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.primary, paddingVertical: 14, borderRadius: 12, gap: 8 },
   nextButtonText: { color: COLORS.white, fontWeight: '700', fontSize: 16 },
 });
