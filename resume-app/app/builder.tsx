@@ -15,7 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import * as FileSystem from 'expo-file-system/legacy';
+import { File as ExpoFile, Paths as ExpoPaths } from 'expo-file-system';
 
 import ResumePreview from '../components/ResumePreview';
 import AdModal from '../components/AdModal';
@@ -70,8 +70,10 @@ export default function BuilderScreen() {
   const handleSaveJSON = async () => {
     try {
       const jsonString = JSON.stringify(resumeData, null, 2);
-      const fileUri = (FileSystem.documentDirectory || FileSystem.cacheDirectory || '') + `${resumeData.personalInfo.fullName.replace(/[^a-zA-Z0-9]/g, '_')}_Resume.json`;
-      await FileSystem.writeAsStringAsync(fileUri, jsonString, { encoding: FileSystem.EncodingType.UTF8 });
+      const fileName = `${resumeData.personalInfo.fullName.replace(/[^a-zA-Z0-9]/g, '_')}_Resume.json`;
+      const fileUri = ExpoPaths.document.uri + fileName;
+      const file = new ExpoFile(fileUri);
+      file.write(jsonString, { encoding: 'utf8' });
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(fileUri, {
           mimeType: 'application/json',
