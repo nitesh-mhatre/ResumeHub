@@ -18,11 +18,41 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#4f46e5"
       },
-      "package": "com.resumehub.app"
+      "package": "com.bites.resumehub"
     },
     "plugins": [
       "expo-router",
-      "react-native-google-mobile-ads"
-    ]
+      ["react-native-google-mobile-ads", {
+        "android_app_id": "ca-app-pub-2889632845666311~2812266052",
+        "ios_app_id": "ca-app-pub-2889632845666311~2812266052"
+      }],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "googleServicesFile": "./google-services.json",
+            "kotlinVersion": "2.1.20"
+          }
+        }
+      ],      "./plugins/withKotlinGradlePluginVersion",
+      "./plugins/withAdMobAppId",
+      ["@react-native-google-signin/google-signin",
+        {
+          "scopes": ["profile", "email"],
+          "webClientId": "559842224512-r3ub8nu65oq46dgjq80m0kosplfdf8pl.apps.googleusercontent.com",
+          "iosUrlScheme": "com.googleusercontent.apps.559842224512-r3ub8nu65oq46dgjq80m0kosplfdf8pl",
+          "offlineAccess": true
+        }
+      ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "93c5646e-ddc8-43b9-9b23-2b5f062cce0b"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "com.bites.resumehub"
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { ResumeData, PaperSize } from '../types';
+import { ResumeData, PaperSize, CustomTemplateConfig, SectionOrderItem } from '../types';
 import { PAPER_SIZES, COLORS } from '../constants';
 import { getTemplateConfig } from './templateFactory';
 
@@ -103,13 +103,213 @@ function nl2br(str: string): string {
   return escapeHTML(str).replace(/\n/g, '<br/>');
 }
 
-export function generateResumeHTML(data: ResumeData, templateId: string, paperSize: PaperSize): string {
-  const paper = PAPER_SIZES.find(p => p.id === paperSize) || PAPER_SIZES[0];
-  const c = getTemplateColors(templateId);
+interface FontOptions {
+  fontSize?: string;
+  fontFamily?: string;
+}
 
-  const textColor = c.text;
-  const subtextColor = c.subtext;
-  const contactColor = c.isDark ? '#cbd5e1' : c.subtext;
+const DEFAULT_FONT_SIZE = '12px';
+const DEFAULT_FONT_FAMILY = 'System';
+
+function generateCustomTemplateHTML(
+  data: ResumeData,
+  paper: { widthMm: number; heightMm: number; widthPx: number; css: string },
+  config: CustomTemplateConfig,
+  fontOptions?: FontOptions,
+): string {
+  const gs = config.globalStyles;
+  const bodyFontSize = fontOptions?.fontSize || gs.bodySize || '12px';
+  const rawFontFamily = fontOptions?.fontFamily || gs.fontFamily || 'System';
+
+  const parsePx = (val: string): number => {
+    const m = val.match(/^(\d+)(px)?$/);
+    return m ? parseInt(m[1], 10) : 12;
+  };
+  const bodyPx = parsePx(bodyFontSize);
+  const headerFontSize = `${bodyPx + 10}px`;
+  const jobTitleFontSize = `${Math.round(bodyPx * 1.1)}px`;
+  const contactFontSize = `${Math.max(9, bodyPx - 1)}px`;
+  const sectionTitleFontSize = `${bodyPx + 1}px`;
+  const itemTitleFontSize = `${bodyPx + 1}px`;
+  const itemDescFontSize = `${bodyPx}px`;
+  const itemDateFontSize = `${Math.max(8, bodyPx - 2)}px`;
+  const skillFontSize = `${Math.max(8, bodyPx - 2)}px`;
+
+  const accent = gs.accentColor;
+  const textColor = gs.textColor;
+  const subtext = gs.subtextColor;
+  const border = gs.borderColor;
+  const bg = gs.backgroundColor;
+
+  const FONT_CSS_FALLBACKS: Record<string, string> = {
+    'System': '-apple-system, BlinkMacSystemFont, sans-serif',
+    'Helvetica': 'Helvetica, Arial, sans-serif',
+    'Arial': 'Arial, sans-serif',
+    'Georgia': 'Georgia, serif',
+    'TimesNewRomanPSMT': 'Times New Roman, serif',
+    'CourierNewPSMT': 'Courier New, monospace',
+    'Courier': 'Courier, monospace',
+    'TrebuchetMS': 'Trebuchet MS, sans-serif',
+    'Palatino': 'Palatino Linotype, serif',
+    'Garamond': 'Garamond, serif',
+    'Verdana': 'Verdana, sans-serif',
+  };
+  const bodyFontFamily = FONT_CSS_FALLBACKS[rawFontFamily] || rawFontFamily;
+  const marginPx = 45;
+  const contentWidthPx = paper.widthPx - (marginPx * 2);
+
+  // Build header HTML
+  const h = config.header;
+  let headerHtml = '';
+  const contactColor = h.textColor + 'cc';
+  const contactHtml = h.showContactRow
+    ? `<div style="margin-top:10px;font-size:${contactFontSize};color:${contactColor};">
+        ${data.personalInfo.email ? `<span style="margin-right:10px;">${escapeHTML(data.personalInfo.email)}</span>` : ''}
+        ${data.personalInfo.phone ? `<span style="margin-right:10px;">${escapeHTML(data.personalInfo.phone)}</span>` : ''}
+        ${data.personalInfo.location ? `<span style="margin-right:10px;">${escapeHTML(data.personalInfo.location)}</span>` : ''}
+        ${data.personalInfo.linkedin ? `<span style="margin-right:10px;">${escapeHTML(data.personalInfo.linkedin)}</span>` : ''}
+        ${data.personalInfo.website ? `<span style="margin-right:10px;">${escapeHTML(data.personalInfo.website)}</span>` : ''}
+       </div>`
+    : '';
+  const jobTitleHtml = h.showJobTitle && data.personalInfo.jobTitle
+    ? `<div style="font-size:${jobTitleFontSize};font-weight:700;color:${h.accentColor};text-transform:uppercase;letter-spacing:1.5px;margin-top:4px;">${escapeHTML(data.personalInfo.jobTitle)}</div>`
+    : '';
+  const nameHtml = `<h1 style="font-size:${headerFontSize};font-weight:900;color:${h.textColor};text-transform:uppercase;letter-spacing:.5px;margin:0;">${escapeHTML(data.personalInfo.fullName)}</h1>`;
+
+  switch (h.layout) {
+    case 'split':
+      headerHtml = `<div style="display:flex;background:${h.backgroundColor};border-radius:12px;margin-bottom:16px;overflow:hidden;">`;
+      headerHtml += `<div style="flex:1;padding:16px;">${nameHtml}${jobTitleHtml}</div>`;
+      headerHtml += `<div style="background:${h.accentColor};width:3px;"></div>`;
+      headerHtml += `<div style="flex:1;padding:16px;display:flex;flex-direction:column;justify-content:center;font-size:${contactFontSize};color:${contactColor};">`;
+      if (data.personalInfo.email) headerHtml += `<div style="margin-bottom:4px;">${escapeHTML(data.personalInfo.email)}</div>`;
+      if (data.personalInfo.phone) headerHtml += `<div style="margin-bottom:4px;">${escapeHTML(data.personalInfo.phone)}</div>`;
+      if (data.personalInfo.location) headerHtml += `<div>${escapeHTML(data.personalInfo.location)}</div>`;
+      headerHtml += `</div></div>`;
+      break;
+    case 'centered':
+      headerHtml = `<div style="text-align:center;padding-bottom:14px;margin-bottom:16px;border-bottom:2px solid ${h.accentColor};">${nameHtml}${jobTitleHtml}${contactHtml}</div>`;
+      break;
+    case 'left-accent':
+      headerHtml = `<div style="border-left:4px solid ${h.accentColor};padding-left:14px;padding-bottom:14px;margin-bottom:16px;border-bottom:1px solid ${border};">${nameHtml}${jobTitleHtml}${contactHtml}</div>`;
+      break;
+    case 'boxed':
+      headerHtml = `<div style="border:2px solid ${h.accentColor};border-radius:12px;padding:16px;margin-bottom:16px;text-align:center;">${nameHtml}${jobTitleHtml}${contactHtml}</div>`;
+      break;
+    case 'gradient':
+      headerHtml = `<div style="background:${h.backgroundColor};padding:16px;border-radius:12px;margin-bottom:16px;">${nameHtml}${jobTitleHtml}${contactHtml}</div>`;
+      break;
+    case 'minimal':
+      headerHtml = `<div style="padding-bottom:14px;margin-bottom:16px;">${nameHtml}${jobTitleHtml}${contactHtml}</div>`;
+      break;
+    case 'full-width':
+    default:
+      headerHtml = `<div style="background:${h.backgroundColor};padding:16px;border-radius:12px;margin-bottom:16px;">${nameHtml}${jobTitleHtml}${contactHtml}</div>`;
+      break;
+  }
+
+  // Section title styles
+  const sectionTitleHtml = (title: string, index: number): string => {
+    const base = `font-size:${sectionTitleFontSize};font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;page-break-after:avoid;`;
+    switch (config.sectionStyle) {
+      case 'underline': return `<div style="${base}color:${accent};border-bottom:2px solid ${accent};padding-bottom:4px;margin-bottom:8px;">${escapeHTML(title)}</div>`;
+      case 'background': return `<div style="background:${accent}15;padding:8px 12px;border-radius:6px;margin-bottom:8px;"><span style="${base}color:${accent};margin:0;">${escapeHTML(title)}</span></div>`;
+      case 'border-left': return `<div style="border-left:3px solid ${accent};padding-left:10px;margin-bottom:8px;"><span style="${base}color:${accent};margin:0;">${escapeHTML(title)}</span></div>`;
+      case 'pill': return `<div style="background:${accent};padding:5px 14px;border-radius:20px;display:inline-block;margin-bottom:10px;"><span style="${base}color:#fff;margin:0;font-size:${skillFontSize};">${escapeHTML(title)}</span></div>`;
+      case 'minimal': return `<div style="${base}color:${subtext};border-bottom:1px solid ${border};padding-bottom:4px;letter-spacing:3px;font-size:${skillFontSize};">${escapeHTML(title)}</div>`;
+      case 'numbered': return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="width:22px;height:22px;border-radius:11px;background:${accent};color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:${skillFontSize};font-weight:800;">${index + 1}</span><span style="${base}color:${accent};margin:0;">${escapeHTML(title)}</span></div>`;
+      default: return `<div style="${base}color:${accent};border-bottom:1px solid ${border};padding-bottom:4px;">${escapeHTML(title)}</div>`;
+    }
+  };
+
+  // Skill chip styles
+  const skillChipHtml = (skill: string): string => {
+    switch (config.chipStyle) {
+      case 'rounded': return `<span style="background:${accent}20;color:${accent};padding:3px 10px;border-radius:12px;font-size:${skillFontSize};font-weight:600;display:inline-block;margin:2px 4px 2px 0;">${escapeHTML(skill)}</span>`;
+      case 'square': return `<span style="background:${accent}20;color:${accent};padding:3px 10px;border-radius:4px;font-size:${skillFontSize};font-weight:600;display:inline-block;margin:2px 4px 2px 0;">${escapeHTML(skill)}</span>`;
+      case 'pill': return `<span style="background:${accent};color:#fff;padding:3px 10px;border-radius:20px;font-size:${skillFontSize};font-weight:600;display:inline-block;margin:2px 4px 2px 0;">${escapeHTML(skill)}</span>`;
+      case 'outlined': return `<span style="border:1px solid ${accent};color:${accent};padding:3px 10px;border-radius:8px;font-size:${skillFontSize};font-weight:600;display:inline-block;margin:2px 4px 2px 0;">${escapeHTML(skill)}</span>`;
+      case 'filled': return `<span style="background:${accent}15;color:${accent};padding:3px 10px;border-radius:6px;font-size:${skillFontSize};font-weight:600;display:inline-block;margin:2px 4px 2px 0;">${escapeHTML(skill)}</span>`;
+      default: return `<span style="background:${accent}20;color:${accent};padding:3px 10px;border-radius:12px;font-size:${skillFontSize};font-weight:600;display:inline-block;margin:2px 4px 2px 0;">${escapeHTML(skill)}</span>`;
+    }
+  };
+
+  // Build body sections
+  const visibleSections = config.sections.filter(s => s.visible);
+  let bodyHtml = '';
+
+  for (let i = 0; i < visibleSections.length; i++) {
+    const section = visibleSections[i];
+    const title = section.customTitle || section.label;
+    switch (section.type) {
+      case 'header': bodyHtml += headerHtml; break;
+      case 'summary':
+        if (data.summary) bodyHtml += `<div style="margin-bottom:12px;">${sectionTitleHtml(title, i)}<div style="font-size:${itemDescFontSize};color:${subtext};white-space:pre-line;">${escapeHTML(data.summary)}</div></div>`;
+        break;
+      case 'experience':
+        bodyHtml += `<div style="margin-bottom:12px;page-break-inside:avoid;">${sectionTitleHtml(title, i)}`;
+        for (const exp of data.experience) {
+          bodyHtml += `<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;"><span style="font-weight:700;font-size:${itemTitleFontSize};color:${textColor};">${escapeHTML(exp.title)}</span><span style="font-size:${itemDateFontSize};color:${subtext};">${escapeHTML(exp.startDate)} – ${exp.current ? 'Present' : escapeHTML(exp.endDate)}</span></div><div style="font-size:${itemDescFontSize};color:${accent};margin-bottom:3px;">${escapeHTML(exp.company)}</div><div style="font-size:${itemDescFontSize};color:${subtext};white-space:pre-line;">${nl2br(exp.description)}</div></div>`;
+        }
+        bodyHtml += `</div>`;
+        break;
+      case 'education':
+        bodyHtml += `<div style="margin-bottom:12px;page-break-inside:avoid;">${sectionTitleHtml(title, i)}`;
+        for (const edu of data.education) {
+          bodyHtml += `<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-weight:700;font-size:${itemTitleFontSize};color:${textColor};">${escapeHTML(edu.school)}</span><span style="font-size:${itemDateFontSize};color:${subtext};">${escapeHTML(edu.startDate)} – ${escapeHTML(edu.endDate)}</span></div><div style="font-size:${itemDescFontSize};color:${subtext};">${escapeHTML(edu.degree)}</div></div>`;
+        }
+        bodyHtml += `</div>`;
+        break;
+      case 'skills':
+        bodyHtml += `<div style="margin-bottom:12px;">${sectionTitleHtml(title, i)}<div style="display:flex;flex-wrap:wrap;gap:4px;">${data.skills.map(s => skillChipHtml(s)).join('')}</div></div>`;
+        break;
+      case 'projects':
+        if (data.projects && data.projects.length > 0) {
+          bodyHtml += `<div style="margin-bottom:12px;page-break-inside:avoid;">${sectionTitleHtml(title, i)}`;
+          for (const p of data.projects) {
+            bodyHtml += `<div style="margin-bottom:8px;"><span style="font-weight:700;font-size:${itemTitleFontSize};color:${textColor};">${escapeHTML(p.name)}</span><div style="font-size:${itemDescFontSize};color:${subtext};white-space:pre-line;">${nl2br(p.description)}</div></div>`;
+          }
+          bodyHtml += `</div>`;
+        }
+        break;
+      case 'certificates':
+        if (data.certificates && data.certificates.length > 0) {
+          bodyHtml += `<div style="margin-bottom:12px;page-break-inside:avoid;">${sectionTitleHtml(title, i)}`;
+          for (const c of data.certificates) {
+            bodyHtml += `<div style="margin-bottom:6px;"><span style="font-weight:700;font-size:${itemTitleFontSize};color:${textColor};">${escapeHTML(c.name)}</span><div style="font-size:${itemDescFontSize};color:${accent};">${escapeHTML(c.issuer)} • ${escapeHTML(c.date)}</div></div>`;
+          }
+          bodyHtml += `</div>`;
+        }
+        break;
+      case 'awards':
+        if (data.awards && data.awards.length > 0) {
+          bodyHtml += `<div style="margin-bottom:12px;page-break-inside:avoid;">${sectionTitleHtml(title, i)}`;
+          for (const a of data.awards) {
+            bodyHtml += `<div style="margin-bottom:6px;"><div style="display:flex;justify-content:space-between;"><span style="font-weight:700;font-size:${itemTitleFontSize};color:${textColor};">${escapeHTML(a.name)}</span><span style="font-size:${itemDateFontSize};color:${subtext};">${escapeHTML(a.date)}</span></div><div style="font-size:${itemDescFontSize};color:${subtext};">${escapeHTML(a.description)}</div></div>`;
+          }
+          bodyHtml += `</div>`;
+        }
+        break;
+      case 'languages':
+        if (data.languages && data.languages.length > 0) {
+          bodyHtml += `<div style="margin-bottom:12px;">${sectionTitleHtml(title, i)}<div style="display:flex;flex-wrap:wrap;gap:4px;">${data.languages.map(l => skillChipHtml(l)).join('')}</div></div>`;
+        }
+        break;
+      case 'interests':
+        if (data.interests && data.interests.length > 0) {
+          bodyHtml += `<div style="margin-bottom:12px;">${sectionTitleHtml(title, i)}<div style="display:flex;flex-wrap:wrap;gap:4px;">${data.interests.map(i => skillChipHtml(i)).join('')}</div></div>`;
+        }
+        break;
+      case 'custom':
+        if (data.customSections && data.customSections.length > 0) {
+          const custom = data.customSections.find(cs => cs.id === section.id) || data.customSections[0];
+          if (custom) {
+            bodyHtml += `<div style="margin-bottom:12px;">${sectionTitleHtml(title, i)}<div style="font-size:${itemDescFontSize};color:${subtext};white-space:pre-line;">${nl2br(custom.content)}</div></div>`;
+          }
+        }
+        break;
+    }
+  }
 
   return `<!DOCTYPE html>
 <html>
@@ -117,20 +317,115 @@ export function generateResumeHTML(data: ResumeData, templateId: string, paperSi
 <meta charset="UTF-8">
 <style>
 ${paper.css}
+@page { size: ${paper.widthMm}mm ${paper.heightMm}mm; margin: 12mm; }
+@media print { html, body { width: ${paper.widthMm}mm; margin: 0; padding: 0; } .page { width: ${contentWidthPx}px; padding: 0; margin: 0; } }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:${textColor};line-height:1.5;font-size:12px}
-.page{padding:32px;width:${paper.widthPx}px;margin:0 auto;background:${c.bg}}
-h1{font-size:24px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.job-title{font-size:13px;font-weight:700;color:${c.accent};text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
-.contact{font-size:11px;color:${contactColor};margin-bottom:16px}.contact span{margin-right:10px}
-.section{margin-bottom:16px}
-.section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:${c.accent};border-bottom:2px solid ${c.border};padding-bottom:3px;margin-bottom:8px}
-.item{margin-bottom:12px}.item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
-.item-title{font-weight:700;font-size:13px;color:${textColor}}.item-date{font-size:10px;color:${c.date}}
-.item-company{font-size:11px;color:${c.accent};margin-bottom:3px}.item-desc{font-size:11px;color:${subtextColor};white-space:pre-line}
+html, body { width: ${paper.widthMm}mm; margin: 0; padding: 0; }
+body{font-family:${bodyFontFamily};color:${textColor};line-height:1.5;font-size:${bodyFontSize};background:#fff;}
+.page{width:${paper.widthMm}mm;margin:0 auto;background:${bg}}
+</style>
+</head>
+<body>
+<div class="page">
+${bodyHtml}
+</div>
+</body>
+</html>`;
+}
+
+export function generateResumeHTML(data: ResumeData, templateId: string, paperSize: PaperSize, fontOptions?: FontOptions, customConfig?: CustomTemplateConfig): string {
+  const paper = PAPER_SIZES.find(p => p.id === paperSize) || PAPER_SIZES[0];
+  
+  // If custom template config is provided, generate HTML from it
+  if (customConfig) {
+    return generateCustomTemplateHTML(data, paper, customConfig, fontOptions);
+  }
+  
+  const c = getTemplateColors(templateId);
+
+  const bodyFontSize = fontOptions?.fontSize || DEFAULT_FONT_SIZE;
+  const rawFontFamily = fontOptions?.fontFamily || DEFAULT_FONT_FAMILY;
+
+  // Add CSS fallbacks for single font names
+  const FONT_CSS_FALLBACKS: Record<string, string> = {
+    'System': '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
+    'Helvetica': 'Helvetica, Arial, sans-serif',
+    'HelveticaNeue': 'Helvetica Neue, Helvetica, Arial, sans-serif',
+    'Arial': 'Arial, Helvetica, sans-serif',
+    'Georgia': 'Georgia, serif',
+    'TimesNewRomanPSMT': 'Times New Roman, Times, serif',
+    'CourierNewPSMT': 'Courier New, Courier, monospace',
+    'Courier': 'Courier, monospace',
+    'TrebuchetMS': 'Trebuchet MS, sans-serif',
+    'Palatino': 'Palatino Linotype, Palatino, serif',
+    'Garamond': 'Garamond, Georgia, serif',
+    'Verdana': 'Verdana, Geneva, sans-serif',
+    'Tahoma': 'Tahoma, Geneva, sans-serif',
+    'Futura': 'Futura, sans-serif',
+    'Avenir': 'Avenir, sans-serif',
+    'Didot': 'Didot, serif',
+    'Baskerville': 'Baskerville, serif',
+    'Cochin': 'Cochin, serif',
+    'AmericanTypewriter': 'American Typewriter, monospace',
+    'Menlo': 'Menlo, monospace',
+    'Monaco': 'Monaco, monospace',
+    'Optima': 'Optima, sans-serif',
+    'Rockwell': 'Rockwell, serif',
+    'SnellRoundhand': 'Snell Roundhand, cursive',
+  };
+  const bodyFontFamily = FONT_CSS_FALLBACKS[rawFontFamily] || rawFontFamily;
+
+  // Parse body font size (handle both '12px' and '12' formats)
+  const parsePx = (val: string): number => {
+    const m = val.match(/^(\d+)(px)?$/);
+    return m ? parseInt(m[1], 10) : 12;
+  };
+  const bodyPx = parsePx(bodyFontSize);
+  const headerFontSize = `${bodyPx + 10}px`;
+  const jobTitleFontSize = `${Math.round(bodyPx * 1.1)}px`;
+  const contactFontSize = `${Math.max(9, bodyPx - 1)}px`;
+  const sectionTitleFontSize = `${bodyPx + 1}px`;
+  const itemTitleFontSize = `${bodyPx + 1}px`;
+  const itemDescFontSize = `${bodyPx}px`;
+  const itemDateFontSize = `${Math.max(8, bodyPx - 2)}px`;
+  const skillFontSize = `${Math.max(8, bodyPx - 2)}px`;
+
+  const textColor = c.text;
+  const subtextColor = c.subtext;
+  const contactColor = c.isDark ? '#cbd5e1' : c.subtext;
+
+  // Margin in pixels (12mm ≈ 45px at 96dpi)
+  const marginPx = 45;
+  const contentWidthPx = paper.widthPx - (marginPx * 2);
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+${paper.css}
+@page { size: ${paper.widthMm}mm ${paper.heightMm}mm; margin: 12mm; }
+@media print {
+  html, body { width: ${paper.widthMm}mm; margin: 0; padding: 0; }
+  .page { width: ${contentWidthPx}px; padding: 0; margin: 0; border: none; }
+  .section-title { page-break-after: avoid; break-after: avoid; }
+  h1, .job-title, .contact { page-break-after: avoid; break-after: avoid; }
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html, body { width: ${paper.widthMm}mm; margin: 0; padding: 0; }
+body{font-family:${bodyFontFamily};color:${textColor};line-height:1.5;font-size:${bodyFontSize};background:#fff;orphans:3;widows:3}
+.page{width:${paper.widthMm}mm;margin:0 auto;background:${c.bg}}
+h1{font-size:${headerFontSize};font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.job-title{font-size:${jobTitleFontSize};font-weight:700;color:${c.accent};text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.contact{font-size:${contactFontSize};color:${contactColor};margin-bottom:16px}.contact span{margin-right:10px}
+.section{margin-bottom:12px;page-break-inside:avoid;break-inside:avoid}
+.section-title{font-size:${sectionTitleFontSize};font-weight:700;text-transform:uppercase;letter-spacing:1px;color:${c.accent};border-bottom:2px solid ${c.border};padding-bottom:2px;margin-bottom:6px;page-break-after:avoid;break-after:avoid}
+.item{margin-bottom:8px}.item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.item-title{font-weight:700;font-size:${itemTitleFontSize};color:${textColor}}.item-date{font-size:${itemDateFontSize};color:${c.date}}
+.item-company{font-size:${itemDescFontSize};color:${c.accent};margin-bottom:3px}.item-desc{font-size:${itemDescFontSize};color:${subtextColor};white-space:pre-line}
 .skills{display:flex;flex-wrap:wrap;gap:4px}
-.skill-tag{background:${c.chipBg};color:${c.chipText};padding:3px 8px;border-radius:10px;font-size:10px;font-weight:600}
-.summary{font-size:11px;color:${subtextColor}}
+.skill-tag{background:${c.chipBg};color:${c.chipText};padding:3px 8px;border-radius:10px;font-size:${skillFontSize};font-weight:600}
+.summary{font-size:${itemDescFontSize};color:${subtextColor}}
 </style>
 </head>
 <body>

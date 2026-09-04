@@ -1,84 +1,129 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { ResumeData, TemplateType } from '../types';
+import { ResumeData, TemplateType, CustomTemplateConfig, SectionOrderItem } from '../types';
 import { COLORS } from '../constants';
 import { formatText } from '../utils/helpers';
 import GenericTemplate from './GenericTemplate';
 import { getTemplateConfig } from '../utils/templateFactory';
+import { GlobalStyle } from '../types';
+
+// ─── Font Override Helpers ───
+function getRNFontFamily(fontName?: string): string | undefined {
+  if (!fontName) return undefined;
+  // Handle CSS font stacks (comma-separated)
+  if (fontName.includes(',')) {
+    const first = fontName.split(',')[0].trim().replace(/^['"]|['"]$/g, '');
+    return first || undefined;
+  }
+  // Single font name — return as-is (React Native expects single names)
+  return fontName || undefined;
+}
+
+function bodySizeToPx(size?: string): number {
+  if (!size) return 12;
+  // Handle legacy named sizes
+  switch (size) {
+    case 'xs': return 11;
+    case 'sm': return 12;
+    case 'base': return 13;
+    case 'lg': return 14;
+  }
+  // Handle numeric pixel values (e.g., '9', '10', '12', etc.)
+  const num = parseInt(size, 10);
+  if (!isNaN(num) && num >= 6 && num <= 36) return num;
+  return 12;
+}
+
+interface FontOverrides {
+  fontFamily?: string;
+  offset: number;
+  dyn: Record<string, any>;
+}
+
+const defaultDyn: Record<string, any> = {};
+const FontContext = React.createContext<FontOverrides>({ offset: 0, dyn: defaultDyn });
+
+function useFont() {
+  return React.useContext(FontContext);
+}
 
 interface ResumePreviewProps {
   data: ResumeData;
   template: TemplateType;
+  customTemplateConfig?: CustomTemplateConfig | null;
 }
 
-const SectionTitle: React.FC<{ children: string; style?: any }> = ({ children, style }) => (
-  <Text style={[styles.sectionTitle, style]}>{children}</Text>
-);
+const SectionTitle: React.FC<{ children: string; style?: any }> = ({ children, style }) => {
+  const { dyn } = useFont();
+  return <Text style={[dyn.sectionTitle, style]}>{children}</Text>;
+};
 
-const ExtraSections: React.FC<{ data: ResumeData; titleColor?: string }> = ({ data, titleColor }) => (
+const ExtraSections: React.FC<{ data: ResumeData; titleColor?: string }> = ({ data, titleColor }) => {
+  const { dyn } = useFont();
+  return (
   <>
     {data.projects && data.projects.length > 0 && (
-      <View style={styles.section}>
+      <View style={dyn.section}>
         <SectionTitle style={{ color: titleColor }}>Projects</SectionTitle>
         {data.projects.map((proj) => (
-          <View key={proj.id} style={styles.item}>
-            <View style={styles.itemHeader}>
-              <Text style={styles.itemTitle}>{proj.name}</Text>
-              {proj.link ? <Text style={styles.itemLink}>{proj.link}</Text> : null}
+          <View key={proj.id} style={dyn.item}>
+            <View style={dyn.itemHeader}>
+              <Text style={dyn.itemTitle}>{proj.name}</Text>
+              {proj.link ? <Text style={dyn.itemLink}>{proj.link}</Text> : null}
             </View>
-            <Text style={styles.itemDesc}>{formatText(proj.description)}</Text>
+            <Text style={dyn.itemDesc}>{formatText(proj.description)}</Text>
           </View>
         ))}
       </View>
     )}
     {data.certificates && data.certificates.length > 0 && (
-      <View style={styles.section}>
+      <View style={dyn.section}>
         <SectionTitle style={{ color: titleColor }}>Certificates</SectionTitle>
         {data.certificates.map((cert) => (
-          <View key={cert.id} style={[styles.item, { borderLeftWidth: 2, borderLeftColor: titleColor || COLORS.primary, paddingLeft: 12 }]}>
-            <Text style={styles.itemTitle}>{cert.name}</Text>
-            <Text style={styles.itemSub}>{cert.issuer} • {cert.date}</Text>
+          <View key={cert.id} style={[dyn.item, { borderLeftWidth: 2, borderLeftColor: titleColor || COLORS.primary, paddingLeft: 12 }]}>
+            <Text style={dyn.itemTitle}>{cert.name}</Text>
+            <Text style={dyn.itemSub}>{cert.issuer} • {cert.date}</Text>
           </View>
         ))}
       </View>
     )}
     {data.awards && data.awards.length > 0 && (
-      <View style={styles.section}>
+      <View style={dyn.section}>
         <SectionTitle style={{ color: titleColor }}>Awards</SectionTitle>
         {data.awards.map((award) => (
-          <View key={award.id} style={styles.item}>
-            <View style={styles.itemHeader}>
-              <Text style={styles.itemTitle}>{award.name}</Text>
-              <Text style={styles.itemDate}>{award.date}</Text>
+          <View key={award.id} style={dyn.item}>
+            <View style={dyn.itemHeader}>
+              <Text style={dyn.itemTitle}>{award.name}</Text>
+              <Text style={dyn.itemDate}>{award.date}</Text>
             </View>
-            <Text style={styles.itemSub}>{award.issuer}</Text>
-            <Text style={styles.itemDesc}>{formatText(award.description)}</Text>
+            <Text style={dyn.itemSub}>{award.issuer}</Text>
+            <Text style={dyn.itemDesc}>{formatText(award.description)}</Text>
           </View>
         ))}
       </View>
     )}
     {((data.languages && data.languages.length > 0) || (data.interests && data.interests.length > 0)) && (
-      <View style={styles.twoCol}>
+      <View style={dyn.twoCol}>
         {data.languages && data.languages.length > 0 && (
-          <View style={styles.half}>
+          <View style={dyn.half}>
             <SectionTitle style={{ color: titleColor }}>Languages</SectionTitle>
-            <View style={styles.chips}>
+            <View style={dyn.chips}>
               {data.languages.map(l => (
-                <View key={l} style={[styles.chip, { borderColor: titleColor || COLORS.primary }]}>
-                  <Text style={[styles.chipText, { color: titleColor || COLORS.primary }]}>{l}</Text>
+                <View key={l} style={[dyn.chip, { borderColor: titleColor || COLORS.primary }]}>
+                  <Text style={[dyn.chipText, { color: titleColor || COLORS.primary }]}>{l}</Text>
                 </View>
               ))}
             </View>
           </View>
         )}
         {data.interests && data.interests.length > 0 && (
-          <View style={styles.half}>
+          <View style={dyn.half}>
             <SectionTitle style={{ color: titleColor }}>Interests</SectionTitle>
-            <View style={styles.chips}>
+            <View style={dyn.chips}>
               {data.interests.map(i => (
-                <View key={i} style={[styles.chip, { borderColor: titleColor || COLORS.primary }]}>
-                  <Text style={[styles.chipText, { color: titleColor || COLORS.primary }]}>{i}</Text>
+                <View key={i} style={[dyn.chip, { borderColor: titleColor || COLORS.primary }]}>
+                  <Text style={[dyn.chipText, { color: titleColor || COLORS.primary }]}>{i}</Text>
                 </View>
               ))}
             </View>
@@ -87,285 +132,313 @@ const ExtraSections: React.FC<{ data: ResumeData; titleColor?: string }> = ({ da
       </View>
     )}
     {data.customSections && data.customSections.length > 0 && data.customSections.map(section => (
-      <View key={section.id} style={styles.section}>
+      <View key={section.id} style={dyn.section}>
         <SectionTitle style={{ color: titleColor }}>{section.title}</SectionTitle>
-        <Text style={styles.itemDesc}>{formatText(section.content)}</Text>
+        <Text style={dyn.itemDesc}>{formatText(section.content)}</Text>
       </View>
     ))}
   </>
-);
+  );
+};
 
 // Modern Template
-const ModernTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const ModernTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.modern.container}>
     <View style={tStyles.modern.header}>
-      <Text style={tStyles.modern.name}>{data.personalInfo.fullName}</Text>
-      <Text style={tStyles.modern.jobTitle}>{data.personalInfo.jobTitle}</Text>
+      <Text style={[tStyles.modern.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.modern.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
       <View style={tStyles.modern.contactRow}>
-        {data.personalInfo.email ? <Text style={tStyles.modern.contact}>📧 {data.personalInfo.email}</Text> : null}
-        {data.personalInfo.phone ? <Text style={tStyles.modern.contact}>📱 {data.personalInfo.phone}</Text> : null}
-        {data.personalInfo.location ? <Text style={tStyles.modern.contact}>📍 {data.personalInfo.location}</Text> : null}
-        {data.personalInfo.linkedin ? <Text style={tStyles.modern.contact}>💼 {data.personalInfo.linkedin}</Text> : null}
-        {data.personalInfo.website ? <Text style={tStyles.modern.contact}>🌐 {data.personalInfo.website}</Text> : null}
+        {data.personalInfo.email ? <Text style={[tStyles.modern.contact, ff]}>📧 {data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.modern.contact, ff]}>📱 {data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.modern.contact, ff]}>📍 {data.personalInfo.location}</Text> : null}
+        {data.personalInfo.linkedin ? <Text style={[tStyles.modern.contact, ff]}>💼 {data.personalInfo.linkedin}</Text> : null}
+        {data.personalInfo.website ? <Text style={[tStyles.modern.contact, ff]}>🌐 {data.personalInfo.website}</Text> : null}
       </View>
     </View>
-    {data.summary ? <View style={styles.section}><SectionTitle style={{ color: COLORS.primary }}>Profile</SectionTitle><Text style={styles.bodyText}>{formatText(data.summary)}</Text></View> : null}
-    <View style={styles.section}>
+    {data.summary ? <View style={dyn.section}><SectionTitle style={{ color: COLORS.primary }}>Profile</SectionTitle><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
       <SectionTitle style={{ color: COLORS.primary }}>Experience</SectionTitle>
       {data.experience.map(exp => (
-        <View key={exp.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={styles.itemTitle}>{exp.title}</Text><Text style={styles.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
-          <Text style={styles.itemCompany}>{exp.company}</Text>
-          <Text style={styles.itemDesc}>{formatText(exp.description)}</Text>
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={dyn.itemCompany}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
+    <View style={dyn.section}>
       <SectionTitle style={{ color: COLORS.primary }}>Education</SectionTitle>
       {data.education.map(edu => (
-        <View key={edu.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={styles.itemTitle}>{edu.school}</Text><Text style={styles.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
-          <Text style={styles.itemDesc}>{edu.degree}</Text>
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
+    <View style={dyn.section}>
       <SectionTitle style={{ color: COLORS.primary }}>Skills</SectionTitle>
-      <View style={styles.chips}>
-        {data.skills.map(s => <View key={s} style={tStyles.modern.skillChip}><Text style={tStyles.modern.skillText}>{s}</Text></View>)}
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.modern.skillChip}><Text style={[tStyles.modern.skillText, ff]}>{s}</Text></View>)}
       </View>
     </View>
     <ExtraSections data={data} titleColor={COLORS.primary} />
   </View>
-);
+  );
+};
 
 // Minimal Template
-const MinimalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const MinimalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.min.container}>
     <View style={tStyles.min.header}>
-      <Text style={tStyles.min.name}>{data.personalInfo.fullName}</Text>
-      <Text style={tStyles.min.jobTitle}>{data.personalInfo.jobTitle}</Text>
+      <Text style={[tStyles.min.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.min.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
       <View style={tStyles.min.contactRow}>
-        {data.personalInfo.email ? <Text style={tStyles.min.contact}>{data.personalInfo.email}</Text> : null}
-        {data.personalInfo.phone ? <Text style={tStyles.min.contact}>{data.personalInfo.phone}</Text> : null}
-        {data.personalInfo.location ? <Text style={tStyles.min.contact}>{data.personalInfo.location}</Text> : null}
+        {data.personalInfo.email ? <Text style={[tStyles.min.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.min.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.min.contact, ff]}>{data.personalInfo.location}</Text> : null}
       </View>
     </View>
-    {data.summary ? <View style={styles.section}><Text style={tStyles.min.secTitle}>PROFILE</Text><Text style={styles.bodyText}>{formatText(data.summary)}</Text></View> : null}
-    <View style={styles.section}>
-      <Text style={tStyles.min.secTitle}>EXPERIENCE</Text>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.min.secTitle, ff]}>PROFILE</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.min.secTitle, ff]}>EXPERIENCE</Text>
       {data.experience.map(exp => (
-        <View key={exp.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={styles.itemTitle}>{exp.title}</Text><Text style={styles.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
-          <Text style={styles.itemCompany}>{exp.company}</Text>
-          <Text style={styles.itemDesc}>{formatText(exp.description)}</Text>
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={dyn.itemCompany}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.min.secTitle}>EDUCATION</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.min.secTitle, ff]}>EDUCATION</Text>
       {data.education.map(edu => (
-        <View key={edu.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={styles.itemTitle}>{edu.school}</Text><Text style={styles.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
-          <Text style={styles.itemDesc}>{edu.degree}</Text>
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.min.secTitle}>SKILLS</Text>
-      <View style={styles.chips}>{data.skills.map(s => <View key={s} style={tStyles.min.skillChip}><Text style={tStyles.min.skillText}>{s}</Text></View>)}</View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.min.secTitle, ff]}>SKILLS</Text>
+      <View style={dyn.chips}>{data.skills.map(s => <View key={s} style={tStyles.min.skillChip}><Text style={[tStyles.min.skillText, ff]}>{s}</Text></View>)}</View>
     </View>
     <ExtraSections data={data} />
   </View>
-);
+  );
+};
 
 // ATS Template
-const AtsTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const AtsTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.ats.container}>
     <View style={tStyles.ats.header}>
-      <Text style={tStyles.ats.name}>{data.personalInfo.fullName}</Text>
-      <Text style={tStyles.ats.jobTitle}>{data.personalInfo.jobTitle}</Text>
-      <Text style={tStyles.ats.contactLine}>{[data.personalInfo.location, data.personalInfo.phone, data.personalInfo.email, data.personalInfo.linkedin, data.personalInfo.website].filter(Boolean).join(' | ')}</Text>
+      <Text style={[tStyles.ats.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.ats.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
+      <Text style={[tStyles.ats.contactLine, ff]}>{[data.personalInfo.location, data.personalInfo.phone, data.personalInfo.email, data.personalInfo.linkedin, data.personalInfo.website].filter(Boolean).join(' | ')}</Text>
     </View>
-    {data.summary ? <View style={styles.section}><Text style={tStyles.ats.secTitle}>SUMMARY</Text><Text style={styles.bodyText}>{formatText(data.summary)}</Text></View> : null}
-    <View style={styles.section}><Text style={tStyles.ats.secTitle}>SKILLS</Text><Text style={styles.bodyText}>{data.skills.join(', ')}</Text></View>
-    <View style={styles.section}>
-      <Text style={tStyles.ats.secTitle}>EXPERIENCE</Text>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.ats.secTitle, ff]}>SUMMARY</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}><Text style={[tStyles.ats.secTitle, ff]}>SKILLS</Text><Text style={dyn.bodyText}>{data.skills.join(', ')}</Text></View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.ats.secTitle, ff]}>EXPERIENCE</Text>
       {data.experience.map(exp => (
-        <View key={exp.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={styles.itemTitle}>{exp.title}</Text><Text style={styles.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
-          <Text style={styles.itemCompany}>{exp.company}, {exp.location}</Text>
-          <Text style={styles.itemDesc}>{formatText(exp.description)}</Text>
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={dyn.itemCompany}>{exp.company}, {exp.location}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.ats.secTitle}>EDUCATION</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.ats.secTitle, ff]}>EDUCATION</Text>
       {data.education.map(edu => (
-        <View key={edu.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={styles.itemTitle}>{edu.school}</Text><Text style={styles.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
-          <Text style={styles.itemDesc}>{edu.degree}</Text>
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
         </View>
       ))}
     </View>
     <ExtraSections data={data} />
   </View>
-);
+  );
+};
 
 // Dark Template
-const TechDarkTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const TechDarkTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.dark.container}>
     <View style={tStyles.dark.header}>
-      <Text style={tStyles.dark.name}>&gt; {data.personalInfo.fullName}</Text>
-      <Text style={tStyles.dark.jobTitle}>// {data.personalInfo.jobTitle}</Text>
+      <Text style={[tStyles.dark.name, ff]}>&gt; {data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.dark.jobTitle, ff]}>// {data.personalInfo.jobTitle}</Text>
       <View style={tStyles.dark.contactGrid}>
-        <Text style={tStyles.dark.contact}>const email = "{data.personalInfo.email}"</Text>
-        <Text style={tStyles.dark.contact}>const phone = "{data.personalInfo.phone}"</Text>
-        <Text style={tStyles.dark.contact}>const loc = "{data.personalInfo.location}"</Text>
+        <Text style={[tStyles.dark.contact, ff]}>const email = "{data.personalInfo.email}"</Text>
+        <Text style={[tStyles.dark.contact, ff]}>const phone = "{data.personalInfo.phone}"</Text>
+        <Text style={[tStyles.dark.contact, ff]}>const loc = "{data.personalInfo.location}"</Text>
       </View>
     </View>
     {data.summary ? (
-      <View style={styles.section}>
-        <Text style={tStyles.dark.secTitle}>{'class Profile {'}</Text>
-        <Text style={tStyles.dark.body}>{'  /* '}{formatText(data.summary)}{' */'}</Text>
-        <Text style={tStyles.dark.secTitle}>{'}'}</Text>
+      <View style={dyn.section}>
+        <Text style={[tStyles.dark.secTitle, ff]}>{'class Profile {'}</Text>
+        <Text style={[tStyles.dark.body, ff]}>{'  /* '}{formatText(data.summary)}{' */'}</Text>
+        <Text style={[tStyles.dark.secTitle, ff]}>{'}'}</Text>
       </View>
     ) : null}
-    <View style={styles.section}>
-      <Text style={tStyles.dark.secTitle}>{'function getExperience() {'}</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.dark.secTitle, ff]}>{'function getExperience() {'}</Text>
       {data.experience.map(exp => (
         <View key={exp.id} style={tStyles.dark.item}>
-          <Text style={tStyles.dark.itemTitle}>{exp.title} <Text style={{ color: '#64748b' }}>@ {exp.company}</Text></Text>
-          <Text style={tStyles.dark.itemDate}>// {exp.startDate} to {exp.current ? 'NOW' : exp.endDate}</Text>
-          <Text style={tStyles.dark.itemDesc}>{formatText(exp.description)}</Text>
+          <Text style={[tStyles.dark.itemTitle, ff]}>{exp.title} <Text style={{ color: '#64748b' }}>@ {exp.company}</Text></Text>
+          <Text style={[tStyles.dark.itemDate, ff]}>// {exp.startDate} to {exp.current ? 'NOW' : exp.endDate}</Text>
+          <Text style={[tStyles.dark.itemDesc, ff]}>{formatText(exp.description)}</Text>
         </View>
       ))}
-      <Text style={tStyles.dark.secTitle}>{'}'}</Text>
+      <Text style={[tStyles.dark.secTitle, ff]}>{'}'}</Text>
     </View>
-    <View style={styles.section}>
-      <Text style={[tStyles.dark.secTitle, { color: '#60a5fa' }]}>['Skills']</Text>
-      <View style={styles.chips}>{data.skills.map(s => <View key={s} style={tStyles.dark.skillChip}><Text style={tStyles.dark.skillText}>{s}</Text></View>)}</View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.dark.secTitle, { color: '#60a5fa' }, ff]}>['Skills']</Text>
+      <View style={dyn.chips}>{data.skills.map(s => <View key={s} style={tStyles.dark.skillChip}><Text style={[tStyles.dark.skillText, ff]}>{s}</Text></View>)}</View>
     </View>
-    <View style={styles.section}>
-      <Text style={[tStyles.dark.secTitle, { color: '#60a5fa' }]}>['Education']</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.dark.secTitle, { color: '#60a5fa' }, ff]}>['Education']</Text>
       {data.education.map(edu => (
-        <View key={edu.id} style={styles.item}>
-          <Text style={tStyles.dark.itemTitle}>{edu.school}</Text>
-          <Text style={tStyles.dark.itemDesc}>{edu.degree}</Text>
+        <View key={edu.id} style={dyn.item}>
+          <Text style={[tStyles.dark.itemTitle, ff]}>{edu.school}</Text>
+          <Text style={[tStyles.dark.itemDesc, ff]}>{edu.degree}</Text>
         </View>
       ))}
     </View>
     <ExtraSections data={data} titleColor="#a78bfa" />
   </View>
-);
+  );
+};
 
 // Creative Template
-const CreativeTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const CreativeTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.creative.container}>
     <View style={tStyles.creative.header}>
-      <Text style={tStyles.creative.name}>{data.personalInfo.fullName}</Text>
-      {data.personalInfo.jobTitle && <Text style={tStyles.creative.jobTitle}>{data.personalInfo.jobTitle}</Text>}
+      <Text style={[tStyles.creative.name, ff]}>{data.personalInfo.fullName}</Text>
+      {data.personalInfo.jobTitle && <Text style={[tStyles.creative.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>}
       <View style={tStyles.creative.contactRow}>
-        {data.personalInfo.email ? <Text style={tStyles.creative.contact}>{data.personalInfo.email}</Text> : null}
-        {data.personalInfo.phone ? <Text style={tStyles.creative.contact}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.email ? <Text style={[tStyles.creative.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.creative.contact, ff]}>{data.personalInfo.phone}</Text> : null}
       </View>
     </View>
-    {data.summary ? <View style={styles.section}><Text style={tStyles.creative.secTitle}>About</Text><Text style={styles.bodyText}>{formatText(data.summary)}</Text></View> : null}
-    <View style={styles.section}>
-      <Text style={tStyles.creative.secTitle}>Experience</Text>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.creative.secTitle, ff]}>About</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.creative.secTitle, ff]}>Experience</Text>
       {data.experience.map(exp => (
         <View key={exp.id} style={tStyles.creative.item}>
-          <Text style={tStyles.creative.itemTitle}>{exp.title}</Text>
-          <View style={tStyles.creative.badge}><Text style={tStyles.creative.badgeText}>{exp.company}</Text></View>
-          <Text style={styles.itemDesc}>{formatText(exp.description)}</Text>
+          <Text style={[tStyles.creative.itemTitle, ff]}>{exp.title}</Text>
+          <View style={tStyles.creative.badge}><Text style={[tStyles.creative.badgeText, ff]}>{exp.company}</Text></View>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.creative.secTitle}>Skills</Text>
-      <View style={styles.chips}>{data.skills.map(s => <View key={s} style={tStyles.creative.skillChip}><Text style={tStyles.creative.skillText}>{s}</Text></View>)}</View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.creative.secTitle, ff]}>Skills</Text>
+      <View style={dyn.chips}>{data.skills.map(s => <View key={s} style={tStyles.creative.skillChip}><Text style={[tStyles.creative.skillText, ff]}>{s}</Text></View>)}</View>
     </View>
     <ExtraSections data={data} titleColor="#ec4899" />
   </View>
-);
+  );
+};
 
 // Corporate Template
-const CorporateTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const CorporateTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.corp.container}>
     <View style={tStyles.corp.header}>
-      <Text style={tStyles.corp.name}>{data.personalInfo.fullName}</Text>
-      {data.personalInfo.jobTitle && <Text style={tStyles.corp.jobTitle}>{data.personalInfo.jobTitle}</Text>}
+      <Text style={[tStyles.corp.name, ff]}>{data.personalInfo.fullName}</Text>
+      {data.personalInfo.jobTitle && <Text style={[tStyles.corp.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>}
       <View style={tStyles.corp.contactRow}>
-        <Text style={tStyles.corp.contact}>{data.personalInfo.email}</Text>
-        <Text style={tStyles.corp.contact}>{data.personalInfo.phone}</Text>
-        <Text style={tStyles.corp.contact}>{data.personalInfo.location}</Text>
+        <Text style={[tStyles.corp.contact, ff]}>{data.personalInfo.email}</Text>
+        <Text style={[tStyles.corp.contact, ff]}>{data.personalInfo.phone}</Text>
+        <Text style={[tStyles.corp.contact, ff]}>{data.personalInfo.location}</Text>
       </View>
     </View>
     <View style={tStyles.corp.body}>
       <View style={{ flex: 2 }}>
-        {data.summary ? <View style={styles.section}><Text style={tStyles.corp.secTitle}>Professional Summary</Text><Text style={styles.bodyText}>{data.summary}</Text></View> : null}
-        <View style={styles.section}>
-          <Text style={tStyles.corp.secTitle}>Experience</Text>
+        {data.summary ? <View style={dyn.section}><Text style={[tStyles.corp.secTitle, ff]}>Professional Summary</Text><Text style={dyn.bodyText}>{data.summary}</Text></View> : null}
+        <View style={dyn.section}>
+          <Text style={[tStyles.corp.secTitle, ff]}>Experience</Text>
           {data.experience.map(exp => (
-            <View key={exp.id} style={styles.item}>
-              <Text style={styles.itemTitle}>{exp.title}</Text>
-              <Text style={styles.itemCompany}>{exp.company} | {exp.startDate} - {exp.current ? 'Present' : exp.endDate}</Text>
-              <Text style={styles.itemDesc}>{formatText(exp.description)}</Text>
+            <View key={exp.id} style={dyn.item}>
+              <Text style={dyn.itemTitle}>{exp.title}</Text>
+              <Text style={dyn.itemCompany}>{exp.company} | {exp.startDate} - {exp.current ? 'Present' : exp.endDate}</Text>
+              <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
             </View>
           ))}
         </View>
         <ExtraSections data={data} />
       </View>
       <View style={tStyles.corp.sidebar}>
-        <Text style={tStyles.corp.sideTitle}>Skills</Text>
-        {data.skills.map(s => <Text key={s} style={tStyles.corp.skillItem}>• {s}</Text>)}
-        <Text style={[tStyles.corp.sideTitle, { marginTop: 20 }]}>Education</Text>
+        <Text style={[tStyles.corp.sideTitle, ff]}>Skills</Text>
+        {data.skills.map(s => <Text key={s} style={[tStyles.corp.skillItem, ff]}>• {s}</Text>)}
+        <Text style={[tStyles.corp.sideTitle, { marginTop: 20 }, ff]}>Education</Text>
         {data.education.map(edu => (
           <View key={edu.id} style={{ marginBottom: 12 }}>
-            <Text style={tStyles.corp.eduSchool}>{edu.school}</Text>
-            <Text style={tStyles.corp.eduDegree}>{edu.degree}</Text>
+            <Text style={[tStyles.corp.eduSchool, ff]}>{edu.school}</Text>
+            <Text style={[tStyles.corp.eduDegree, ff]}>{edu.degree}</Text>
           </View>
         ))}
       </View>
     </View>
   </View>
-);
+  );
+};
 
 // Swiss Template
-const SwissTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const SwissTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.swiss.container}>
     <View style={tStyles.swiss.sidebar}>
-      <Text style={tStyles.swiss.name}>{data.personalInfo.fullName}</Text>
-      <Text style={tStyles.swiss.jobTitle}>{data.personalInfo.jobTitle}</Text>
+      <Text style={[tStyles.swiss.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.swiss.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
       <View style={{ marginBottom: 16 }}>
-        <Text style={tStyles.swiss.contact}>{data.personalInfo.email}</Text>
-        <Text style={tStyles.swiss.contact}>{data.personalInfo.phone}</Text>
-        <Text style={tStyles.swiss.contact}>{data.personalInfo.location}</Text>
+        <Text style={[tStyles.swiss.contact, ff]}>{data.personalInfo.email}</Text>
+        <Text style={[tStyles.swiss.contact, ff]}>{data.personalInfo.phone}</Text>
+        <Text style={[tStyles.swiss.contact, ff]}>{data.personalInfo.location}</Text>
       </View>
-      <Text style={tStyles.swiss.sideTitle}>Skills</Text>
-      {data.skills.map(s => <Text key={s} style={tStyles.swiss.skillItem}>{s}</Text>)}
-      <Text style={[tStyles.swiss.sideTitle, { marginTop: 16 }]}>Education</Text>
+      <Text style={[tStyles.swiss.sideTitle, ff]}>Skills</Text>
+      {data.skills.map(s => <Text key={s} style={[tStyles.swiss.skillItem, ff]}>{s}</Text>)}
+      <Text style={[tStyles.swiss.sideTitle, { marginTop: 16 }, ff]}>Education</Text>
       {data.education.map(edu => (
         <View key={edu.id} style={{ marginBottom: 12 }}>
-          <Text style={tStyles.swiss.eduSchool}>{edu.school}</Text>
-          <Text style={tStyles.swiss.eduDegree}>{edu.degree}</Text>
+          <Text style={[tStyles.swiss.eduSchool, ff]}>{edu.school}</Text>
+          <Text style={[tStyles.swiss.eduDegree, ff]}>{edu.degree}</Text>
         </View>
       ))}
     </View>
     <View style={tStyles.swiss.main}>
-      {data.summary ? <View style={styles.section}><Text style={styles.bodyText}>{data.summary}</Text></View> : null}
-      <View style={styles.section}>
-        <Text style={tStyles.swiss.secTitle}>Experience</Text>
+      {data.summary ? <View style={dyn.section}><Text style={dyn.bodyText}>{data.summary}</Text></View> : null}
+      <View style={dyn.section}>
+        <Text style={[tStyles.swiss.secTitle, ff]}>Experience</Text>
         {data.experience.map(exp => (
           <View key={exp.id} style={tStyles.swiss.item}>
             <View style={tStyles.swiss.dateCol}>
-              <Text style={tStyles.swiss.itemDate}>{exp.startDate}</Text>
-              <Text style={tStyles.swiss.itemDate}>- {exp.current ? 'Present' : exp.endDate}</Text>
+              <Text style={[tStyles.swiss.itemDate, ff]}>{exp.startDate}</Text>
+              <Text style={[tStyles.swiss.itemDate, ff]}>- {exp.current ? 'Present' : exp.endDate}</Text>
             </View>
             <View style={tStyles.swiss.contentCol}>
-              <Text style={tStyles.swiss.itemTitle}>{exp.title}</Text>
-              <Text style={tStyles.swiss.itemCompany}>{exp.company}</Text>
-              <Text style={styles.bodyText}>{formatText(exp.description)}</Text>
+              <Text style={[tStyles.swiss.itemTitle, ff]}>{exp.title}</Text>
+              <Text style={[tStyles.swiss.itemCompany, ff]}>{exp.company}</Text>
+              <Text style={dyn.bodyText}>{formatText(exp.description)}</Text>
             </View>
           </View>
         ))}
@@ -373,812 +446,886 @@ const SwissTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
       <ExtraSections data={data} titleColor="#dc2626" />
     </View>
   </View>
-);
+  );
+};
 
 // Professional Template (Navy Blue)
-const ProfessionalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const ProfessionalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.prof.container}>
     <View style={tStyles.prof.header}>
-      <Text style={tStyles.prof.name}>{data.personalInfo.fullName}</Text>
-      <Text style={tStyles.prof.jobTitle}>{data.personalInfo.jobTitle}</Text>
+      <Text style={[tStyles.prof.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.prof.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
       <View style={tStyles.prof.contactRow}>
-        {data.personalInfo.email ? <Text style={tStyles.prof.contact}>{data.personalInfo.email}</Text> : null}
-        {data.personalInfo.phone ? <Text style={tStyles.prof.contact}>{data.personalInfo.phone}</Text> : null}
-        {data.personalInfo.location ? <Text style={tStyles.prof.contact}>{data.personalInfo.location}</Text> : null}
+        {data.personalInfo.email ? <Text style={[tStyles.prof.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.prof.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.prof.contact, ff]}>{data.personalInfo.location}</Text> : null}
       </View>
     </View>
-    {data.summary ? <View style={styles.section}><SectionTitle style={{ color: '#1e3a5f' }}>Professional Summary</SectionTitle><Text style={styles.bodyText}>{formatText(data.summary)}</Text></View> : null}
-    <View style={styles.section}>
+    {data.summary ? <View style={dyn.section}><SectionTitle style={{ color: '#1e3a5f' }}>Professional Summary</SectionTitle><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
       <SectionTitle style={{ color: '#1e3a5f' }}>Experience</SectionTitle>
       {data.experience.map(exp => (
-        <View key={exp.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={styles.itemTitle}>{exp.title}</Text><Text style={styles.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
-          <Text style={{ fontSize: 12, color: '#1e3a5f', fontWeight: '600', marginBottom: 4 }}>{exp.company}</Text>
-          <Text style={styles.itemDesc}>{formatText(exp.description)}</Text>
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={{ fontSize: 12, color: '#1e3a5f', fontWeight: '600', marginBottom: 4, ...ff }}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
+    <View style={dyn.section}>
       <SectionTitle style={{ color: '#1e3a5f' }}>Education</SectionTitle>
       {data.education.map(edu => (
-        <View key={edu.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={styles.itemTitle}>{edu.school}</Text><Text style={styles.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
-          <Text style={styles.itemDesc}>{edu.degree}</Text>
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
+    <View style={dyn.section}>
       <SectionTitle style={{ color: '#1e3a5f' }}>Skills</SectionTitle>
-      <View style={styles.chips}>
-        {data.skills.map(s => <View key={s} style={tStyles.prof.skillChip}><Text style={tStyles.prof.skillText}>{s}</Text></View>)}
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.prof.skillChip}><Text style={[tStyles.prof.skillText, ff]}>{s}</Text></View>)}
       </View>
     </View>
     <ExtraSections data={data} titleColor="#1e3a5f" />
   </View>
-);
+  );
+};
 
 // Executive Template
-const ExecutiveTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const ExecutiveTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.exec.container}>
     <View style={tStyles.exec.header}>
       <View style={tStyles.exec.nameRow}>
         <View style={tStyles.exec.nameAccent} />
-        <Text style={tStyles.exec.name}>{data.personalInfo.fullName}</Text>
+        <Text style={[tStyles.exec.name, ff]}>{data.personalInfo.fullName}</Text>
       </View>
-      <Text style={tStyles.exec.jobTitle}>{data.personalInfo.jobTitle}</Text>
+      <Text style={[tStyles.exec.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
       <View style={tStyles.exec.contactRow}>
-        {data.personalInfo.email ? <Text style={tStyles.exec.contact}>{data.personalInfo.email}</Text> : null}
-        {data.personalInfo.phone ? <Text style={tStyles.exec.contact}>{data.personalInfo.phone}</Text> : null}
-        {data.personalInfo.location ? <Text style={tStyles.exec.contact}>{data.personalInfo.location}</Text> : null}
-        {data.personalInfo.linkedin ? <Text style={tStyles.exec.contact}>{data.personalInfo.linkedin}</Text> : null}
+        {data.personalInfo.email ? <Text style={[tStyles.exec.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.exec.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.exec.contact, ff]}>{data.personalInfo.location}</Text> : null}
+        {data.personalInfo.linkedin ? <Text style={[tStyles.exec.contact, ff]}>{data.personalInfo.linkedin}</Text> : null}
       </View>
     </View>
-    {data.summary ? <View style={styles.section}><Text style={tStyles.exec.secTitle}>EXECUTIVE SUMMARY</Text><Text style={styles.bodyText}>{formatText(data.summary)}</Text></View> : null}
-    <View style={styles.section}>
-      <Text style={tStyles.exec.secTitle}>PROFESSIONAL EXPERIENCE</Text>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.exec.secTitle, ff]}>EXECUTIVE SUMMARY</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.exec.secTitle, ff]}>PROFESSIONAL EXPERIENCE</Text>
       {data.experience.map(exp => (
         <View key={exp.id} style={tStyles.exec.item}>
-          <View style={styles.itemHeader}><Text style={tStyles.exec.itemTitle}>{exp.title}</Text><Text style={tStyles.exec.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
-          <Text style={tStyles.exec.itemCompany}>{exp.company}</Text>
-          <Text style={styles.itemDesc}>{formatText(exp.description)}</Text>
+          <View style={dyn.itemHeader}><Text style={[tStyles.exec.itemTitle, ff]}>{exp.title}</Text><Text style={[tStyles.exec.itemDate, ff]}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={[tStyles.exec.itemCompany, ff]}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.exec.secTitle}>EDUCATION</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.exec.secTitle, ff]}>EDUCATION</Text>
       {data.education.map(edu => (
-        <View key={edu.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={tStyles.exec.itemTitle}>{edu.school}</Text><Text style={tStyles.exec.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
-          <Text style={styles.itemDesc}>{edu.degree}</Text>
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.exec.itemTitle, ff]}>{edu.school}</Text><Text style={[tStyles.exec.itemDate, ff]}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.exec.secTitle}>CORE COMPETENCIES</Text>
-      <View style={styles.chips}>
-        {data.skills.map(s => <View key={s} style={tStyles.exec.skillChip}><Text style={tStyles.exec.skillText}>{s}</Text></View>)}
+    <View style={dyn.section}>
+      <Text style={[tStyles.exec.secTitle, ff]}>CORE COMPETENCIES</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.exec.skillChip}><Text style={[tStyles.exec.skillText, ff]}>{s}</Text></View>)}
       </View>
     </View>
     <ExtraSections data={data} titleColor="#111827" />
   </View>
-);
+  );
+};
 
 // Classic Template
-const ClassicTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const ClassicTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.classic.container}>
     <View style={tStyles.classic.header}>
-      <Text style={tStyles.classic.name}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.classic.name, ff]}>{data.personalInfo.fullName}</Text>
       <View style={tStyles.classic.divider} />
-      <Text style={tStyles.classic.jobTitle}>{data.personalInfo.jobTitle}</Text>
-      <Text style={tStyles.classic.contactLine}>{[data.personalInfo.email, data.personalInfo.phone, data.personalInfo.location].filter(Boolean).join('  •  ')}</Text>
+      <Text style={[tStyles.classic.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
+      <Text style={[tStyles.classic.contactLine, ff]}>{[data.personalInfo.email, data.personalInfo.phone, data.personalInfo.location].filter(Boolean).join('  •  ')}</Text>
     </View>
-    {data.summary ? <View style={styles.section}><Text style={tStyles.classic.secTitle}>PROFILE</Text><Text style={styles.bodyText}>{formatText(data.summary)}</Text></View> : null}
-    <View style={styles.section}>
-      <Text style={tStyles.classic.secTitle}>EXPERIENCE</Text>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.classic.secTitle, ff]}>PROFILE</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.classic.secTitle, ff]}>EXPERIENCE</Text>
       {data.experience.map(exp => (
-        <View key={exp.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={styles.itemTitle}>{exp.title}</Text><Text style={styles.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
-          <Text style={styles.itemCompany}>{exp.company}</Text>
-          <Text style={styles.itemDesc}>{formatText(exp.description)}</Text>
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={dyn.itemCompany}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.classic.secTitle}>EDUCATION</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.classic.secTitle, ff]}>EDUCATION</Text>
       {data.education.map(edu => (
-        <View key={edu.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={styles.itemTitle}>{edu.school}</Text><Text style={styles.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
-          <Text style={styles.itemDesc}>{edu.degree}</Text>
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.classic.secTitle}>SKILLS</Text>
-      <Text style={styles.bodyText}>{data.skills.join(' • ')}</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.classic.secTitle, ff]}>SKILLS</Text>
+      <Text style={dyn.bodyText}>{data.skills.join(' • ')}</Text>
     </View>
     <ExtraSections data={data} titleColor="#374151" />
   </View>
-);
+  );
+};
 
 // Elegant Template (Gold accents)
-const ElegantTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const ElegantTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.elegant.container}>
     <View style={tStyles.elegant.header}>
-      <Text style={tStyles.elegant.name}>{data.personalInfo.fullName}</Text>
-      <Text style={tStyles.elegant.jobTitle}>{data.personalInfo.jobTitle}</Text>
+      <Text style={[tStyles.elegant.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.elegant.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
       <View style={tStyles.elegant.contactRow}>
-        {data.personalInfo.email ? <Text style={tStyles.elegant.contact}>{data.personalInfo.email}</Text> : null}
-        {data.personalInfo.phone ? <Text style={tStyles.elegant.contact}>{data.personalInfo.phone}</Text> : null}
-        {data.personalInfo.location ? <Text style={tStyles.elegant.contact}>{data.personalInfo.location}</Text> : null}
+        {data.personalInfo.email ? <Text style={[tStyles.elegant.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.elegant.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.elegant.contact, ff]}>{data.personalInfo.location}</Text> : null}
       </View>
     </View>
-    {data.summary ? <View style={styles.section}><Text style={tStyles.elegant.secTitle}>PROFILE</Text><Text style={styles.bodyText}>{formatText(data.summary)}</Text></View> : null}
-    <View style={styles.section}>
-      <Text style={tStyles.elegant.secTitle}>EXPERIENCE</Text>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.elegant.secTitle, ff]}>PROFILE</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.elegant.secTitle, ff]}>EXPERIENCE</Text>
       {data.experience.map(exp => (
         <View key={exp.id} style={tStyles.elegant.item}>
-          <View style={styles.itemHeader}><Text style={tStyles.elegant.itemTitle}>{exp.title}</Text><Text style={styles.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
-          <Text style={tStyles.elegant.itemCompany}>{exp.company}</Text>
-          <Text style={styles.itemDesc}>{formatText(exp.description)}</Text>
+          <View style={dyn.itemHeader}><Text style={[tStyles.elegant.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={[tStyles.elegant.itemCompany, ff]}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.elegant.secTitle}>EDUCATION</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.elegant.secTitle, ff]}>EDUCATION</Text>
       {data.education.map(edu => (
-        <View key={edu.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={tStyles.elegant.itemTitle}>{edu.school}</Text><Text style={styles.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
-          <Text style={styles.itemDesc}>{edu.degree}</Text>
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.elegant.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.elegant.secTitle}>SKILLS</Text>
-      <View style={styles.chips}>
-        {data.skills.map(s => <View key={s} style={tStyles.elegant.skillChip}><Text style={tStyles.elegant.skillText}>{s}</Text></View>)}
+    <View style={dyn.section}>
+      <Text style={[tStyles.elegant.secTitle, ff]}>SKILLS</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.elegant.skillChip}><Text style={[tStyles.elegant.skillText, ff]}>{s}</Text></View>)}
       </View>
     </View>
     <ExtraSections data={data} titleColor="#92400e" />
   </View>
-);
+  );
+};
 
 // Artistic Template
-const ArtisticTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const ArtisticTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.artistic.container}>
     <View style={tStyles.artistic.sidebar}>
-      <Text style={tStyles.artistic.name}>{data.personalInfo.fullName}</Text>
-      <Text style={tStyles.artistic.jobTitle}>{data.personalInfo.jobTitle}</Text>
+      <Text style={[tStyles.artistic.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.artistic.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
       <View style={{ marginTop: 16 }}>
-        <Text style={tStyles.artistic.sideLabel}>Contact</Text>
-        {data.personalInfo.email ? <Text style={tStyles.artistic.sideItem}>{data.personalInfo.email}</Text> : null}
-        {data.personalInfo.phone ? <Text style={tStyles.artistic.sideItem}>{data.personalInfo.phone}</Text> : null}
-        {data.personalInfo.location ? <Text style={tStyles.artistic.sideItem}>{data.personalInfo.location}</Text> : null}
+        <Text style={[tStyles.artistic.sideLabel, ff]}>Contact</Text>
+        {data.personalInfo.email ? <Text style={[tStyles.artistic.sideItem, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.artistic.sideItem, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.artistic.sideItem, ff]}>{data.personalInfo.location}</Text> : null}
       </View>
       <View style={{ marginTop: 20 }}>
-        <Text style={tStyles.artistic.sideLabel}>Skills</Text>
-        {data.skills.map(s => <Text key={s} style={tStyles.artistic.skillItem}>▹ {s}</Text>)}
+        <Text style={[tStyles.artistic.sideLabel, ff]}>Skills</Text>
+        {data.skills.map(s => <Text key={s} style={[tStyles.artistic.skillItem, ff]}>▹ {s}</Text>)}
       </View>
       {data.languages && data.languages.length > 0 && (
         <View style={{ marginTop: 20 }}>
-          <Text style={tStyles.artistic.sideLabel}>Languages</Text>
-          {data.languages.map(l => <Text key={l} style={tStyles.artistic.sideItem}>{l}</Text>)}
+          <Text style={[tStyles.artistic.sideLabel, ff]}>Languages</Text>
+          {data.languages.map(l => <Text key={l} style={[tStyles.artistic.sideItem, ff]}>{l}</Text>)}
         </View>
       )}
     </View>
     <View style={tStyles.artistic.main}>
-      {data.summary ? <View style={styles.section}><Text style={tStyles.artistic.secTitle}>About Me</Text><Text style={styles.bodyText}>{formatText(data.summary)}</Text></View> : null}
-      <View style={styles.section}>
-        <Text style={tStyles.artistic.secTitle}>Experience</Text>
+      {data.summary ? <View style={dyn.section}><Text style={[tStyles.artistic.secTitle, ff]}>About Me</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+      <View style={dyn.section}>
+        <Text style={[tStyles.artistic.secTitle, ff]}>Experience</Text>
         {data.experience.map(exp => (
           <View key={exp.id} style={tStyles.artistic.item}>
             <View style={tStyles.artistic.dot} />
             <View style={{ flex: 1 }}>
-              <Text style={tStyles.artistic.itemTitle}>{exp.title}</Text>
-              <Text style={tStyles.artistic.itemCompany}>{exp.company} • {exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text>
-              <Text style={styles.itemDesc}>{formatText(exp.description)}</Text>
+              <Text style={[tStyles.artistic.itemTitle, ff]}>{exp.title}</Text>
+              <Text style={[tStyles.artistic.itemCompany, ff]}>{exp.company} • {exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text>
+              <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
             </View>
           </View>
         ))}
       </View>
-      <View style={styles.section}>
-        <Text style={tStyles.artistic.secTitle}>Education</Text>
+      <View style={dyn.section}>
+        <Text style={[tStyles.artistic.secTitle, ff]}>Education</Text>
         {data.education.map(edu => (
-          <View key={edu.id} style={styles.item}>
-            <Text style={tStyles.artistic.itemTitle}>{edu.school}</Text>
-            <Text style={tStyles.artistic.itemCompany}>{edu.degree} • {edu.startDate} – {edu.endDate}</Text>
+          <View key={edu.id} style={dyn.item}>
+            <Text style={[tStyles.artistic.itemTitle, ff]}>{edu.school}</Text>
+            <Text style={[tStyles.artistic.itemCompany, ff]}>{edu.degree} • {edu.startDate} – {edu.endDate}</Text>
           </View>
         ))}
       </View>
       <ExtraSections data={data} titleColor="#f97316" />
     </View>
   </View>
-);
+  );
+};
 
 // Compact Template
-const CompactTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const CompactTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  const off = dyn.bodyText.fontSize - 12;
+  return (
   <View style={tStyles.compact.container}>
     <View style={tStyles.compact.header}>
       <View style={tStyles.compact.nameRow}>
-        <Text style={tStyles.compact.name}>{data.personalInfo.fullName}</Text>
+        <Text style={[tStyles.compact.name, ff]}>{data.personalInfo.fullName}</Text>
         <View style={tStyles.compact.badge}>
-          <Text style={tStyles.compact.badgeText}>{data.personalInfo.jobTitle}</Text>
+          <Text style={[tStyles.compact.badgeText, ff]}>{data.personalInfo.jobTitle}</Text>
         </View>
       </View>
-      <Text style={tStyles.compact.contactLine}>{[data.personalInfo.email, data.personalInfo.phone, data.personalInfo.location].filter(Boolean).join(' | ')}</Text>
+      <Text style={[tStyles.compact.contactLine, ff]}>{[data.personalInfo.email, data.personalInfo.phone, data.personalInfo.location].filter(Boolean).join(' | ')}</Text>
     </View>
-    {data.summary ? <View style={styles.section}><Text style={tStyles.compact.secTitle}>SUMMARY</Text><Text style={{ fontSize: 11, color: '#475569', lineHeight: 16 }}>{formatText(data.summary)}</Text></View> : null}
-    <View style={styles.section}>
-      <Text style={tStyles.compact.secTitle}>EXPERIENCE</Text>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.compact.secTitle, ff]}>SUMMARY</Text><Text style={{ fontSize: 11 + off, color: '#475569', lineHeight: 16, ...ff }}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.compact.secTitle, ff]}>EXPERIENCE</Text>
       {data.experience.map(exp => (
         <View key={exp.id} style={{ marginBottom: 6 }}>
-          <View style={styles.itemHeader}><Text style={{ fontSize: 12, fontWeight: '700', color: '#1e293b' }}>{exp.title}</Text><Text style={{ fontSize: 9, color: '#94a3b8' }}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
-          <Text style={{ fontSize: 10, color: '#f97316', fontWeight: '600' }}>{exp.company}</Text>
-          <Text style={{ fontSize: 10, color: '#475569', lineHeight: 14 }}>{formatText(exp.description)}</Text>
+          <View style={dyn.itemHeader}><Text style={{ fontSize: 12 + off, fontWeight: '700', color: '#1e293b', ...ff }}>{exp.title}</Text><Text style={{ fontSize: 9 + off, color: '#94a3b8' }}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={{ fontSize: 10 + off, color: '#f97316', fontWeight: '600', ...ff }}>{exp.company}</Text>
+          <Text style={{ fontSize: 10 + off, color: '#475569', lineHeight: 14, ...ff }}>{formatText(exp.description)}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.compact.secTitle}>EDUCATION</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.compact.secTitle, ff]}>EDUCATION</Text>
       {data.education.map(edu => (
         <View key={edu.id} style={{ marginBottom: 4 }}>
-          <View style={styles.itemHeader}><Text style={{ fontSize: 12, fontWeight: '700', color: '#1e293b' }}>{edu.school}</Text><Text style={{ fontSize: 9, color: '#94a3b8' }}>{edu.startDate} – {edu.endDate}</Text></View>
-          <Text style={{ fontSize: 10, color: '#475569' }}>{edu.degree}</Text>
+          <View style={dyn.itemHeader}><Text style={{ fontSize: 12 + off, fontWeight: '700', color: '#1e293b', ...ff }}>{edu.school}</Text><Text style={{ fontSize: 9 + off, color: '#94a3b8' }}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={{ fontSize: 10 + off, color: '#475569', ...ff }}>{edu.degree}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.compact.secTitle}>SKILLS</Text>
-      <Text style={{ fontSize: 10, color: '#475569' }}>{data.skills.join(' • ')}</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.compact.secTitle, ff]}>SKILLS</Text>
+      <Text style={{ fontSize: 10 + off, color: '#475569', ...ff }}>{data.skills.join(' • ')}</Text>
     </View>
     <ExtraSections data={data} titleColor="#ea580c" />
   </View>
-);
+  );
+};
 
 // Medical Template
-const MedicalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const MedicalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.medical.container}>
     <View style={tStyles.medical.header}>
       <View style={tStyles.medical.headerTop}>
         <Ionicons name="medical" size={28} color="#ffffff" />
         <View style={{ marginLeft: 12 }}>
-          <Text style={tStyles.medical.name}>{data.personalInfo.fullName}</Text>
-          <Text style={tStyles.medical.jobTitle}>{data.personalInfo.jobTitle}</Text>
+          <Text style={[tStyles.medical.name, ff]}>{data.personalInfo.fullName}</Text>
+          <Text style={[tStyles.medical.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
         </View>
       </View>
       <View style={tStyles.medical.contactRow}>
-        {data.personalInfo.email ? <Text style={tStyles.medical.contact}>✉ {data.personalInfo.email}</Text> : null}
-        {data.personalInfo.phone ? <Text style={tStyles.medical.contact}>☎ {data.personalInfo.phone}</Text> : null}
-        {data.personalInfo.location ? <Text style={tStyles.medical.contact}>◉ {data.personalInfo.location}</Text> : null}
+        {data.personalInfo.email ? <Text style={[tStyles.medical.contact, ff]}>✉ {data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.medical.contact, ff]}>☎ {data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.medical.contact, ff]}>◉ {data.personalInfo.location}</Text> : null}
       </View>
     </View>
-    {data.summary ? <View style={styles.section}><Text style={tStyles.medical.secTitle}>Clinical Summary</Text><Text style={styles.bodyText}>{formatText(data.summary)}</Text></View> : null}
-    <View style={styles.section}>
-      <Text style={tStyles.medical.secTitle}>Professional Experience</Text>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.medical.secTitle, ff]}>Clinical Summary</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.medical.secTitle, ff]}>Professional Experience</Text>
       {data.experience.map(exp => (
         <View key={exp.id} style={tStyles.medical.item}>
-          <View style={styles.itemHeader}><Text style={styles.itemTitle}>{exp.title}</Text><Text style={styles.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
-          <Text style={{ fontSize: 12, color: '#059669', fontWeight: '600', marginBottom: 3 }}>{exp.company}</Text>
-          <Text style={styles.itemDesc}>{formatText(exp.description)}</Text>
+          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={{ fontSize: 12, color: '#059669', fontWeight: '600', marginBottom: 3, ...ff }}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.medical.secTitle}>Education & Certifications</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.medical.secTitle, ff]}>Education & Certifications</Text>
       {data.education.map(edu => (
-        <View key={edu.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={styles.itemTitle}>{edu.school}</Text><Text style={styles.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
-          <Text style={styles.itemDesc}>{edu.degree}</Text>
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
         </View>
       ))}
       {data.certificates && data.certificates.length > 0 && data.certificates.map(cert => (
-        <View key={cert.id} style={styles.item}>
-          <Text style={styles.itemTitle}>{cert.name}</Text>
-          <Text style={{ fontSize: 11, color: '#059669' }}>{cert.issuer} • {cert.date}</Text>
+        <View key={cert.id} style={dyn.item}>
+          <Text style={dyn.itemTitle}>{cert.name}</Text>
+          <Text style={{ fontSize: 11, color: '#059669', ...ff }}>{cert.issuer} • {cert.date}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.medical.secTitle}>Competencies</Text>
-      <View style={styles.chips}>
-        {data.skills.map(s => <View key={s} style={tStyles.medical.skillChip}><Text style={tStyles.medical.skillText}>{s}</Text></View>)}
+    <View style={dyn.section}>
+      <Text style={[tStyles.medical.secTitle, ff]}>Competencies</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.medical.skillChip}><Text style={[tStyles.medical.skillText, ff]}>{s}</Text></View>)}
       </View>
     </View>
     <ExtraSections data={data} titleColor="#059669" />
   </View>
-);
+  );
+};
 
 // Academic Template
-const AcademicTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const AcademicTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.academic.container}>
     <View style={tStyles.academic.header}>
-      <Text style={tStyles.academic.name}>{data.personalInfo.fullName}</Text>
-      <Text style={tStyles.academic.jobTitle}>{data.personalInfo.jobTitle}</Text>
+      <Text style={[tStyles.academic.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.academic.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
       <View style={tStyles.academic.contactRow}>
-        {data.personalInfo.email ? <Text style={tStyles.academic.contact}>{data.personalInfo.email}</Text> : null}
-        {data.personalInfo.phone ? <Text style={tStyles.academic.contact}>{data.personalInfo.phone}</Text> : null}
-        {data.personalInfo.location ? <Text style={tStyles.academic.contact}>{data.personalInfo.location}</Text> : null}
-        {data.personalInfo.linkedin ? <Text style={tStyles.academic.contact}>{data.personalInfo.linkedin}</Text> : null}
+        {data.personalInfo.email ? <Text style={[tStyles.academic.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.academic.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.academic.contact, ff]}>{data.personalInfo.location}</Text> : null}
+        {data.personalInfo.linkedin ? <Text style={[tStyles.academic.contact, ff]}>{data.personalInfo.linkedin}</Text> : null}
       </View>
     </View>
     {data.summary ? (
-      <View style={styles.section}>
-        <Text style={tStyles.academic.secTitle}>Research Interests</Text>
-        <Text style={styles.bodyText}>{formatText(data.summary)}</Text>
+      <View style={dyn.section}>
+        <Text style={[tStyles.academic.secTitle, ff]}>Research Interests</Text>
+        <Text style={dyn.bodyText}>{formatText(data.summary)}</Text>
       </View>
     ) : null}
-    <View style={styles.section}>
-      <Text style={tStyles.academic.secTitle}>Education</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.academic.secTitle, ff]}>Education</Text>
       {data.education.map(edu => (
-        <View key={edu.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={styles.itemTitle}>{edu.degree}</Text><Text style={styles.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
-          <Text style={{ fontSize: 12, color: '#111827', fontWeight: '600' }}>{edu.school}</Text>
-          {edu.location ? <Text style={{ fontSize: 11, color: '#6b7280' }}>{edu.location}</Text> : null}
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{edu.degree}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={{ fontSize: 12, color: '#111827', fontWeight: '600', ...ff }}>{edu.school}</Text>
+          {edu.location ? <Text style={{ fontSize: 11, color: '#6b7280', ...ff }}>{edu.location}</Text> : null}
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.academic.secTitle}>Experience</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.academic.secTitle, ff]}>Experience</Text>
       {data.experience.map(exp => (
-        <View key={exp.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={styles.itemTitle}>{exp.title}</Text><Text style={styles.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
-          <Text style={styles.itemCompany}>{exp.company}</Text>
-          <Text style={styles.itemDesc}>{formatText(exp.description)}</Text>
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={dyn.itemCompany}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.academic.secTitle}>Skills & Tools</Text>
-      <View style={styles.chips}>
-        {data.skills.map(s => <View key={s} style={tStyles.academic.skillChip}><Text style={tStyles.academic.skillText}>{s}</Text></View>)}
+    <View style={dyn.section}>
+      <Text style={[tStyles.academic.secTitle, ff]}>Skills & Tools</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.academic.skillChip}><Text style={[tStyles.academic.skillText, ff]}>{s}</Text></View>)}
       </View>
     </View>
 
     <ExtraSections data={data} titleColor="#374151" />
   </View>
-);
+  );
+};
 
 // Legal Template
-const LegalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const LegalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.legal.container}>
     <View style={tStyles.legal.header}>
-      <Text style={tStyles.legal.name}>{data.personalInfo.fullName}, Esq.</Text>
-      <Text style={tStyles.legal.jobTitle}>{data.personalInfo.jobTitle}</Text>
+      <Text style={[tStyles.legal.name, ff]}>{data.personalInfo.fullName}, Esq.</Text>
+      <Text style={[tStyles.legal.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
       <View style={tStyles.legal.contactRow}>
-        {data.personalInfo.email ? <Text style={tStyles.legal.contact}>{data.personalInfo.email}</Text> : null}
-        {data.personalInfo.phone ? <Text style={tStyles.legal.contact}>{data.personalInfo.phone}</Text> : null}
-        {data.personalInfo.location ? <Text style={tStyles.legal.contact}>{data.personalInfo.location}</Text> : null}
+        {data.personalInfo.email ? <Text style={[tStyles.legal.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.legal.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.legal.contact, ff]}>{data.personalInfo.location}</Text> : null}
       </View>
     </View>
-    {data.summary ? <View style={styles.section}><Text style={tStyles.legal.secTitle}>PROFESSIONAL SUMMARY</Text><Text style={styles.bodyText}>{formatText(data.summary)}</Text></View> : null}
-    <View style={styles.section}>
-      <Text style={tStyles.legal.secTitle}>EXPERIENCE</Text>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.legal.secTitle, ff]}>PROFESSIONAL SUMMARY</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.legal.secTitle, ff]}>EXPERIENCE</Text>
       {data.experience.map(exp => (
-        <View key={exp.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={styles.itemTitle}>{exp.title}</Text><Text style={styles.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
-          <Text style={{ fontSize: 12, color: '#374151', fontWeight: '600', marginBottom: 3 }}>{exp.company}</Text>
-          <Text style={styles.itemDesc}>{formatText(exp.description)}</Text>
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={{ fontSize: 12, color: '#374151', fontWeight: '600', marginBottom: 3, ...ff }}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.legal.secTitle}>EDUCATION</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.legal.secTitle, ff]}>EDUCATION</Text>
       {data.education.map(edu => (
-        <View key={edu.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={styles.itemTitle}>{edu.school}</Text><Text style={styles.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
-          <Text style={styles.itemDesc}>{edu.degree}</Text>
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.legal.secTitle}>AREAS OF PRACTICE</Text>
-      <Text style={styles.bodyText}>{data.skills.join(' • ')}</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.legal.secTitle, ff]}>AREAS OF PRACTICE</Text>
+      <Text style={dyn.bodyText}>{data.skills.join(' • ')}</Text>
     </View>
     <ExtraSections data={data} titleColor="#374151" />
   </View>
-);
+  );
+};
 
 // Playful Template
-const PlayfulTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const PlayfulTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.playful.container}>
     <View style={tStyles.playful.header}>
       <View style={tStyles.playful.avatar}>
-        <Text style={tStyles.playful.avatarText}>{data.personalInfo.fullName.charAt(0)}</Text>
+        <Text style={[tStyles.playful.avatarText, ff]}>{data.personalInfo.fullName.charAt(0)}</Text>
       </View>
-      <Text style={tStyles.playful.name}>{data.personalInfo.fullName}</Text>
-      <Text style={tStyles.playful.jobTitle}>{data.personalInfo.jobTitle}</Text>
+      <Text style={[tStyles.playful.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.playful.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
       <View style={tStyles.playful.contactRow}>
-        {data.personalInfo.email ? <Text style={tStyles.playful.contact}>📧 {data.personalInfo.email}</Text> : null}
-        {data.personalInfo.phone ? <Text style={tStyles.playful.contact}>📱 {data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.email ? <Text style={[tStyles.playful.contact, ff]}>📧 {data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.playful.contact, ff]}>📱 {data.personalInfo.phone}</Text> : null}
       </View>
     </View>
-    {data.summary ? <View style={styles.section}><Text style={tStyles.playful.secTitle}>✨ About Me</Text><Text style={styles.bodyText}>{formatText(data.summary)}</Text></View> : null}
-    <View style={styles.section}>
-      <Text style={tStyles.playful.secTitle}>💼 Experience</Text>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.playful.secTitle, ff]}>✨ About Me</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.playful.secTitle, ff]}>💼 Experience</Text>
       {data.experience.map(exp => (
         <View key={exp.id} style={tStyles.playful.item}>
-          <View style={styles.itemHeader}><Text style={tStyles.playful.itemTitle}>{exp.title}</Text><Text style={styles.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
-          <Text style={tStyles.playful.itemCompany}>{exp.company}</Text>
-          <Text style={styles.itemDesc}>{formatText(exp.description)}</Text>
+          <View style={dyn.itemHeader}><Text style={[tStyles.playful.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={[tStyles.playful.itemCompany, ff]}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.playful.secTitle}>🎓 Education</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.playful.secTitle, ff]}>🎓 Education</Text>
       {data.education.map(edu => (
-        <View key={edu.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={tStyles.playful.itemTitle}>{edu.school}</Text><Text style={styles.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
-          <Text style={styles.itemDesc}>{edu.degree}</Text>
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.playful.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.playful.secTitle}>🚀 Skills</Text>
-      <View style={styles.chips}>
-        {data.skills.map(s => <View key={s} style={tStyles.playful.skillChip}><Text style={tStyles.playful.skillText}>{s}</Text></View>)}
+    <View style={dyn.section}>
+      <Text style={[tStyles.playful.secTitle, ff]}>🚀 Skills</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.playful.skillChip}><Text style={[tStyles.playful.skillText, ff]}>{s}</Text></View>)}
       </View>
     </View>
     <ExtraSections data={data} titleColor="#ea580c" />
   </View>
-);
+  );
+};
 
 // Borderless Template
-const BorderlessTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const BorderlessTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.borderless.container}>
     <View style={tStyles.borderless.header}>
-      <Text style={tStyles.borderless.name}>{data.personalInfo.fullName}</Text>
-      <Text style={tStyles.borderless.jobTitle}>{data.personalInfo.jobTitle}</Text>
+      <Text style={[tStyles.borderless.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.borderless.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
       <View style={tStyles.borderless.contactRow}>
-        {data.personalInfo.email ? <Text style={tStyles.borderless.contact}>{data.personalInfo.email}</Text> : null}
-        {data.personalInfo.phone ? <Text style={tStyles.borderless.contact}>{data.personalInfo.phone}</Text> : null}
-        {data.personalInfo.location ? <Text style={tStyles.borderless.contact}>{data.personalInfo.location}</Text> : null}
+        {data.personalInfo.email ? <Text style={[tStyles.borderless.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.borderless.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.borderless.contact, ff]}>{data.personalInfo.location}</Text> : null}
       </View>
     </View>
-    {data.summary ? <View style={styles.section}><Text style={tStyles.borderless.secTitle}>Profile</Text><Text style={styles.bodyText}>{formatText(data.summary)}</Text></View> : null}
-    <View style={styles.section}>
-      <Text style={tStyles.borderless.secTitle}>Experience</Text>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.borderless.secTitle, ff]}>Profile</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.borderless.secTitle, ff]}>Experience</Text>
       {data.experience.map(exp => (
-        <View key={exp.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={styles.itemTitle}>{exp.title}</Text><Text style={styles.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
-          <Text style={styles.itemCompany}>{exp.company}</Text>
-          <Text style={styles.itemDesc}>{formatText(exp.description)}</Text>
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={dyn.itemCompany}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.borderless.secTitle}>Education</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.borderless.secTitle, ff]}>Education</Text>
       {data.education.map(edu => (
-        <View key={edu.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={styles.itemTitle}>{edu.school}</Text><Text style={styles.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
-          <Text style={styles.itemDesc}>{edu.degree}</Text>
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.borderless.secTitle}>Skills</Text>
-      <View style={styles.chips}>
-        {data.skills.map(s => <View key={s} style={tStyles.borderless.skillChip}><Text style={tStyles.borderless.skillText}>{s}</Text></View>)}
+    <View style={dyn.section}>
+      <Text style={[tStyles.borderless.secTitle, ff]}>Skills</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.borderless.skillChip}><Text style={[tStyles.borderless.skillText, ff]}>{s}</Text></View>)}
       </View>
     </View>
     <ExtraSections data={data} titleColor="#6b7280" />
   </View>
-);
+  );
+};
 
 // Monochrome Template
-const MonochromeTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const MonochromeTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.mono.container}>
     <View style={tStyles.mono.header}>
-      <Text style={tStyles.mono.name}>{data.personalInfo.fullName}</Text>
-      <Text style={tStyles.mono.jobTitle}>{data.personalInfo.jobTitle}</Text>
+      <Text style={[tStyles.mono.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.mono.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
       <View style={tStyles.mono.contactRow}>
-        {data.personalInfo.email ? <Text style={tStyles.mono.contact}>{data.personalInfo.email}</Text> : null}
-        {data.personalInfo.phone ? <Text style={tStyles.mono.contact}>{data.personalInfo.phone}</Text> : null}
-        {data.personalInfo.location ? <Text style={tStyles.mono.contact}>{data.personalInfo.location}</Text> : null}
+        {data.personalInfo.email ? <Text style={[tStyles.mono.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.mono.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.mono.contact, ff]}>{data.personalInfo.location}</Text> : null}
       </View>
     </View>
-    {data.summary ? <View style={styles.section}><Text style={tStyles.mono.secTitle}>PROFILE</Text><Text style={styles.bodyText}>{formatText(data.summary)}</Text></View> : null}
-    <View style={styles.section}>
-      <Text style={tStyles.mono.secTitle}>EXPERIENCE</Text>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.mono.secTitle, ff]}>PROFILE</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.mono.secTitle, ff]}>EXPERIENCE</Text>
       {data.experience.map(exp => (
-        <View key={exp.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={styles.itemTitle}>{exp.title}</Text><Text style={styles.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
-          <Text style={styles.itemCompany}>{exp.company}</Text>
-          <Text style={styles.itemDesc}>{formatText(exp.description)}</Text>
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={dyn.itemCompany}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.mono.secTitle}>EDUCATION</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.mono.secTitle, ff]}>EDUCATION</Text>
       {data.education.map(edu => (
-        <View key={edu.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={styles.itemTitle}>{edu.school}</Text><Text style={styles.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
-          <Text style={styles.itemDesc}>{edu.degree}</Text>
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.mono.secTitle}>SKILLS</Text>
-      <View style={styles.chips}>
-        {data.skills.map(s => <View key={s} style={tStyles.mono.skillChip}><Text style={tStyles.mono.skillText}>{s}</Text></View>)}
+    <View style={dyn.section}>
+      <Text style={[tStyles.mono.secTitle, ff]}>SKILLS</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.mono.skillChip}><Text style={[tStyles.mono.skillText, ff]}>{s}</Text></View>)}
       </View>
     </View>
     <ExtraSections data={data} titleColor="#374151" />
   </View>
-);
+  );
+};
 
 // Technical Template
-const TechnicalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const TechnicalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.tech.container}>
     <View style={tStyles.tech.header}>
       <View style={tStyles.tech.nameRow}>
         <View style={tStyles.tech.dot} />
-        <Text style={tStyles.tech.name}>{data.personalInfo.fullName}</Text>
+        <Text style={[tStyles.tech.name, ff]}>{data.personalInfo.fullName}</Text>
       </View>
-      <Text style={tStyles.tech.jobTitle}>{data.personalInfo.jobTitle}</Text>
+      <Text style={[tStyles.tech.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
       <View style={tStyles.tech.contactRow}>
-        {data.personalInfo.email ? <Text style={tStyles.tech.contact}>📧 {data.personalInfo.email}</Text> : null}
-        {data.personalInfo.phone ? <Text style={tStyles.tech.contact}>📱 {data.personalInfo.phone}</Text> : null}
-        {data.personalInfo.website ? <Text style={tStyles.tech.contact}>🌐 {data.personalInfo.website}</Text> : null}
+        {data.personalInfo.email ? <Text style={[tStyles.tech.contact, ff]}>📧 {data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.tech.contact, ff]}>📱 {data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.website ? <Text style={[tStyles.tech.contact, ff]}>🌐 {data.personalInfo.website}</Text> : null}
       </View>
     </View>
-    {data.summary ? <View style={styles.section}><Text style={tStyles.tech.secTitle}>{'// SUMMARY'}</Text><Text style={{ fontSize: 11, color: '#334155', lineHeight: 18, fontFamily: 'monospace' }}>{formatText(data.summary)}</Text></View> : null}
-    <View style={styles.section}>
-      <Text style={tStyles.tech.secTitle}>{'// EXPERIENCE'}</Text>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.tech.secTitle, ff]}>{'// SUMMARY'}</Text><Text style={{ fontSize: 11, color: '#334155', lineHeight: 18, fontFamily: 'monospace', ...ff }}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.tech.secTitle, ff]}>{'// EXPERIENCE'}</Text>
       {data.experience.map(exp => (
         <View key={exp.id} style={tStyles.tech.item}>
-          <View style={styles.itemHeader}><Text style={tStyles.tech.itemTitle}>{exp.title}</Text><Text style={styles.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
-          <Text style={tStyles.tech.itemCompany}>{exp.company}</Text>
-          <Text style={tStyles.tech.itemDesc}>{formatText(exp.description)}</Text>
+          <View style={dyn.itemHeader}><Text style={[tStyles.tech.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={[tStyles.tech.itemCompany, ff]}>{exp.company}</Text>
+          <Text style={[tStyles.tech.itemDesc, ff]}>{formatText(exp.description)}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.tech.secTitle}>{'// SKILLS'}</Text>
-      <View style={styles.chips}>
-        {data.skills.map(s => <View key={s} style={tStyles.tech.skillChip}><Text style={tStyles.tech.skillText}>{s}</Text></View>)}
+    <View style={dyn.section}>
+      <Text style={[tStyles.tech.secTitle, ff]}>{'// SKILLS'}</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.tech.skillChip}><Text style={[tStyles.tech.skillText, ff]}>{s}</Text></View>)}
       </View>
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.tech.secTitle}>{'// EDUCATION'}</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.tech.secTitle, ff]}>{'// EDUCATION'}</Text>
       {data.education.map(edu => (
-        <View key={edu.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={tStyles.tech.itemTitle}>{edu.school}</Text><Text style={styles.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
-          <Text style={tStyles.tech.itemDesc}>{edu.degree}</Text>
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.tech.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={[tStyles.tech.itemDesc, ff]}>{edu.degree}</Text>
         </View>
       ))}
     </View>
     <ExtraSections data={data} titleColor="#0891b2" />
   </View>
-);
+  );
+};
 
 // Startup Template
-const StartupTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const StartupTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.startup.container}>
     <View style={tStyles.startup.header}>
-      <Text style={tStyles.startup.name}>{data.personalInfo.fullName}</Text>
-      <Text style={tStyles.startup.jobTitle}>{data.personalInfo.jobTitle}</Text>
+      <Text style={[tStyles.startup.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.startup.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
       <View style={tStyles.startup.contactRow}>
-        {data.personalInfo.email ? <Text style={tStyles.startup.contact}>{data.personalInfo.email}</Text> : null}
-        {data.personalInfo.phone ? <Text style={tStyles.startup.contact}>{data.personalInfo.phone}</Text> : null}
-        {data.personalInfo.location ? <Text style={tStyles.startup.contact}>{data.personalInfo.location}</Text> : null}
+        {data.personalInfo.email ? <Text style={[tStyles.startup.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.startup.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.startup.contact, ff]}>{data.personalInfo.location}</Text> : null}
       </View>
     </View>
-    {data.summary ? <View style={styles.section}><Text style={tStyles.startup.secTitle}>WHY ME</Text><Text style={styles.bodyText}>{formatText(data.summary)}</Text></View> : null}
-    <View style={styles.section}>
-      <Text style={tStyles.startup.secTitle}>EXPERIENCE</Text>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.startup.secTitle, ff]}>WHY ME</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.startup.secTitle, ff]}>EXPERIENCE</Text>
       {data.experience.map(exp => (
         <View key={exp.id} style={tStyles.startup.item}>
-          <View style={styles.itemHeader}><Text style={tStyles.startup.itemTitle}>{exp.title}</Text><Text style={styles.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
-          <Text style={tStyles.startup.itemCompany}>{exp.company}</Text>
-          <Text style={styles.itemDesc}>{formatText(exp.description)}</Text>
+          <View style={dyn.itemHeader}><Text style={[tStyles.startup.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={[tStyles.startup.itemCompany, ff]}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.startup.secTitle}>EDUCATION</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.startup.secTitle, ff]}>EDUCATION</Text>
       {data.education.map(edu => (
-        <View key={edu.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={tStyles.startup.itemTitle}>{edu.school}</Text><Text style={styles.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
-          <Text style={styles.itemDesc}>{edu.degree}</Text>
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.startup.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.startup.secTitle}>TECH STACK</Text>
-      <View style={styles.chips}>
-        {data.skills.map(s => <View key={s} style={tStyles.startup.skillChip}><Text style={tStyles.startup.skillText}>{s}</Text></View>)}
+    <View style={dyn.section}>
+      <Text style={[tStyles.startup.secTitle, ff]}>TECH STACK</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.startup.skillChip}><Text style={[tStyles.startup.skillText, ff]}>{s}</Text></View>)}
       </View>
     </View>
     <ExtraSections data={data} titleColor="#ec4899" />
   </View>
-);
+  );
+};
 
 // Timeline Template
-const TimelineTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const TimelineTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.timeline.container}>
     <View style={tStyles.timeline.header}>
-      <Text style={tStyles.timeline.name}>{data.personalInfo.fullName}</Text>
-      <Text style={tStyles.timeline.jobTitle}>{data.personalInfo.jobTitle}</Text>
+      <Text style={[tStyles.timeline.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.timeline.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
       <View style={tStyles.timeline.contactRow}>
-        {data.personalInfo.email ? <Text style={tStyles.timeline.contact}>{data.personalInfo.email}</Text> : null}
-        {data.personalInfo.phone ? <Text style={tStyles.timeline.contact}>{data.personalInfo.phone}</Text> : null}
-        {data.personalInfo.location ? <Text style={tStyles.timeline.contact}>{data.personalInfo.location}</Text> : null}
+        {data.personalInfo.email ? <Text style={[tStyles.timeline.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.timeline.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.timeline.contact, ff]}>{data.personalInfo.location}</Text> : null}
       </View>
     </View>
-    {data.summary ? <View style={styles.section}><Text style={tStyles.timeline.secTitle}>PROFILE</Text><Text style={styles.bodyText}>{formatText(data.summary)}</Text></View> : null}
-    <View style={styles.section}>
-      <Text style={tStyles.timeline.secTitle}>EXPERIENCE</Text>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.timeline.secTitle, ff]}>PROFILE</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.timeline.secTitle, ff]}>EXPERIENCE</Text>
       {data.experience.map(exp => (
         <View key={exp.id} style={tStyles.timeline.timelineItem}>
           <View style={tStyles.timeline.timelineDot} />
           <View style={tStyles.timeline.timelineLine} />
           <View style={tStyles.timeline.timelineContent}>
-            <Text style={tStyles.timeline.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text>
-            <Text style={tStyles.timeline.itemTitle}>{exp.title}</Text>
-            <Text style={tStyles.timeline.itemCompany}>{exp.company}</Text>
-            <Text style={styles.itemDesc}>{formatText(exp.description)}</Text>
+            <Text style={[tStyles.timeline.itemDate, ff]}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text>
+            <Text style={[tStyles.timeline.itemTitle, ff]}>{exp.title}</Text>
+            <Text style={[tStyles.timeline.itemCompany, ff]}>{exp.company}</Text>
+            <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
           </View>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.timeline.secTitle}>EDUCATION</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.timeline.secTitle, ff]}>EDUCATION</Text>
       {data.education.map(edu => (
         <View key={edu.id} style={tStyles.timeline.timelineItem}>
           <View style={tStyles.timeline.timelineDot} />
           <View style={tStyles.timeline.timelineLine} />
           <View style={tStyles.timeline.timelineContent}>
-            <Text style={tStyles.timeline.itemDate}>{edu.startDate} – {edu.endDate}</Text>
-            <Text style={tStyles.timeline.itemTitle}>{edu.school}</Text>
-            <Text style={styles.itemDesc}>{edu.degree}</Text>
+            <Text style={[tStyles.timeline.itemDate, ff]}>{edu.startDate} – {edu.endDate}</Text>
+            <Text style={[tStyles.timeline.itemTitle, ff]}>{edu.school}</Text>
+            <Text style={dyn.itemDesc}>{edu.degree}</Text>
           </View>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.timeline.secTitle}>SKILLS</Text>
-      <View style={styles.chips}>
-        {data.skills.map(s => <View key={s} style={tStyles.timeline.skillChip}><Text style={tStyles.timeline.skillText}>{s}</Text></View>)}
+    <View style={dyn.section}>
+      <Text style={[tStyles.timeline.secTitle, ff]}>SKILLS</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.timeline.skillChip}><Text style={[tStyles.timeline.skillText, ff]}>{s}</Text></View>)}
       </View>
     </View>
     <ExtraSections data={data} titleColor="#2563eb" />
   </View>
-);
+  );
+};
 
 // Urban Template
-const UrbanTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const UrbanTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.urban.container}>
     <View style={tStyles.urban.sidebar}>
       <View style={tStyles.urban.avatar}>
-        <Text style={tStyles.urban.avatarText}>{data.personalInfo.fullName.split(' ').map(n => n.charAt(0)).join('')}</Text>
+        <Text style={[tStyles.urban.avatarText, ff]}>{data.personalInfo.fullName.split(' ').map(n => n.charAt(0)).join('')}</Text>
       </View>
-      <Text style={tStyles.urban.name}>{data.personalInfo.fullName}</Text>
-      <Text style={tStyles.urban.jobTitle}>{data.personalInfo.jobTitle}</Text>
+      <Text style={[tStyles.urban.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.urban.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
       <View style={{ marginTop: 16 }}>
-        <Text style={tStyles.urban.sideLabel}>Contact</Text>
-        {data.personalInfo.email ? <Text style={tStyles.urban.sideItem}>{data.personalInfo.email}</Text> : null}
-        {data.personalInfo.phone ? <Text style={tStyles.urban.sideItem}>{data.personalInfo.phone}</Text> : null}
-        {data.personalInfo.location ? <Text style={tStyles.urban.sideItem}>{data.personalInfo.location}</Text> : null}
+        <Text style={[tStyles.urban.sideLabel, ff]}>Contact</Text>
+        {data.personalInfo.email ? <Text style={[tStyles.urban.sideItem, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.urban.sideItem, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.urban.sideItem, ff]}>{data.personalInfo.location}</Text> : null}
       </View>
       <View style={{ marginTop: 20 }}>
-        <Text style={tStyles.urban.sideLabel}>Skills</Text>
-        {data.skills.map(s => <Text key={s} style={tStyles.urban.skillItem}>• {s}</Text>)}
+        <Text style={[tStyles.urban.sideLabel, ff]}>Skills</Text>
+        {data.skills.map(s => <Text key={s} style={[tStyles.urban.skillItem, ff]}>• {s}</Text>)}
       </View>
       {data.languages && data.languages.length > 0 && (
         <View style={{ marginTop: 20 }}>
-          <Text style={tStyles.urban.sideLabel}>Languages</Text>
-          {data.languages.map(l => <Text key={l} style={tStyles.urban.sideItem}>{l}</Text>)}
+          <Text style={[tStyles.urban.sideLabel, ff]}>Languages</Text>
+          {data.languages.map(l => <Text key={l} style={[tStyles.urban.sideItem, ff]}>{l}</Text>)}
         </View>
       )}
     </View>
     <View style={tStyles.urban.main}>
-      {data.summary ? <View style={styles.section}><Text style={tStyles.urban.secTitle}>PROFILE</Text><Text style={styles.bodyText}>{formatText(data.summary)}</Text></View> : null}
-      <View style={styles.section}>
-        <Text style={tStyles.urban.secTitle}>EXPERIENCE</Text>
+      {data.summary ? <View style={dyn.section}><Text style={[tStyles.urban.secTitle, ff]}>PROFILE</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+      <View style={dyn.section}>
+        <Text style={[tStyles.urban.secTitle, ff]}>EXPERIENCE</Text>
         {data.experience.map(exp => (
           <View key={exp.id} style={tStyles.urban.item}>
-            <View style={styles.itemHeader}><Text style={tStyles.urban.itemTitle}>{exp.title}</Text><Text style={styles.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
-            <Text style={tStyles.urban.itemCompany}>{exp.company}</Text>
-            <Text style={styles.itemDesc}>{formatText(exp.description)}</Text>
+            <View style={dyn.itemHeader}><Text style={[tStyles.urban.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+            <Text style={[tStyles.urban.itemCompany, ff]}>{exp.company}</Text>
+            <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
           </View>
         ))}
       </View>
-      <View style={styles.section}>
-        <Text style={tStyles.urban.secTitle}>EDUCATION</Text>
+      <View style={dyn.section}>
+        <Text style={[tStyles.urban.secTitle, ff]}>EDUCATION</Text>
         {data.education.map(edu => (
-          <View key={edu.id} style={styles.item}>
-            <View style={styles.itemHeader}><Text style={tStyles.urban.itemTitle}>{edu.school}</Text><Text style={styles.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
-            <Text style={styles.itemDesc}>{edu.degree}</Text>
+          <View key={edu.id} style={dyn.item}>
+            <View style={dyn.itemHeader}><Text style={[tStyles.urban.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+            <Text style={dyn.itemDesc}>{edu.degree}</Text>
           </View>
         ))}
       </View>
       <ExtraSections data={data} titleColor="#facc15" />
     </View>
   </View>
-);
+  );
+};
 
 // Nature Template
-const NatureTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const NatureTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.nature.container}>
     <View style={tStyles.nature.header}>
-      <Text style={tStyles.nature.name}>{data.personalInfo.fullName}</Text>
-      <Text style={tStyles.nature.jobTitle}>{data.personalInfo.jobTitle}</Text>
+      <Text style={[tStyles.nature.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.nature.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
       <View style={tStyles.nature.contactRow}>
-        {data.personalInfo.email ? <Text style={tStyles.nature.contact}>📧 {data.personalInfo.email}</Text> : null}
-        {data.personalInfo.phone ? <Text style={tStyles.nature.contact}>📱 {data.personalInfo.phone}</Text> : null}
-        {data.personalInfo.location ? <Text style={tStyles.nature.contact}>📍 {data.personalInfo.location}</Text> : null}
+        {data.personalInfo.email ? <Text style={[tStyles.nature.contact, ff]}>📧 {data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.nature.contact, ff]}>📱 {data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.nature.contact, ff]}>📍 {data.personalInfo.location}</Text> : null}
       </View>
     </View>
-    {data.summary ? <View style={styles.section}><Text style={tStyles.nature.secTitle}>🌿 About Me</Text><Text style={styles.bodyText}>{formatText(data.summary)}</Text></View> : null}
-    <View style={styles.section}>
-      <Text style={tStyles.nature.secTitle}>🌱 Experience</Text>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.nature.secTitle, ff]}>🌿 About Me</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.nature.secTitle, ff]}>🌱 Experience</Text>
       {data.experience.map(exp => (
         <View key={exp.id} style={tStyles.nature.item}>
-          <View style={styles.itemHeader}><Text style={tStyles.nature.itemTitle}>{exp.title}</Text><Text style={styles.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
-          <Text style={tStyles.nature.itemCompany}>{exp.company}</Text>
-          <Text style={styles.itemDesc}>{formatText(exp.description)}</Text>
+          <View style={dyn.itemHeader}><Text style={[tStyles.nature.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={[tStyles.nature.itemCompany, ff]}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.nature.secTitle}>📚 Education</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.nature.secTitle, ff]}>📚 Education</Text>
       {data.education.map(edu => (
-        <View key={edu.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={tStyles.nature.itemTitle}>{edu.school}</Text><Text style={styles.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
-          <Text style={styles.itemDesc}>{edu.degree}</Text>
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.nature.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.nature.secTitle}>🍃 Skills</Text>
-      <View style={styles.chips}>
-        {data.skills.map(s => <View key={s} style={tStyles.nature.skillChip}><Text style={tStyles.nature.skillText}>{s}</Text></View>)}
+    <View style={dyn.section}>
+      <Text style={[tStyles.nature.secTitle, ff]}>🍃 Skills</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.nature.skillChip}><Text style={[tStyles.nature.skillText, ff]}>{s}</Text></View>)}
       </View>
     </View>
     <ExtraSections data={data} titleColor="#16a34a" />
   </View>
-);
+  );
+};
 
 // Bold Template
-const BoldTemplate: React.FC<{ data: ResumeData }> = ({ data }) => (
+const BoldTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
   <View style={tStyles.bold.container}>
     <View style={tStyles.bold.header}>
-      <Text style={tStyles.bold.name}>{data.personalInfo.fullName}</Text>
-      <Text style={tStyles.bold.jobTitle}>{data.personalInfo.jobTitle}</Text>
+      <Text style={[tStyles.bold.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.bold.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
       <View style={tStyles.bold.contactRow}>
-        {data.personalInfo.email ? <Text style={tStyles.bold.contact}>{data.personalInfo.email}</Text> : null}
-        {data.personalInfo.phone ? <Text style={tStyles.bold.contact}>{data.personalInfo.phone}</Text> : null}
-        {data.personalInfo.location ? <Text style={tStyles.bold.contact}>{data.personalInfo.location}</Text> : null}
+        {data.personalInfo.email ? <Text style={[tStyles.bold.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.bold.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.bold.contact, ff]}>{data.personalInfo.location}</Text> : null}
       </View>
     </View>
-    {data.summary ? <View style={styles.section}><Text style={tStyles.bold.secTitle}>PROFILE</Text><Text style={styles.bodyText}>{formatText(data.summary)}</Text></View> : null}
-    <View style={styles.section}>
-      <Text style={tStyles.bold.secTitle}>EXPERIENCE</Text>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.bold.secTitle, ff]}>PROFILE</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.bold.secTitle, ff]}>EXPERIENCE</Text>
       {data.experience.map(exp => (
-        <View key={exp.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={tStyles.bold.itemTitle}>{exp.title}</Text><Text style={styles.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
-          <Text style={tStyles.bold.itemCompany}>{exp.company}</Text>
-          <Text style={styles.itemDesc}>{formatText(exp.description)}</Text>
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.bold.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={[tStyles.bold.itemCompany, ff]}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.bold.secTitle}>EDUCATION</Text>
+    <View style={dyn.section}>
+      <Text style={[tStyles.bold.secTitle, ff]}>EDUCATION</Text>
       {data.education.map(edu => (
-        <View key={edu.id} style={styles.item}>
-          <View style={styles.itemHeader}><Text style={tStyles.bold.itemTitle}>{edu.school}</Text><Text style={styles.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
-          <Text style={styles.itemDesc}>{edu.degree}</Text>
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.bold.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
         </View>
       ))}
     </View>
-    <View style={styles.section}>
-      <Text style={tStyles.bold.secTitle}>SKILLS</Text>
-      <View style={styles.chips}>
-        {data.skills.map(s => <View key={s} style={tStyles.bold.skillChip}><Text style={tStyles.bold.skillText}>{s}</Text></View>)}
+    <View style={dyn.section}>
+      <Text style={[tStyles.bold.secTitle, ff]}>SKILLS</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.bold.skillChip}><Text style={[tStyles.bold.skillText, ff]}>{s}</Text></View>)}
       </View>
     </View>
     <ExtraSections data={data} titleColor="#b91c1c" />
   </View>
-);
+  );
+};
 
 const templateMap: Record<string, React.FC<{ data: ResumeData }>> = {
   modern: ModernTemplate,
@@ -1208,7 +1355,261 @@ const templateMap: Record<string, React.FC<{ data: ResumeData }>> = {
   bold: BoldTemplate,
 };
 
-export default function ResumePreview({ data, template }: ResumePreviewProps) {
+// ─── Custom Template Renderer ───
+const CustomTemplateRenderer: React.FC<{ data: ResumeData; config: CustomTemplateConfig }> = ({ data, config }) => {
+  const fontFamily = config.globalStyles.fontFamily || 'System';
+  const ff = getRNFontFamily(fontFamily) ? { fontFamily: getRNFontFamily(fontFamily) } : {};
+  const bodyPx = bodySizeToPx(config.globalStyles.bodySize);
+  const offset = bodyPx - 12;
+  const accent = config.globalStyles.accentColor;
+  const bg = config.globalStyles.backgroundColor;
+  const text = config.globalStyles.textColor;
+  const subtext = config.globalStyles.subtextColor;
+  const border = config.globalStyles.borderColor;
+
+  // Section title style mapping
+  const getSectionTitleStyle = (title: string, index: number): React.ReactNode => {
+    const baseStyle: any = { fontSize: 13 + offset, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8, ...ff };
+    switch (config.sectionStyle) {
+      case 'underline':
+        return <Text style={{ ...baseStyle, color: accent, borderBottomWidth: 2, borderBottomColor: accent, paddingBottom: 4 }}>{title}</Text>;
+      case 'background':
+        return <View style={{ backgroundColor: accent + '15', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, marginBottom: 8 }}><Text style={{ ...baseStyle, color: accent, marginBottom: 0 }}>{title}</Text></View>;
+      case 'border-left':
+        return <View style={{ borderLeftWidth: 3, borderLeftColor: accent, paddingLeft: 10, marginBottom: 8 }}><Text style={{ ...baseStyle, color: accent, marginBottom: 0 }}>{title}</Text></View>;
+      case 'pill':
+        return <View style={{ backgroundColor: accent, paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20, alignSelf: 'flex-start', marginBottom: 10 }}><Text style={{ ...baseStyle, color: '#ffffff', marginBottom: 0, fontSize: 11 }}>{title}</Text></View>;
+      case 'minimal':
+        return <Text style={{ ...baseStyle, color: subtext, borderBottomWidth: 1, borderBottomColor: border, paddingBottom: 4, letterSpacing: 3, fontSize: 11 }}>{title}</Text>;
+      case 'numbered':
+        return <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}><View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: accent, justifyContent: 'center', alignItems: 'center' }}><Text style={{ fontSize: 10, fontWeight: '800', color: '#ffffff' }}>{index + 1}</Text></View><Text style={{ ...baseStyle, color: accent, marginBottom: 0 }}>{title}</Text></View>;
+      default:
+        return <Text style={{ ...baseStyle, color: accent, borderBottomWidth: 1, borderBottomColor: border, paddingBottom: 4 }}>{title}</Text>;
+    }
+  };
+
+  // Chip style mapping
+  const getSkillChip = (skill: string): React.ReactNode => {
+    const chipStyle: any = { paddingHorizontal: 8, paddingVertical: 3, marginRight: 6, marginBottom: 6 };
+    const textStyle: any = { fontSize: 10 + offset, fontWeight: '600', ...ff };
+    switch (config.chipStyle) {
+      case 'rounded': return <View style={{ ...chipStyle, backgroundColor: accent + '20', borderRadius: 12 }}><Text style={{ ...textStyle, color: accent }}>{skill}</Text></View>;
+      case 'square': return <View style={{ ...chipStyle, backgroundColor: accent + '20', borderRadius: 4 }}><Text style={{ ...textStyle, color: accent }}>{skill}</Text></View>;
+      case 'pill': return <View style={{ ...chipStyle, backgroundColor: accent, borderRadius: 20 }}><Text style={{ ...textStyle, color: '#ffffff' }}>{skill}</Text></View>;
+      case 'outlined': return <View style={{ ...chipStyle, borderWidth: 1, borderColor: accent, borderRadius: 8 }}><Text style={{ ...textStyle, color: accent }}>{skill}</Text></View>;
+      case 'filled': return <View style={{ ...chipStyle, backgroundColor: accent + '15', borderRadius: 6 }}><Text style={{ ...textStyle, color: accent }}>{skill}</Text></View>;
+      default: return <View style={{ ...chipStyle, backgroundColor: accent + '20', borderRadius: 12 }}><Text style={{ ...textStyle, color: accent }}>{skill}</Text></View>;
+    }
+  };
+
+  // Header renderer
+  const renderHeader = () => {
+    const h = config.header;
+    const contactInfo = [
+      data.personalInfo.email,
+      data.personalInfo.phone,
+      data.personalInfo.location,
+      data.personalInfo.linkedin,
+      data.personalInfo.website,
+    ].filter(Boolean);
+
+    const contactEl = h.showContactRow && (
+      <View style={{ flexDirection: h.contactLayout === 'grid' ? 'column' : 'row', flexWrap: 'wrap', gap: h.contactLayout === 'row' ? 12 : 4, marginTop: 10 }}>
+        {data.personalInfo.email ? <Text style={{ fontSize: 10 + offset, color: h.textColor + 'cc', ...ff }}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={{ fontSize: 10 + offset, color: h.textColor + 'cc', ...ff }}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={{ fontSize: 10 + offset, color: h.textColor + 'cc', ...ff }}>{data.personalInfo.location}</Text> : null}
+        {data.personalInfo.linkedin ? <Text style={{ fontSize: 10 + offset, color: h.textColor + 'cc', ...ff }}>{data.personalInfo.linkedin}</Text> : null}
+        {data.personalInfo.website ? <Text style={{ fontSize: 10 + offset, color: h.textColor + 'cc', ...ff }}>{data.personalInfo.website}</Text> : null}
+      </View>
+    );
+
+    switch (h.layout) {
+      case 'centered':
+        return (
+          <View style={{ alignItems: 'center', paddingBottom: 14, marginBottom: 16, borderBottomWidth: 2, borderBottomColor: h.accentColor }}>
+            <Text style={{ fontSize: 24 + offset, fontWeight: '900', color: h.textColor, textTransform: 'uppercase', letterSpacing: 1, textAlign: 'center', ...ff }}>{data.personalInfo.fullName}</Text>
+            {h.showJobTitle && data.personalInfo.jobTitle ? <Text style={{ fontSize: 13 + offset, fontWeight: '700', color: h.accentColor, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4, textAlign: 'center', ...ff }}>{data.personalInfo.jobTitle}</Text> : null}
+            {contactEl}
+          </View>
+        );
+      case 'left-accent':
+        return (
+          <View style={{ borderLeftWidth: 4, borderLeftColor: h.accentColor, paddingLeft: 14, paddingBottom: 14, marginBottom: 16, borderBottomWidth: 1, borderBottomColor: border }}>
+            <Text style={{ fontSize: 24 + offset, fontWeight: '900', color: h.textColor, ...ff }}>{data.personalInfo.fullName}</Text>
+            {h.showJobTitle && data.personalInfo.jobTitle ? <Text style={{ fontSize: 13 + offset, fontWeight: '700', color: h.accentColor, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4, ...ff }}>{data.personalInfo.jobTitle}</Text> : null}
+            {contactEl}
+          </View>
+        );
+      case 'gradient':
+        return (
+          <View style={{ backgroundColor: h.backgroundColor, padding: 16, borderRadius: 12, marginBottom: 16 }}>
+            <Text style={{ fontSize: 24 + offset, fontWeight: '900', color: h.textColor, ...ff }}>{data.personalInfo.fullName}</Text>
+            {h.showJobTitle && data.personalInfo.jobTitle ? <Text style={{ fontSize: 13 + offset, fontWeight: '700', color: h.accentColor, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4, ...ff }}>{data.personalInfo.jobTitle}</Text> : null}
+            {h.showContactRow && (
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 10 }}>
+                {data.personalInfo.email ? <Text style={{ fontSize: 10, color: h.textColor + 'bb', ...ff }}>{data.personalInfo.email}</Text> : null}
+                {data.personalInfo.phone ? <Text style={{ fontSize: 10, color: h.textColor + 'bb', ...ff }}>{data.personalInfo.phone}</Text> : null}
+              </View>
+            )}
+          </View>
+        );
+      case 'boxed':
+        return (
+          <View style={{ borderWidth: 2, borderColor: h.accentColor, borderRadius: 12, padding: 16, marginBottom: 16 }}>
+            <Text style={{ fontSize: 24 + offset, fontWeight: '900', color: h.textColor, textAlign: 'center', ...ff }}>{data.personalInfo.fullName}</Text>
+            {h.showJobTitle && data.personalInfo.jobTitle ? <Text style={{ fontSize: 13 + offset, fontWeight: '700', color: h.accentColor, textTransform: 'uppercase', letterSpacing: 2, textAlign: 'center', marginTop: 4, ...ff }}>{data.personalInfo.jobTitle}</Text> : null}
+            {contactEl}
+          </View>
+        );
+      case 'split':
+        return (
+          <View style={{ flexDirection: 'row', backgroundColor: h.backgroundColor, borderRadius: 12, marginBottom: 16, overflow: 'hidden' }}>
+            <View style={{ flex: 1, padding: 16 }}>
+              <Text style={{ fontSize: 20 + offset, fontWeight: '900', color: h.textColor, ...ff }}>{data.personalInfo.fullName}</Text>
+              {h.showJobTitle && data.personalInfo.jobTitle ? <Text style={{ fontSize: 11 + offset, fontWeight: '700', color: h.accentColor, marginTop: 4, ...ff }}>{data.personalInfo.jobTitle}</Text> : null}
+            </View>
+            <View style={{ backgroundColor: h.accentColor, width: 3 }} />
+            <View style={{ flex: 1, padding: 16, justifyContent: 'center' }}>
+              {data.personalInfo.email ? <Text style={{ fontSize: 10, color: h.textColor + 'cc', marginBottom: 4, ...ff }}>{data.personalInfo.email}</Text> : null}
+              {data.personalInfo.phone ? <Text style={{ fontSize: 10, color: h.textColor + 'cc', marginBottom: 4, ...ff }}>{data.personalInfo.phone}</Text> : null}
+              {data.personalInfo.location ? <Text style={{ fontSize: 10, color: h.textColor + 'cc', ...ff }}>{data.personalInfo.location}</Text> : null}
+            </View>
+          </View>
+        );
+      case 'minimal':
+        return (
+          <View style={{ paddingBottom: 14, marginBottom: 16 }}>
+            <Text style={{ fontSize: 28 + offset, fontWeight: '800', color: h.textColor, ...ff }}>{data.personalInfo.fullName}</Text>
+            {h.showJobTitle && data.personalInfo.jobTitle ? <Text style={{ fontSize: 13 + offset, fontWeight: '600', color: subtext, textTransform: 'uppercase', letterSpacing: 3, marginTop: 4, ...ff }}>{data.personalInfo.jobTitle}</Text> : null}
+            {contactEl}
+          </View>
+        );
+      case 'full-width':
+      default:
+        return (
+          <View style={{ backgroundColor: h.backgroundColor, padding: 16, borderRadius: 12, marginBottom: 16 }}>
+            <Text style={{ fontSize: 24 + offset, fontWeight: '900', color: h.textColor, textTransform: 'uppercase', letterSpacing: 0.5, ...ff }}>{data.personalInfo.fullName}</Text>
+            {h.showJobTitle && data.personalInfo.jobTitle ? <Text style={{ fontSize: 13 + offset, fontWeight: '700', color: h.accentColor, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4, ...ff }}>{data.personalInfo.jobTitle}</Text> : null}
+            {h.showContactRow && (
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 10 }}>
+                {data.personalInfo.email ? <Text style={{ fontSize: 10, color: h.textColor + 'bb', ...ff }}>{data.personalInfo.email}</Text> : null}
+                {data.personalInfo.phone ? <Text style={{ fontSize: 10, color: h.textColor + 'bb', ...ff }}>{data.personalInfo.phone}</Text> : null}
+                {data.personalInfo.location ? <Text style={{ fontSize: 10, color: h.textColor + 'bb', ...ff }}>{data.personalInfo.location}</Text> : null}
+                {data.personalInfo.linkedin ? <Text style={{ fontSize: 10, color: h.textColor + 'bb', ...ff }}>{data.personalInfo.linkedin}</Text> : null}
+                {data.personalInfo.website ? <Text style={{ fontSize: 10, color: h.textColor + 'bb', ...ff }}>{data.personalInfo.website}</Text> : null}
+              </View>
+            )}
+          </View>
+        );
+    }
+  };
+
+  // Item style mapping
+  const renderItem = (item: { title: string; subtitle?: string; date?: string; desc?: string }, style?: any): React.ReactNode => {
+    const itemM: any = { marginBottom: 12, ...style };
+    const headerRow = (
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+        <Text style={{ fontSize: 13 + offset, fontWeight: '700', color: text, flex: 1, ...ff }}>{item.title}</Text>
+        {item.date ? <Text style={{ fontSize: 11 + offset, color: subtext, ...ff }}>{item.date}</Text> : null}
+      </View>
+    );
+    switch (config.itemStyle) {
+      case 'bordered':
+        return <View style={{ ...itemM, borderWidth: 1, borderColor: border, borderRadius: 8, padding: 10 }}>{headerRow}{item.subtitle ? <Text style={{ fontSize: 12 + offset, color: accent, fontWeight: '600', marginBottom: 3, ...ff }}>{item.subtitle}</Text> : null}{item.desc ? <Text style={{ fontSize: 12 + offset, color: subtext, lineHeight: 18 + offset, ...ff }}>{item.desc}</Text> : null}</View>;
+      case 'card':
+        return <View style={{ ...itemM, backgroundColor: accent + '08', borderRadius: 8, padding: 10, borderLeftWidth: 3, borderLeftColor: accent }}>{headerRow}{item.subtitle ? <Text style={{ fontSize: 12 + offset, color: accent, fontWeight: '600', marginBottom: 3, ...ff }}>{item.subtitle}</Text> : null}{item.desc ? <Text style={{ fontSize: 12 + offset, color: subtext, lineHeight: 18 + offset, ...ff }}>{item.desc}</Text> : null}</View>;
+      case 'timeline':
+        return <View style={{ ...itemM, flexDirection: 'row', gap: 10 }}><View style={{ width: 10, alignItems: 'center' }}><View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: accent, marginTop: 4 }} /><View style={{ flex: 1, width: 2, backgroundColor: border, marginTop: 4 }} /></View><View style={{ flex: 1 }}>{headerRow}{item.subtitle ? <Text style={{ fontSize: 12 + offset, color: accent, fontWeight: '600', marginBottom: 3, ...ff }}>{item.subtitle}</Text> : null}{item.desc ? <Text style={{ fontSize: 12 + offset, color: subtext, lineHeight: 18 + offset, ...ff }}>{item.desc}</Text> : null}</View></View>;
+      case 'compact':
+        return <View style={{ ...itemM, marginBottom: 8 }}>{headerRow}{item.subtitle ? <Text style={{ fontSize: 11 + offset, color: accent, fontWeight: '600', ...ff }}>{item.subtitle}</Text> : null}{item.desc ? <Text style={{ fontSize: 11 + offset, color: subtext, lineHeight: 16, ...ff }}>{item.desc}</Text> : null}</View>;
+      default:
+        return <View style={itemM}>{headerRow}{item.subtitle ? <Text style={{ fontSize: 12 + offset, color: accent, fontWeight: '600', marginBottom: 3, ...ff }}>{item.subtitle}</Text> : null}{item.desc ? <Text style={{ fontSize: 12 + offset, color: subtext, lineHeight: 18 + offset, ...ff }}>{item.desc}</Text> : null}</View>;
+    }
+  };
+
+  // Render sections in order
+  const visibleSections = config.sections.filter(s => s.visible);
+
+  return (
+    <View style={{ backgroundColor: bg, borderRadius: 12, padding: 16, elevation: 4 }}>
+      {visibleSections.map((section, index) => {
+        const title = section.customTitle || section.label;
+        switch (section.type) {
+          case 'header': return <React.Fragment key={section.id}>{renderHeader()}</React.Fragment>;
+          case 'summary':
+            if (!data.summary) return null;
+            return <View key={section.id} style={{ marginBottom: 16 }}>{getSectionTitleStyle(title, index)}<Text style={{ fontSize: 12 + offset, color: subtext, lineHeight: 18 + offset, ...ff }}>{data.summary}</Text></View>;
+          case 'experience':
+            return <View key={section.id} style={{ marginBottom: 16 }}>{getSectionTitleStyle(title, index)}{data.experience.map(exp => <React.Fragment key={exp.id}>{renderItem({ title: exp.title, subtitle: exp.company, date: `${exp.startDate} – ${exp.current ? 'Present' : exp.endDate}`, desc: exp.description })}</React.Fragment>)}</View>;
+          case 'education':
+            return <View key={section.id} style={{ marginBottom: 16 }}>{getSectionTitleStyle(title, index)}{data.education.map(edu => <React.Fragment key={edu.id}>{renderItem({ title: edu.school, subtitle: edu.degree, date: `${edu.startDate} – ${edu.endDate}` })}</React.Fragment>)}</View>;
+          case 'skills':
+            return <View key={section.id} style={{ marginBottom: 16 }}>{getSectionTitleStyle(title, index)}<View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>{data.skills.map(s => <React.Fragment key={s}>{getSkillChip(s)}</React.Fragment>)}</View></View>;
+          case 'projects':
+            if (!data.projects || data.projects.length === 0) return null;
+            return <View key={section.id} style={{ marginBottom: 16 }}>{getSectionTitleStyle(title, index)}{data.projects.map(p => <React.Fragment key={p.id}>{renderItem({ title: p.name, desc: p.description })}</React.Fragment>)}</View>;
+          case 'certificates':
+            if (!data.certificates || data.certificates.length === 0) return null;
+            return <View key={section.id} style={{ marginBottom: 16 }}>{getSectionTitleStyle(title, index)}{data.certificates.map(c => <React.Fragment key={c.id}>{renderItem({ title: c.name, subtitle: `${c.issuer} • ${c.date}` })}</React.Fragment>)}</View>;
+          case 'awards':
+            if (!data.awards || data.awards.length === 0) return null;
+            return <View key={section.id} style={{ marginBottom: 16 }}>{getSectionTitleStyle(title, index)}{data.awards.map(a => <React.Fragment key={a.id}>{renderItem({ title: a.name, subtitle: a.issuer, date: a.date, desc: a.description })}</React.Fragment>)}</View>;
+          case 'languages':
+            if (!data.languages || data.languages.length === 0) return null;
+            return <View key={section.id} style={{ marginBottom: 16 }}>{getSectionTitleStyle(title, index)}<View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>{data.languages.map(l => <React.Fragment key={l}>{getSkillChip(l)}</React.Fragment>)}</View></View>;
+          case 'interests':
+            if (!data.interests || data.interests.length === 0) return null;
+            return <View key={section.id} style={{ marginBottom: 16 }}>{getSectionTitleStyle(title, index)}<View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>{data.interests.map(i => <React.Fragment key={i}>{getSkillChip(i)}</React.Fragment>)}</View></View>;
+          case 'custom':
+            if (!data.customSections || data.customSections.length === 0) return null;
+            const custom = data.customSections.find(cs => cs.id === section.id) || data.customSections[0];
+            if (!custom) return null;
+            return <View key={section.id} style={{ marginBottom: 16 }}>{getSectionTitleStyle(title, index)}<Text style={{ fontSize: 12 + offset, color: subtext, lineHeight: 18 + offset, ...ff }}>{custom.content}</Text></View>;
+          default:
+            return null;
+        }
+      })}
+    </View>
+  );
+};
+
+export default function ResumePreview({ data, template, customTemplateConfig }: ResumePreviewProps) {
+  const fontFamily = getRNFontFamily(data.globalStyles?.fontFamily);
+  const bodyPx = bodySizeToPx(data.globalStyles?.bodySize);
+  const offset = bodyPx - 12;
+  const font = fontFamily ? { fontFamily } : {};
+
+  const dyn: Record<string, any> = {
+    sectionTitle: { fontSize: 13 + offset, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8, color: COLORS.primary, ...font },
+    bodyText: { fontSize: 12 + offset, lineHeight: 20 + offset, color: COLORS.gray600, ...font },
+    item: { marginBottom: 12 },
+    itemHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 },
+    itemTitle: { fontSize: 13 + offset, fontWeight: '700', color: COLORS.gray800, flex: 1, ...font },
+    itemDate: { fontSize: 11 + offset, color: COLORS.gray400, ...font },
+    itemCompany: { fontSize: 12 + offset, color: COLORS.primary, marginBottom: 4, ...font },
+    itemLink: { fontSize: 10 + offset, color: COLORS.gray400, ...font },
+    itemSub: { fontSize: 11 + offset, color: COLORS.gray400, ...font },
+    itemDesc: { fontSize: 12 + offset, lineHeight: 18 + offset, color: COLORS.gray600, ...font },
+    chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+    chip: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, borderWidth: 1 },
+    chipText: { fontSize: 10 + offset, fontWeight: '600', ...font },
+    twoCol: { flexDirection: 'row', gap: 16 },
+    half: { flex: 1 },
+    previewContent: { padding: 12 },
+    section: { marginBottom: 16 },
+  };
+
+  const ctxValue: FontOverrides = { fontFamily, offset, dyn };
+
+  // Custom template config takes priority
+  if (customTemplateConfig) {
+    return (
+      <View style={dyn.previewContent}>
+        <CustomTemplateRenderer data={data} config={customTemplateConfig} />
+      </View>
+    );
+  }
+
   // Check if this is a built-in template first
   const TemplateComponent = templateMap[template];
   
@@ -1216,15 +1617,17 @@ export default function ResumePreview({ data, template }: ResumePreviewProps) {
   const factoryConfig = getTemplateConfig(template);
 
   return (
-    <View style={styles.previewContent}>
-      {TemplateComponent ? (
-        <TemplateComponent data={data} />
-      ) : factoryConfig ? (
-        <GenericTemplate data={data} config={factoryConfig} />
-      ) : (
-        <ModernTemplate data={data} />
-      )}
-    </View>
+    <FontContext.Provider value={ctxValue}>
+      <View style={dyn.previewContent}>
+        {TemplateComponent ? (
+          <TemplateComponent data={data} />
+        ) : factoryConfig ? (
+          <GenericTemplate data={data} config={factoryConfig} />
+        ) : (
+          <ModernTemplate data={data} />
+        )}
+      </View>
+    </FontContext.Provider>
   );
 }
 

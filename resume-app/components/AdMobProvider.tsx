@@ -29,18 +29,18 @@ try {
 }
 
 const BANNER_AD_UNIT_ID = __DEV__
-  ? TestIds?.BANNER || 'ca-app-pub-3940256099942544/6300978111'
+  ? TestIds?.BANNER || 'ca-app-pub-2889632845666311/5648358555'
   : Platform.select({
-      ios: 'ca-app-pub-xxxxxxxxxxxxxxxx/yyyyyyyyyy',
-      android: 'ca-app-pub-xxxxxxxxxxxxxxxx/yyyyyyyyyy',
-    }) || 'ca-app-pub-3940256099942544/6300978111';
+      ios: 'ca-app-pub-2889632845666311/5648358555',
+      android: 'ca-app-pub-2889632845666311/5648358555',
+    }) || 'ca-app-pub-2889632845666311/5648358555';
 
 const INTERSTITIAL_AD_UNIT_ID = __DEV__
   ? TestIds?.INTERSTITIAL || 'ca-app-pub-3940256099942544/1033173712'
   : Platform.select({
-      ios: 'ca-app-pub-xxxxxxxxxxxxxxxx/yyyyyyyyyy',
-      android: 'ca-app-pub-xxxxxxxxxxxxxxxx/yyyyyyyyyy',
-    }) || 'ca-app-pub-3940256099942544/1033173712';
+      ios: 'ca-app-pub-2889632845666311/TODO_INTERSTITIAL_IOS',
+      android: 'ca-app-pub-2889632845666311/TODO_INTERSTITIAL_ANDROID',
+    }) || 'ca-app-pub-2889632845666311/TODO_INTERSTITIAL_ANDROID';
 
 interface AdMobContextType {
   isInitialized: boolean;

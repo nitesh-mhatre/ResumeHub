@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "559842224512",
+    "project_id": "nitesh-mhatre-resume",
+    "storage_bucket": "nitesh-mhatre-resume.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:559842224512:android:2c2d39370157fa03c6f965",
+        "android_client_info": {
+          "package_name": "com.bites.resumehub"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "559842224512-vli1oqa6spcucreq25mpsae3jb2o4na2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bites.resumehub",
+            "certificate_hash": "b24e25d05bb017cdf774021c37c2e213b1096b67"
+          }
+        },
+        {
+          "client_id": "559842224512-r3ub8nu65oq46dgjq80m0kosplfdf8pl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeZnKmL-ZHSynvysgCZaYfdlAfz8Mn--Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "559842224512-r3ub8nu65oq46dgjq80m0kosplfdf8pl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

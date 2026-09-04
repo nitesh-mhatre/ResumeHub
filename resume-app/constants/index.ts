@@ -1,9 +1,9 @@
 import { ResumeData, ResumeTheme, PaperSizeConfig } from '../types';
 
 export const PAPER_SIZES: PaperSizeConfig[] = [
-  { id: 'a4', name: 'A4', widthMm: 210, heightMm: 297, widthPx: 794, heightPx: 1123, css: '@page { size: A4; margin: 15mm; }' },
-  { id: 'letter', name: 'US Letter', widthMm: 216, heightMm: 279, widthPx: 816, heightPx: 1056, css: '@page { size: letter; margin: 15mm; }' },
-  { id: 'legal', name: 'Legal', widthMm: 216, heightMm: 356, widthPx: 816, heightPx: 1344, css: '@page { size: legal; margin: 15mm; }' },
+  { id: 'a4', name: 'A4', widthMm: 210, heightMm: 297, widthPx: 794, heightPx: 1123, css: '@page { size: 210mm 297mm; margin: 0; }' },
+  { id: 'letter', name: 'US Letter', widthMm: 216, heightMm: 279, widthPx: 816, heightPx: 1056, css: '@page { size: 216mm 279mm; margin: 0; }' },
+  { id: 'legal', name: 'Legal', widthMm: 216, heightMm: 356, widthPx: 816, heightPx: 1344, css: '@page { size: 216mm 356mm; margin: 0; }' },
 ];
 
 export const RESUME_THEMES: ResumeTheme[] = [
@@ -122,6 +122,49 @@ export const INITIAL_RESUME: ResumeData = {
   photoUrl: "",
   customSections: [{ id: 'custom-1', title: 'Volunteering', content: '• Red Cross Volunteer\n• Local Food Bank Assistant', type: 'list' }],
 };
+
+export const FONT_SIZE_OPTIONS = [
+  { label: 'X-Small', value: '9px', bodyPx: 9, headerPx: 16 },
+  { label: 'Small', value: '10px', bodyPx: 10, headerPx: 18 },
+  { label: 'Small+', value: '11px', bodyPx: 11, headerPx: 20 },
+  { label: 'Medium', value: '12px', bodyPx: 12, headerPx: 22 },
+  { label: 'Medium+', value: '13px', bodyPx: 13, headerPx: 24 },
+  { label: 'Large', value: '14px', bodyPx: 14, headerPx: 26 },
+  { label: 'Large+', value: '15px', bodyPx: 15, headerPx: 28 },
+  { label: 'X-Large', value: '16px', bodyPx: 16, headerPx: 30 },
+  { label: 'XX-Large', value: '18px', bodyPx: 18, headerPx: 34 },
+  { label: 'Title', value: '20px', bodyPx: 20, headerPx: 38 },
+] as const;
+
+export const FONT_FAMILY_OPTIONS = [
+  { label: 'System', value: 'System', rnValue: 'System', cssFallback: 'sans-serif' },
+  { label: 'Helvetica', value: 'Helvetica', rnValue: 'Helvetica', cssFallback: 'Helvetica, Arial, sans-serif' },
+  { label: 'Helvetica Neue', value: 'Helvetica Neue', rnValue: 'HelveticaNeue', cssFallback: 'Helvetica Neue, Helvetica, sans-serif' },
+  { label: 'Arial', value: 'Arial', rnValue: 'Arial', cssFallback: 'Arial, sans-serif' },
+  { label: 'Georgia', value: 'Georgia', rnValue: 'Georgia', cssFallback: 'Georgia, serif' },
+  { label: 'Times New Roman', value: 'Times New Roman', rnValue: 'TimesNewRomanPSMT', cssFallback: 'Times New Roman, Times, serif' },
+  { label: 'Courier New', value: 'Courier New', rnValue: 'CourierNewPSMT', cssFallback: 'Courier New, Courier, monospace' },
+  { label: 'Courier', value: 'Courier', rnValue: 'Courier', cssFallback: 'Courier, monospace' },
+  { label: 'Trebuchet MS', value: 'Trebuchet MS', rnValue: 'TrebuchetMS', cssFallback: 'Trebuchet MS, sans-serif' },
+  { label: 'Palatino', value: 'Palatino', rnValue: 'Palatino', cssFallback: 'Palatino Linotype, Palatino, serif' },
+  { label: 'Garamond', value: 'Garamond', rnValue: 'Garamond', cssFallback: 'Garamond, Georgia, serif' },
+  { label: 'Verdana', value: 'Verdana', rnValue: 'Verdana', cssFallback: 'Verdana, Geneva, sans-serif' },
+  { label: 'Tahoma', value: 'Tahoma', rnValue: 'Tahoma', cssFallback: 'Tahoma, Geneva, sans-serif' },
+  { label: 'Futura', value: 'Futura', rnValue: 'Futura', cssFallback: 'Futura, sans-serif' },
+  { label: 'Avenir', value: 'Avenir', rnValue: 'Avenir', cssFallback: 'Avenir, sans-serif' },
+  { label: 'Didot', value: 'Didot', rnValue: 'Didot', cssFallback: 'Didot, serif' },
+  { label: 'Baskerville', value: 'Baskerville', rnValue: 'Baskerville', cssFallback: 'Baskerville, serif' },
+  { label: 'Cochin', value: 'Cochin', rnValue: 'Cochin', cssFallback: 'Cochin, serif' },
+  { label: 'American Typewriter', value: 'American Typewriter', rnValue: 'AmericanTypewriter', cssFallback: 'American Typewriter, monospace' },
+  { label: 'Menlo', value: 'Menlo', rnValue: 'Menlo', cssFallback: 'Menlo, monospace' },
+  { label: 'Monaco', value: 'Monaco', rnValue: 'Monaco', cssFallback: 'Monaco, monospace' },
+  { label: 'Optima', value: 'Optima', rnValue: 'Optima', cssFallback: 'Optima, sans-serif' },
+  { label: 'Rockwell', value: 'Rockwell', rnValue: 'Rockwell', cssFallback: 'Rockwell, serif' },
+  { label: 'Snell Roundhand', value: 'Snell Roundhand', rnValue: 'SnellRoundhand', cssFallback: 'Snell Roundhand, cursive' },
+] as const;
+
+export type FontSizeOption = string;
+export type FontFamilyOption = string;
 
 export const COLORS = {
   primary: '#4f46e5',

@@ -26,7 +26,7 @@ export interface GlobalStyle {
   subHeaderSize?: 'xs' | 'sm' | 'base' | 'lg';
   subHeaderFontWeight?: 'normal' | 'medium' | 'bold' | 'black';
   bodyColor?: string;
-  bodySize?: 'xs' | 'sm' | 'base';
+  bodySize?: string;
   dateColor?: string;
   accentColor?: string;
   backgroundColor?: string;
@@ -144,4 +144,56 @@ export interface PaperSizeConfig {
   css: string;
 }
 
-export type AppStep = 'welcome' | 'template' | 'editor' | 'builder';
+export type AppStep = 'welcome' | 'template' | 'editor' | 'builder' | 'templateBuilder';
+
+export interface SavedResume {
+  id: string;
+  name: string;
+  template: string;
+  data: ResumeData;
+  updatedAt: number;
+  createdAt: number;
+  customTemplateConfig?: CustomTemplateConfig;
+}
+
+// ─── Template Builder Types ───
+
+export type HeaderLayoutType = 'full-width' | 'centered' | 'left-accent' | 'split' | 'boxed' | 'gradient' | 'minimal';
+
+export interface HeaderConfig {
+  layout: HeaderLayoutType;
+  backgroundColor: string;
+  textColor: string;
+  accentColor: string;
+  showPhoto: boolean;
+  showJobTitle: boolean;
+  showContactRow: boolean;
+  contactLayout: 'row' | 'grid' | 'icons';
+}
+
+export interface SectionOrderItem {
+  id: string;
+  type: 'header' | 'summary' | 'experience' | 'education' | 'skills' | 'projects' | 'certificates' | 'awards' | 'languages' | 'interests' | 'custom';
+  label: string;
+  visible: boolean;
+  customTitle?: string;
+}
+
+export interface CustomTemplateConfig {
+  id: string;
+  name: string;
+  header: HeaderConfig;
+  sections: SectionOrderItem[];
+  globalStyles: {
+    fontFamily: string;
+    bodySize: string;
+    accentColor: string;
+    backgroundColor: string;
+    textColor: string;
+    subtextColor: string;
+    borderColor: string;
+  };
+  sectionStyle: 'underline' | 'background' | 'border-left' | 'pill' | 'minimal' | 'numbered';
+  chipStyle: 'rounded' | 'square' | 'pill' | 'outlined' | 'filled';
+  itemStyle: 'default' | 'bordered' | 'card' | 'timeline' | 'compact';
+}

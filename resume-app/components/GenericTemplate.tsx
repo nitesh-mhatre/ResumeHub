@@ -3,6 +3,29 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { ResumeData } from '../types';
 import { formatText } from '../utils/helpers';
 import { TemplateConfig, FONT_MAP } from '../utils/templateFactory';
+import { GlobalStyle } from '../types';
+
+// Helper to extract first font name for React Native
+function getRNFontFamily(cssStack?: string): string | undefined {
+  if (!cssStack) return undefined;
+  const first = cssStack.split(',')[0].trim().replace(/^['"]|['"]$/g, '');
+  return first || undefined;
+}
+
+function bodySizeToPx(size?: string): number {
+  if (!size) return 12;
+  // Handle legacy named sizes
+  switch (size) {
+    case 'xs': return 11;
+    case 'sm': return 12;
+    case 'base': return 13;
+    case 'lg': return 14;
+  }
+  // Handle numeric pixel values (e.g., '9', '10', '12', etc.)
+  const num = parseInt(size, 10);
+  if (!isNaN(num) && num >= 6 && num <= 36) return num;
+  return 12;
+}
 
 interface GenericTemplateProps {
   data: ResumeData;
@@ -132,7 +155,10 @@ const ExperienceItem: React.FC<{ exp: any; config: TemplateConfig }> = ({ exp, c
 
 // ─── Main GenericTemplate ───
 export default function GenericTemplate({ data, config }: GenericTemplateProps) {
-  const fontFamily = FONT_MAP[config.fontStyle] || FONT_MAP.modern;
+  const userFontFamily = getRNFontFamily(data.globalStyles?.fontFamily);
+  const fontFamily = userFontFamily || FONT_MAP[config.fontStyle] || FONT_MAP.modern;
+  const bodyPx = bodySizeToPx(data.globalStyles?.bodySize);
+  const off = bodyPx - 12;
 
   // Header rendering based on config.headerStyle
   const renderHeader = () => {
