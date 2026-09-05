@@ -202,7 +202,7 @@ export default function BuilderScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={22} color={COLORS.gray700} />
+          <Ionicons name="arrow-back" size={22} color={COLORS.white} />
         </TouchableOpacity>
         <View style={styles.headerText}>
           <Text style={styles.headerTitle}>Preview</Text>
@@ -210,36 +210,43 @@ export default function BuilderScreen() {
         </View>
         <View style={styles.headerActions}>
           <TouchableOpacity style={[styles.headerButton, isSaving && styles.headerButtonDisabled]} onPress={handleSaveToStorage} disabled={isSaving}>
-            <Ionicons name={isSaving ? 'checkmark' : 'bookmark-outline'} size={18} color={isSaving ? COLORS.success : COLORS.primary} />
+            <Ionicons name={isSaving ? 'checkmark' : 'bookmark-outline'} size={18} color={isSaving ? COLORS.success : COLORS.white} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerButton} onPress={handleShare}>
-            <Ionicons name="share-outline" size={18} color={COLORS.gray600} />
+            <Ionicons name="share-outline" size={18} color={COLORS.white} />
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Paper Size Selector */}
-      <TouchableOpacity style={styles.paperSelector} onPress={() => setShowPaperPicker(true)} activeOpacity={0.7}>
-        <Ionicons name="document-outline" size={16} color={COLORS.primary} />
-        <Text style={styles.paperSelectorText}>Paper: {currentPaper.name}</Text>
-        <Text style={styles.paperSelectorSize}>{currentPaper.widthMm}×{currentPaper.heightMm}mm</Text>
-        <Ionicons name="chevron-down" size={14} color={COLORS.gray400} />
-      </TouchableOpacity>
+      {/* Paper / Font Selectors */}
+      <View style={styles.selectorCard}>
+        <TouchableOpacity style={styles.paperSelector} onPress={() => setShowPaperPicker(true)} activeOpacity={0.6}>
+          <View style={styles.selectorIcon}>
+            <Ionicons name="document-outline" size={16} color={COLORS.primary} />
+          </View>
+          <Text style={styles.paperSelectorText}>Paper Size</Text>
+          <Text style={styles.paperSelectorValue}>{currentPaper.name} · {currentPaper.widthMm}×{currentPaper.heightMm}mm</Text>
+          <Ionicons name="chevron-down" size={14} color={COLORS.gray400} />
+        </TouchableOpacity>
 
-      {/* Font Size Selector */}
-      <TouchableOpacity style={styles.paperSelector} onPress={() => setShowFontSizePicker(true)} activeOpacity={0.7}>
-        <Ionicons name="text-outline" size={16} color={COLORS.primary} />
-        <Text style={styles.paperSelectorText}>Font Size: {fontSize.replace('px', '')}px</Text>
-        <Text style={styles.paperSelectorSize}>{fontSize}</Text>
-        <Ionicons name="chevron-down" size={14} color={COLORS.gray400} />
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.paperSelector} onPress={() => setShowFontSizePicker(true)} activeOpacity={0.6}>
+          <View style={styles.selectorIcon}>
+            <Ionicons name="text-outline" size={16} color={COLORS.primary} />
+          </View>
+          <Text style={styles.paperSelectorText}>Font Size</Text>
+          <Text style={styles.paperSelectorValue}>{fontSize.replace('px', '')}px</Text>
+          <Ionicons name="chevron-down" size={14} color={COLORS.gray400} />
+        </TouchableOpacity>
 
-      {/* Font Family Selector */}
-      <TouchableOpacity style={styles.paperSelector} onPress={() => setShowFontFamilyPicker(true)} activeOpacity={0.7}>
-        <Ionicons name="color-fill-outline" size={16} color={COLORS.primary} />
-        <Text style={styles.paperSelectorText}>Font: {FONT_FAMILY_OPTIONS.find(f => f.value === fontFamily)?.label || fontFamily}</Text>
-        <Ionicons name="chevron-down" size={14} color={COLORS.gray400} />
-      </TouchableOpacity>
+        <TouchableOpacity style={[styles.paperSelector, styles.selectorLast]} onPress={() => setShowFontFamilyPicker(true)} activeOpacity={0.6}>
+          <View style={styles.selectorIcon}>
+            <Ionicons name="color-fill-outline" size={16} color={COLORS.primary} />
+          </View>
+          <Text style={styles.paperSelectorText}>Font Family</Text>
+          <Text style={styles.paperSelectorValue}>{FONT_FAMILY_OPTIONS.find(f => f.value === fontFamily)?.label || fontFamily}</Text>
+          <Ionicons name="chevron-down" size={14} color={COLORS.gray400} />
+        </TouchableOpacity>
+      </View>
 
       {/* Resume Preview */}
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
@@ -398,17 +405,20 @@ export default function BuilderScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.gray50 },
-  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 8, backgroundColor: COLORS.white, borderBottomWidth: 1, borderBottomColor: COLORS.gray200, gap: 6 },
-  backButton: { width: 36, height: 36, borderRadius: 8, justifyContent: 'center', alignItems: 'center', flexShrink: 0 },
+  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 10, backgroundColor: COLORS.primary, gap: 6, elevation: 3, shadowColor: COLORS.primaryDark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 6 },
+  backButton: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center', flexShrink: 0, backgroundColor: 'rgba(255,255,255,0.12)' },
   headerText: { flex: 1, minWidth: 60 },
-  headerTitle: { fontSize: 15, fontWeight: '700', color: COLORS.secondary },
-  headerSubtitle: { fontSize: 9, color: COLORS.gray500, textTransform: 'capitalize' },
-  headerActions: { flexDirection: 'row', gap: 4, flexShrink: 0 },
-  headerButton: { width: 36, height: 36, borderRadius: 8, backgroundColor: COLORS.gray100, justifyContent: 'center', alignItems: 'center' },
-  headerButtonDisabled: { backgroundColor: '#d1fae5' },
-  paperSelector: { flexDirection: 'row', alignItems: 'center', paddingVertical: 6, paddingHorizontal: 12, backgroundColor: COLORS.primaryLight, gap: 6 },
-  paperSelectorText: { fontSize: 11, fontWeight: '600', color: COLORS.primary, flex: 1 },
-  paperSelectorSize: { fontSize: 10, color: COLORS.gray500 },
+  headerTitle: { fontSize: 16, fontWeight: '700', color: COLORS.white },
+  headerSubtitle: { fontSize: 10, color: 'rgba(255,255,255,0.75)', textTransform: 'capitalize' },
+  headerActions: { flexDirection: 'row', gap: 8, flexShrink: 0 },
+  headerButton: { width: 36, height: 36, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.12)', justifyContent: 'center', alignItems: 'center' },
+  headerButtonDisabled: { backgroundColor: 'rgba(255,255,255,0.4)' },
+  selectorCard: { margin: 12, backgroundColor: COLORS.white, borderRadius: 16, borderWidth: 1, borderColor: COLORS.gray100, overflow: 'hidden', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8 },
+  paperSelector: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 14, borderBottomWidth: 1, borderBottomColor: COLORS.gray100, gap: 10 },
+  selectorIcon: { width: 30, height: 30, borderRadius: 9, backgroundColor: COLORS.primaryLight, justifyContent: 'center', alignItems: 'center' },
+  paperSelectorText: { fontSize: 13, fontWeight: '600', color: COLORS.gray700, flexShrink: 0 },
+  paperSelectorValue: { fontSize: 11, color: COLORS.gray500, flex: 1, textAlign: 'right' },
+  selectorLast: { borderBottomWidth: 0 },
   scrollView: { flex: 1 },
   scrollContent: { padding: 12 },
   bannerAdContainer: { alignItems: 'center', backgroundColor: COLORS.white, borderTopWidth: 1, borderTopColor: COLORS.gray200, minHeight: 50 },

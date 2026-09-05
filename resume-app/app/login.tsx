@@ -23,6 +23,8 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <View style={[styles.blob, styles.blobTop]} />
+      <View style={[styles.blob, styles.blobBottom]} />
       <View style={styles.content}>
         {/* Logo */}
         <View style={styles.logoArea}>
@@ -71,6 +73,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.white,
   },
+  blob: { position: 'absolute', borderRadius: 999 },
+  blobTop: {
+    width: 260,
+    height: 260,
+    top: -90,
+    right: -110,
+    backgroundColor: 'rgba(79,70,229,0.06)',
+  },
+  blobBottom: {
+    width: 220,
+    height: 220,
+    bottom: -80,
+    left: -100,
+    backgroundColor: 'rgba(16,185,129,0.06)',
+  },
   content: {
     flex: 1,
     paddingHorizontal: 32,
@@ -84,11 +101,16 @@ const styles = StyleSheet.create({
   logoCircle: {
     width: 88,
     height: 88,
-    borderRadius: 24,
+    borderRadius: 26,
     backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
+    elevation: 6,
+    shadowColor: COLORS.primaryDark,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
   },
   appName: {
     fontSize: 20,

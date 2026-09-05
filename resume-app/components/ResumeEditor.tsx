@@ -78,7 +78,7 @@ export default function ResumeEditor({ data, onChange, onNext, onBack }: ResumeE
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={COLORS.gray700} />
+          <Ionicons name="arrow-back" size={24} color={COLORS.white} />
         </TouchableOpacity>
         <View style={styles.headerText}>
           <Text style={styles.headerTitle}>Your Details</Text>
@@ -323,11 +323,11 @@ export default function ResumeEditor({ data, onChange, onNext, onBack }: ResumeE
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.gray50 },
-  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 8, backgroundColor: COLORS.white, borderBottomWidth: 1, borderBottomColor: COLORS.gray200, gap: 6 },
-  backButton: { width: 36, height: 36, borderRadius: 8, justifyContent: 'center', alignItems: 'center', flexShrink: 0 },
+  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 10, backgroundColor: COLORS.primary, gap: 6, elevation: 3, shadowColor: COLORS.primaryDark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 6 },
+  backButton: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center', flexShrink: 0, backgroundColor: 'rgba(255,255,255,0.12)' },
   headerText: { flex: 1, minWidth: 60 },
-  headerTitle: { fontSize: 15, fontWeight: '700', color: COLORS.secondary },
-  headerSubtitle: { fontSize: 9, color: COLORS.gray500 },
+  headerTitle: { fontSize: 16, fontWeight: '700', color: COLORS.white },
+  headerSubtitle: { fontSize: 10, color: 'rgba(255,255,255,0.75)' },
   scrollContent: { padding: 16, paddingBottom: 24 },
   section: { marginBottom: 12, backgroundColor: COLORS.white, borderRadius: 12, borderWidth: 1, borderColor: COLORS.gray200, overflow: 'hidden' },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, backgroundColor: COLORS.gray50 },
