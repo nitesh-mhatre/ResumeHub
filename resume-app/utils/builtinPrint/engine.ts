@@ -100,8 +100,15 @@ export function nl2br(str: string): string {
 }
 
 /** Removes **markers the way the preview's formatText does. */
+/**
+ * Converts **bold** markers to <strong> tags so the HTML renderer can
+ * highlight specific words inside keypoints/descriptions. The preview JSX
+ * already interprets ** identically, so this keeps the PDF faithful to the
+ * on-screen text.
+ */
 export function plain(str: string): string {
-  return (str || '').replace(/\*\*/g, '').trim();
+  const s = str || '';
+  return s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').trim();
 }
 
 export function wrapDoc(opts: {
@@ -111,20 +118,20 @@ export function wrapDoc(opts: {
   pageBg: string;
   body: string;
 }): string {
-  const marginPx = 45;
   return `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <style>
 ${opts.paper.css}
-@page { margin: 0; }
-@page :first { margin: 0; }
+@page { margin: 0; size: ${opts.paper.widthMm}mm ${opts.paper.heightMm}mm; }
+@page :first { margin: 0; size: ${opts.paper.widthMm}mm ${opts.paper.heightMm}mm; }
 *{margin:0;padding:0;box-sizing:border-box}
 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-html, body { margin: 0; padding: 0; }
+html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
 body{font-family:${opts.fontFamily};color:#475569;line-height:1.5;background:${opts.pageBg};}
-.page{width:${opts.paper.widthPx}px;min-height:${opts.paper.heightPx}px;margin:0 auto;background:${opts.pageBg}}
+.page{width:100%;min-height:100vh;background:${opts.pageBg};padding:0;box-sizing:border-box}
+strong{font-weight:800;}
 ${opts.css}
 </style>
 </head>

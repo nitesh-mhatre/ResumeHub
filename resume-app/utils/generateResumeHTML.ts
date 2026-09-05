@@ -105,6 +105,15 @@ function nl2br(str: string): string {
   return escapeHTML(str).replace(/\n/g, '<br/>');
 }
 
+/**
+ * Converts **bold** markers to <strong> tags so users can highlight specific
+ * words in text fields (descriptions, summaries, etc.)
+ */
+function formatBoldText(str: string): string {
+  const escaped = escapeHTML(str);
+  return escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+}
+
 interface FontOptions {
   fontSize?: string;
   fontFamily?: string;
@@ -254,7 +263,7 @@ function generateCustomTemplateHTML(
       case 'experience':
         bodyHtml += `<div style="margin-bottom:12px;page-break-inside:avoid;">${sectionTitleHtml(title, i)}`;
         for (const exp of data.experience) {
-          bodyHtml += `<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;"><span style="font-weight:700;font-size:${itemTitleFontSize};color:${textColor};">${escapeHTML(exp.title)}</span><span style="font-size:${itemDateFontSize};color:${subtext};">${escapeHTML(exp.startDate)} – ${exp.current ? 'Present' : escapeHTML(exp.endDate)}</span></div><div style="font-size:${itemDescFontSize};color:${accent};margin-bottom:3px;">${escapeHTML(exp.company)}</div><div style="font-size:${itemDescFontSize};color:${subtext};white-space:pre-line;">${nl2br(exp.description)}</div></div>`;
+          bodyHtml += `<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;"><span style="font-weight:700;font-size:${itemTitleFontSize};color:${textColor};">${escapeHTML(exp.title)}</span><span style="font-size:${itemDateFontSize};color:${subtext};">${escapeHTML(exp.startDate)} – ${exp.current ? 'Present' : escapeHTML(exp.endDate)}</span></div><div style="font-size:${itemDescFontSize};color:${accent};margin-bottom:3px;">${escapeHTML(exp.company)}</div><div style="font-size:${itemDescFontSize};color:${subtext};white-space:pre-line;">${nl2br(formatBoldText(exp.description))}</div></div>`;
         }
         bodyHtml += `</div>`;
         break;
@@ -272,7 +281,7 @@ function generateCustomTemplateHTML(
         if (data.projects && data.projects.length > 0) {
           bodyHtml += `<div style="margin-bottom:12px;page-break-inside:avoid;">${sectionTitleHtml(title, i)}`;
           for (const p of data.projects) {
-            bodyHtml += `<div style="margin-bottom:8px;"><span style="font-weight:700;font-size:${itemTitleFontSize};color:${textColor};">${escapeHTML(p.name)}</span><div style="font-size:${itemDescFontSize};color:${subtext};white-space:pre-line;">${nl2br(p.description)}</div></div>`;
+            bodyHtml += `<div style="margin-bottom:8px;"><span style="font-weight:700;font-size:${itemTitleFontSize};color:${textColor};">${escapeHTML(p.name)}</span><div style="font-size:${itemDescFontSize};color:${subtext};white-space:pre-line;">${nl2br(formatBoldText(p.description))}</div></div>`;
           }
           bodyHtml += `</div>`;
         }
@@ -309,8 +318,8 @@ function generateCustomTemplateHTML(
         if (data.customSections && data.customSections.length > 0) {
           const custom = data.customSections.find(cs => cs.id === section.id) || data.customSections[0];
           if (custom) {
-            bodyHtml += `<div style="margin-bottom:12px;">${sectionTitleHtml(title, i)}<div style="font-size:${itemDescFontSize};color:${subtext};white-space:pre-line;">${nl2br(custom.content)}</div></div>`;
-          }
+            bodyHtml += `<div style="margin-bottom:12px;">${sectionTitleHtml(title, i)}<div style="font-size:${itemDescFontSize};color:${subtext};white-space:pre-line;">${nl2br(formatBoldText(custom.content))}</div></div>`;
+  }
         }
         break;
     }
@@ -324,20 +333,22 @@ function generateCustomTemplateHTML(
 ${paper.css}
 /* The .page box fills the entire page with the theme background.
    Page margins are handled by @page to ensure consistent spacing on all pages. */
-@page { margin: 0; }
-@page :first { margin: 0; }
+@page { margin: 0; size: ${paper.widthMm}mm ${paper.heightMm}mm; }
+@page :first { margin: 0; size: ${paper.widthMm}mm ${paper.heightMm}mm; }
 *{margin:0;padding:0;box-sizing:border-box}
-/* Keep theme background colors (dark pages, colored header blocks, skill chips)
-   when Chromium/WebView renders the PDF — otherwise they print as white. */
 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-html, body { margin: 0; padding: 0; }
+html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
 body{font-family:${bodyFontFamily};color:${textColor};line-height:1.5;font-size:${bodyFontSize};background:${bg};}
-.page{width:${paper.widthPx}px;min-height:${paper.heightPx}px;margin:0 auto;background:${bg}}
+.page{width:100%;min-height:100vh;background:${bg};padding:0;box-sizing:border-box}
+.content{padding:25px 40px;box-sizing:border-box}
+strong{font-weight:800;}
 </style>
 </head>
 <body>
 <div class="page">
+<div class="content">
 ${bodyHtml}
+</div>
 </div>
 </body>
 </html>`;
@@ -430,8 +441,8 @@ function generateCreativeTemplateHTML(
     + `</div>`;
 
   const secTitle = (label: string) => `<div class="sec-title">${escapeHTML(label)}</div>`;
-  const bodyText = (t: string) => `<div class="body-text">${nl2br(formatText(t))}</div>`;
-  const itemDesc = (t: string) => `<div class="item-desc">${nl2br(formatText(t))}</div>`;
+  const bodyText = (t: string) => `<div class="body-text">${nl2br(formatBoldText(formatText(t)))}</div>`;
+  const itemDesc = (t: string) => `<div class="item-desc">${nl2br(formatBoldText(formatText(t)))}</div>`;
   const xtraTitle = (label: string) => `<div class="xtra-title">${escapeHTML(label)}</div>`;
 
   let bodyHtml = '';
@@ -501,13 +512,15 @@ function generateCreativeTemplateHTML(
 <meta charset="UTF-8">
 <style>
 ${paper.css}
-@page { margin: 0; }
-@page :first { margin: 0; }
+@page { margin: 0; size: ${paper.widthMm}mm ${paper.heightMm}mm; }
+@page :first { margin: 0; size: ${paper.widthMm}mm ${paper.heightMm}mm; }
 *{margin:0;padding:0;box-sizing:border-box}
 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-html, body { margin: 0; padding: 0; }
+html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
 body{font-family:${bodyFontFamily};color:#475569;line-height:1.5;background:#fdf6e3;}
-.page{width:${paper.widthPx}px;min-height:${paper.heightPx}px;margin:0 auto;background:#fdf6e3}
+.page{width:100%;min-height:100vh;background:#fdf6e3;padding:0;box-sizing:border-box}
+.content{padding:25px 40px;box-sizing:border-box}
+strong{font-weight:800;}
 
 /* Header: name, title-case job title, wrapped contact row */
 .hdr{margin-bottom:20px;page-break-after:avoid;break-after:avoid}
@@ -547,8 +560,10 @@ body{font-family:${bodyFontFamily};color:#475569;line-height:1.5;background:#fdf
 </head>
 <body>
 <div class="page">
+<div class="content">
 ${headerHtml}
 ${bodyHtml}
+</div>
 </div>
 </body>
 </html>`;
@@ -1103,13 +1118,15 @@ function generateFallbackHTML(
 <meta charset="UTF-8">
 <style>
 ${paper.css}
-@page { margin: 0; }
-@page :first { margin: 0; }
+@page { margin: 0; size: ${paper.widthMm}mm ${paper.heightMm}mm; }
+@page :first { margin: 0; size: ${paper.widthMm}mm ${paper.heightMm}mm; }
 *{margin:0;padding:0;box-sizing:border-box}
 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-html, body { margin: 0; padding: 0; }
+html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
 body{font-family:${bodyFontFamily};color:${textColor};line-height:1.5;font-size:${bodyFontSize};background:${c.bg};orphans:3;widows:3}
-.page{width:${paper.widthPx}px;min-height:${paper.heightPx}px;margin:0 auto;background:${c.bg}}
+.page{width:100%;min-height:100vh;background:${c.bg};padding:0;box-sizing:border-box}
+.content{padding:25px 40px;box-sizing:border-box}
+strong{font-weight:800;}
 h1{font-size:${headerFontSize};font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;page-break-after:avoid;break-after:avoid}
 .job-title{font-size:${jobTitleFontSize};font-weight:700;color:${c.accent};text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;page-break-after:avoid;break-after:avoid}
 .contact{font-size:${contactFontSize};color:${contactColor};margin-bottom:16px;page-break-after:avoid;break-after:avoid}.contact span{margin-right:10px}
@@ -1125,7 +1142,7 @@ h1{font-size:${headerFontSize};font-weight:800;text-transform:uppercase;letter-s
 </head>
 <body>
 <div class="page">
-
+<div class="content">
 <h1 style="color:${c.headerColor}">${escapeHTML(data.personalInfo.fullName)}</h1>
 <div class="job-title">${escapeHTML(data.personalInfo.jobTitle)}</div>
 <div class="contact">
@@ -1136,14 +1153,14 @@ ${data.personalInfo.linkedin ? `<span>💼 ${escapeHTML(data.personalInfo.linked
 ${data.personalInfo.website ? `<span>🌐 ${escapeHTML(data.personalInfo.website)}</span>` : ''}
 </div>
 
-${data.summary ? `<div class="section"><div class="section-title">Profile</div><div class="summary">${escapeHTML(data.summary)}</div></div>` : ''}
+${data.summary ? `<div class="section"><div class="section-title">Profile</div><div class="summary">${nl2br(formatBoldText(data.summary))}</div></div>` : ''}
 
 <div class="section"><div class="section-title">Experience</div>
-${data.experience.map(exp => `<div class="item"><div class="item-header"><span class="item-title">${escapeHTML(exp.title)}</span><span class="item-date">${escapeHTML(exp.startDate)} – ${exp.current ? 'Present' : escapeHTML(exp.endDate)}</span></div><div class="item-company">${escapeHTML(exp.company)}</div><div class="item-desc">${nl2br(exp.description)}</div></div>`).join('\n')}
+${data.experience.map(exp => `<div class="item" style="padding:10px;background:#f8fafc;border-radius:8px;margin-bottom:8px;border-left:3px solid ${c.accent}"><div class="item-header"><span class="item-title">${escapeHTML(exp.title)}</span><span class="item-date">${escapeHTML(exp.startDate)} – ${exp.current ? 'Present' : escapeHTML(exp.endDate)}</span></div><div class="item-company">${escapeHTML(exp.company)}</div><div class="item-desc">${nl2br(formatBoldText(exp.description))}</div></div>`).join('\n')}
 </div>
 
 <div class="section"><div class="section-title">Education</div>
-${data.education.map(edu => `<div class="item"><div class="item-header"><span class="item-title">${escapeHTML(edu.school)}</span><span class="item-date">${escapeHTML(edu.startDate)} – ${escapeHTML(edu.endDate)}</span></div><div class="item-desc">${escapeHTML(edu.degree)}</div></div>`).join('\n')}
+${data.education.map(edu => `<div class="item" style="padding:10px;background:#f8fafc;border-radius:8px;margin-bottom:8px;border-left:3px solid ${c.accent}"><div class="item-header"><span class="item-title">${escapeHTML(edu.school)}</span><span class="item-date">${escapeHTML(edu.startDate)} – ${escapeHTML(edu.endDate)}</span></div><div class="item-desc">${escapeHTML(edu.degree)}</div></div>`).join('\n')}
 </div>
 
 <div class="section"><div class="section-title">Skills</div><div class="skills">${data.skills.map(s => `<span class="skill-tag">${escapeHTML(s)}</span>`).join('')}</div></div>
@@ -1160,6 +1177,7 @@ ${data.interests.length > 0 ? `<div class="section"><div class="section-title">I
 
 ${data.customSections && data.customSections.length > 0 ? data.customSections.map(s => `<div class="section"><div class="section-title">${escapeHTML(s.title)}</div><div class="item-desc">${nl2br(s.content)}</div></div>`).join('\n') : ''}
 
+</div>
 </div>
 </body>
 </html>`;
