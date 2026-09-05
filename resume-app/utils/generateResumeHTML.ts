@@ -1,6 +1,8 @@
 import { ResumeData, PaperSize, CustomTemplateConfig, SectionOrderItem, HeaderLayoutType } from '../types';
 import { PAPER_SIZES, COLORS } from '../constants';
 import { getTemplateConfig, TemplateConfig } from './templateFactory';
+import { formatText } from './helpers';
+import { renderBuiltInHTML } from './builtinPrint';
 
 interface TemplateColors {
   bg: string;
@@ -341,6 +343,217 @@ ${bodyHtml}
 </html>`;
 }
 
+// ─── Faithful HTML renderers for hand-crafted built-in templates ────────────
+// Hand-crafted built-in templates (creative, modern, …) are rendered on screen
+// by dedicated RN components in ResumePreview.templateMap. Routing them through
+// the generic CustomTemplateConfig path loses their exact layout and styling
+// (uppercases every name/title, renames sections, drops cards/badges, …). Any
+// template registered here gets an HTML renderer that mirrors its RN component
+// 1:1, so the exported PDF matches the on-screen preview.
+
+const BUILTIN_HTML_RENDERERS: Record<
+  string,
+  (
+    data: ResumeData,
+    paper: { widthMm: number; heightMm: number; widthPx: number; heightPx: number; css: string },
+    fontOptions?: FontOptions,
+  ) => string
+> = {
+  creative: generateCreativeTemplateHTML,
+};
+
+// Mirrors the CreativeTemplate component (and its ExtraSections) in
+// ResumePreview.tsx: cream page, title-case header with a wrapped contact row,
+// 18px teal section titles with a thick light-teal underline, white rounded
+// experience cards with pink company badges, and bordered skill chips.
+function generateCreativeTemplateHTML(
+  data: ResumeData,
+  paper: { widthMm: number; heightMm: number; widthPx: number; heightPx: number; css: string },
+  fontOptions?: FontOptions,
+): string {
+  const bodyFontSize = fontOptions?.fontSize || DEFAULT_FONT_SIZE;
+  const rawFontFamily = fontOptions?.fontFamily || DEFAULT_FONT_FAMILY;
+
+  const FONT_CSS_FALLBACKS: Record<string, string> = {
+    'System': '-apple-system, BlinkMacSystemFont, sans-serif',
+    'Helvetica': 'Helvetica, Arial, sans-serif',
+    'Helvetica Neue': 'Helvetica Neue, Helvetica, Arial, sans-serif',
+    'HelveticaNeue': 'Helvetica Neue, Helvetica, Arial, sans-serif',
+    'Arial': 'Arial, sans-serif',
+    'Georgia': 'Georgia, serif',
+    'Times New Roman': 'Times New Roman, Times, serif',
+    'TimesNewRomanPSMT': 'Times New Roman, Times, serif',
+    'Courier New': 'Courier New, Courier, monospace',
+    'CourierNewPSMT': 'Courier New, Courier, monospace',
+    'Courier': 'Courier, monospace',
+    'Trebuchet MS': 'Trebuchet MS, sans-serif',
+    'TrebuchetMS': 'Trebuchet MS, sans-serif',
+    'Palatino': 'Palatino Linotype, Palatino, serif',
+    'Garamond': 'Garamond, serif',
+    'Verdana': 'Verdana, sans-serif',
+    'Tahoma': 'Tahoma, Geneva, sans-serif',
+    'Futura': 'Futura, sans-serif',
+    'Avenir': 'Avenir, sans-serif',
+    'Didot': 'Didot, serif',
+    'Baskerville': 'Baskerville, serif',
+    'Cochin': 'Cochin, serif',
+    'AmericanTypewriter': 'American Typewriter, monospace',
+    'Menlo': 'Menlo, monospace',
+    'Monaco': 'Monaco, monospace',
+    'Optima': 'Optima, sans-serif',
+    'Rockwell': 'Rockwell, serif',
+    'SnellRoundhand': 'Snell Roundhand, cursive',
+  };
+  const bodyFontFamily = FONT_CSS_FALLBACKS[rawFontFamily] || rawFontFamily;
+
+  const m = bodyFontSize.match(/^(\d+)(px)?$/);
+  const bodyPx = m ? parseInt(m[1], 10) : 12;
+  // Same body-size offset the RN preview applies via bodySizeToPx()
+  const off = bodyPx - 12;
+  const bodyFs = 12 + off;
+  const bodyLh = 20 + off;
+  const descFs = 12 + off;
+  const descLh = 18 + off;
+  const marginPx = 45;
+
+  const pi = data.personalInfo;
+
+  // Header — title case (no forced uppercase), contact wraps under job title
+  let contactSpans = '';
+  if (pi.email) contactSpans += `<span>${escapeHTML(pi.email)}</span>`;
+  if (pi.phone) contactSpans += `<span>${escapeHTML(pi.phone)}</span>`;
+  const headerHtml =
+    `<div class="hdr">`
+    + `<div class="hdr-name">${escapeHTML(pi.fullName)}</div>`
+    + (pi.jobTitle ? `<div class="hdr-role">${escapeHTML(pi.jobTitle)}</div>` : '')
+    + (contactSpans ? `<div class="hdr-contacts">${contactSpans}</div>` : '')
+    + `</div>`;
+
+  const secTitle = (label: string) => `<div class="sec-title">${escapeHTML(label)}</div>`;
+  const bodyText = (t: string) => `<div class="body-text">${nl2br(formatText(t))}</div>`;
+  const itemDesc = (t: string) => `<div class="item-desc">${nl2br(formatText(t))}</div>`;
+  const xtraTitle = (label: string) => `<div class="xtra-title">${escapeHTML(label)}</div>`;
+
+  let bodyHtml = '';
+
+  // About (summary)
+  if (data.summary) {
+    bodyHtml += `<div class="sec">${secTitle('About')}${bodyText(data.summary)}</div>`;
+  }
+
+  // Experience — each entry in a white rounded card with a pink company badge
+  bodyHtml += `<div class="sec">${secTitle('Experience')}`;
+  for (const exp of data.experience) {
+    bodyHtml += `<div class="exp-item">`
+      + `<div class="exp-title">${escapeHTML(exp.title)}</div>`
+      + `<span class="exp-badge">${escapeHTML(exp.company)}</span>`
+      + itemDesc(exp.description)
+      + `</div>`;
+  }
+  bodyHtml += `</div>`;
+
+  // Skills — bordered chips
+  bodyHtml += `<div class="sec">${secTitle('Skills')}<div class="chips-row">${data.skills.map(s => `<span class="skill-chip">${escapeHTML(s)}</span>`).join('')}</div></div>`;
+
+  // Extra sections (mirrors ExtraSections with the pink #ec4899 accent)
+  if (data.projects && data.projects.length > 0) {
+    bodyHtml += `<div class="sec">${xtraTitle('Projects')}`;
+    for (const proj of data.projects) {
+      bodyHtml += `<div class="item"><div class="item-hdr"><span class="item-title">${escapeHTML(proj.name)}</span>${proj.link ? `<span class="item-link">${escapeHTML(proj.link)}</span>` : ''}</div>${itemDesc(proj.description)}</div>`;
+    }
+    bodyHtml += `</div>`;
+  }
+  if (data.certificates && data.certificates.length > 0) {
+    bodyHtml += `<div class="sec">${xtraTitle('Certificates')}`;
+    for (const cert of data.certificates) {
+      bodyHtml += `<div class="cert-item"><div class="item-title">${escapeHTML(cert.name)}</div><div class="item-sub">${escapeHTML(cert.issuer)} • ${escapeHTML(cert.date)}</div></div>`;
+    }
+    bodyHtml += `</div>`;
+  }
+  if (data.awards && data.awards.length > 0) {
+    bodyHtml += `<div class="sec">${xtraTitle('Awards')}`;
+    for (const award of data.awards) {
+      bodyHtml += `<div class="item"><div class="item-hdr"><span class="item-title">${escapeHTML(award.name)}</span><span class="item-date">${escapeHTML(award.date)}</span></div>${award.issuer ? `<div class="item-sub">${escapeHTML(award.issuer)}</div>` : ''}${itemDesc(award.description)}</div>`;
+    }
+    bodyHtml += `</div>`;
+  }
+  const hasLang = data.languages && data.languages.length > 0;
+  const hasInt = data.interests && data.interests.length > 0;
+  if (hasLang || hasInt) {
+    bodyHtml += `<div class="sec"><div class="two-col">`;
+    if (hasLang) {
+      bodyHtml += `<div class="half">${xtraTitle('Languages')}<div class="chips-row">${data.languages.map(l => `<span class="chip-outline">${escapeHTML(l)}</span>`).join('')}</div></div>`;
+    }
+    if (hasInt) {
+      bodyHtml += `<div class="half">${xtraTitle('Interests')}<div class="chips-row">${data.interests.map(i => `<span class="chip-outline">${escapeHTML(i)}</span>`).join('')}</div></div>`;
+    }
+    bodyHtml += `</div></div>`;
+  }
+  if (data.customSections && data.customSections.length > 0) {
+    for (const cs of data.customSections) {
+      bodyHtml += `<div class="sec">${xtraTitle(cs.title)}${itemDesc(cs.content)}</div>`;
+    }
+  }
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+${paper.css}
+@page { margin: ${marginPx}px 0 0 0; }
+@page :first { margin-top: 0; }
+*{margin:0;padding:0;box-sizing:border-box}
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+html, body { margin: 0; padding: 0; }
+body{font-family:${bodyFontFamily};color:#475569;line-height:1.5;background:#fff;}
+.page{width:${paper.widthPx}px;min-height:${paper.heightPx}px;padding:${marginPx}px;margin:0 auto;background:#fdf6e3}
+
+/* Header: name, title-case job title, wrapped contact row */
+.hdr{margin-bottom:20px;page-break-after:avoid;break-after:avoid}
+.hdr-name{font-size:32px;font-weight:900;color:#0f172a;line-height:1.15}
+.hdr-role{font-size:16px;font-weight:700;color:#64748b;margin:4px 0 12px}
+.hdr-contacts{display:flex;flex-wrap:wrap;gap:12px}
+.hdr-contacts span{font-size:12px;color:#64748b}
+
+/* Sections: 18px teal title with a thick light-teal underline, title case */
+.sec{margin-bottom:16px}
+.sec-title{font-size:18px;font-weight:800;color:#14b8a6;border-bottom:4px solid #99f6e4;padding-bottom:4px;margin-bottom:12px;page-break-after:avoid;break-after:avoid}
+.body-text{font-size:${bodyFs}px;line-height:${bodyLh}px;color:#475569;white-space:pre-line}
+.item-desc{font-size:${descFs}px;line-height:${descLh}px;color:#475569;white-space:pre-line}
+
+/* Experience cards + pink company badges */
+.exp-item{background:rgba(255,255,255,0.5);border-radius:8px;padding:12px;margin-bottom:16px;page-break-inside:avoid;break-inside:avoid}
+.exp-title{font-size:15px;font-weight:800;color:#1e293b;margin-bottom:4px}
+.exp-badge{display:inline-block;background:#fce7f3;padding:2px 8px;border-radius:12px;margin-bottom:8px;font-size:10px;font-weight:700;color:#ec4899}
+
+/* Skills: bordered chips */
+.chips-row{display:flex;flex-wrap:wrap;gap:6px}
+.skill-chip{border:2px solid #1e293b;border-radius:20px;padding:4px 12px;font-size:10px;font-weight:700;color:#1e293b}
+
+/* Extra sections use the pink accent and uppercased (dyn.sectionTitle) labels */
+.xtra-title{font-size:${13 + off}px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#ec4899;margin-bottom:8px;page-break-after:avoid;break-after:avoid}
+.item{margin-bottom:12px;page-break-inside:avoid;break-inside:avoid}
+.item-hdr{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:2px}
+.item-title{font-size:${13 + off}px;font-weight:700;color:#1e293b;flex:1;min-width:0}
+.item-link{font-size:${10 + off}px;color:#94a3b8}
+.item-date{font-size:${11 + off}px;color:#94a3b8;white-space:nowrap}
+.item-sub{font-size:${11 + off}px;color:#94a3b8;margin-top:2px}
+.cert-item{border-left:2px solid #ec4899;padding-left:12px;margin-bottom:12px;page-break-inside:avoid;break-inside:avoid}
+.two-col{display:flex;gap:16px}
+.half{flex:1;min-width:0}
+.chip-outline{border:1px solid #ec4899;border-radius:12px;padding:4px 10px;font-size:${10 + off}px;font-weight:600;color:#ec4899}
+</style>
+</head>
+<body>
+<div class="page">
+${headerHtml}
+${bodyHtml}
+</div>
+</body>
+</html>`;
+}
+
 export function generateResumeHTML(data: ResumeData, templateId: string, paperSize: PaperSize, fontOptions?: FontOptions, customConfig?: CustomTemplateConfig): string {
   const paper = PAPER_SIZES.find(p => p.id === paperSize) || PAPER_SIZES[0];
 
@@ -357,10 +570,25 @@ export function generateResumeHTML(data: ResumeData, templateId: string, paperSi
     return renderViaCustomHTML(data, paper, factoryConfig, fontOptions);
   }
 
-  // Built-in templates (modern, minimal, ats, tech-dark, etc.) don't have
-  // factory configs but DO have dedicated rich RN preview components in
-  // ResumePreview.templateMap. Build a matching config for each so the PDF
-  // goes through generateCustomTemplateHTML and matches the preview.
+  // Built-in templates that have a faithful dedicated HTML renderer mirroring
+  // their RN preview component (cards, badges, casing, colors) go first.
+  const builtinRenderer = BUILTIN_HTML_RENDERERS[templateId];
+  if (builtinRenderer) {
+    return builtinRenderer(data, paper, fontOptions);
+  }
+
+  // Every other hand-crafted built-in template (modern, minimal, swiss,
+  // corporate, …) gets a faithful HTML renderer that mirrors its dedicated
+  // RN preview component 1:1 (layouts, header formats, colors, card/badge
+  // structure) instead of a generic approximation.
+  const faithfulHtml = renderBuiltInHTML(templateId, data, paper, fontOptions);
+  if (faithfulHtml) {
+    return faithfulHtml;
+  }
+
+  // Ultimate safety net: build a matching config for any remaining built-in so
+  // the PDF still goes through generateCustomTemplateHTML rather than the
+  // plain fallback below.
   const builtinConfig = getBuiltInTemplateConfig(templateId, data, fontOptions);
   if (builtinConfig) {
     return generateCustomTemplateHTML(data, paper, builtinConfig, fontOptions);
