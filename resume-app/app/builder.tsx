@@ -83,11 +83,8 @@ export default function BuilderScreen() {
         html,
         width: pdfWidth,
         height: pdfHeight,
+        margins: { left: 0, right: 0, top: 0, bottom: 0 },
       };
-      // margins is iOS-only; pass it only on iOS to avoid Android crashes
-      if (Platform.OS === 'ios') {
-        printOptions.margins = { left: 0, right: 0, top: 0, bottom: 0 };
-      }
       // Ask expo-print for the PDF as base64: on Android/Expo Go the file URI
       // it returns lives outside the sandbox that expo-sharing/expo-file-system
       // can read, so we re-write the bytes into our own cache before sharing.

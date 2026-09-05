@@ -118,13 +118,13 @@ export function wrapDoc(opts: {
 <meta charset="UTF-8">
 <style>
 ${opts.paper.css}
-@page { margin: ${marginPx}px 0 0 0; }
-@page :first { margin-top: 0; }
+@page { margin: 0; }
+@page :first { margin: 0; }
 *{margin:0;padding:0;box-sizing:border-box}
 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 html, body { margin: 0; padding: 0; }
-body{font-family:${opts.fontFamily};color:#475569;line-height:1.5;background:#fff;}
-.page{width:${opts.paper.widthPx}px;min-height:${opts.paper.heightPx}px;padding:${marginPx}px;margin:0 auto;background:${opts.pageBg}}
+body{font-family:${opts.fontFamily};color:#475569;line-height:1.5;background:${opts.pageBg};}
+.page{width:${opts.paper.widthPx}px;min-height:${opts.paper.heightPx}px;margin:0 auto;background:${opts.pageBg}}
 ${opts.css}
 </style>
 </head>

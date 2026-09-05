@@ -322,17 +322,17 @@ function generateCustomTemplateHTML(
 <meta charset="UTF-8">
 <style>
 ${paper.css}
-/* Top margin on every page: the .page box's padding-top only applies on the
-   first printed page, so continuation pages need a @page margin instead. */
-@page { margin: ${marginPx}px 0 0 0; }
-@page :first { margin-top: 0; }
+/* The .page box fills the entire page with the theme background.
+   Page margins are handled by @page to ensure consistent spacing on all pages. */
+@page { margin: 0; }
+@page :first { margin: 0; }
 *{margin:0;padding:0;box-sizing:border-box}
 /* Keep theme background colors (dark pages, colored header blocks, skill chips)
    when Chromium/WebView renders the PDF — otherwise they print as white. */
 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 html, body { margin: 0; padding: 0; }
-body{font-family:${bodyFontFamily};color:${textColor};line-height:1.5;font-size:${bodyFontSize};background:#fff;}
-.page{width:${paper.widthPx}px;min-height:${paper.heightPx}px;padding:${marginPx}px;margin:0 auto;background:${bg}}
+body{font-family:${bodyFontFamily};color:${textColor};line-height:1.5;font-size:${bodyFontSize};background:${bg};}
+.page{width:${paper.widthPx}px;min-height:${paper.heightPx}px;margin:0 auto;background:${bg}}
 </style>
 </head>
 <body>
@@ -501,13 +501,13 @@ function generateCreativeTemplateHTML(
 <meta charset="UTF-8">
 <style>
 ${paper.css}
-@page { margin: ${marginPx}px 0 0 0; }
-@page :first { margin-top: 0; }
+@page { margin: 0; }
+@page :first { margin: 0; }
 *{margin:0;padding:0;box-sizing:border-box}
 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 html, body { margin: 0; padding: 0; }
-body{font-family:${bodyFontFamily};color:#475569;line-height:1.5;background:#fff;}
-.page{width:${paper.widthPx}px;min-height:${paper.heightPx}px;padding:${marginPx}px;margin:0 auto;background:#fdf6e3}
+body{font-family:${bodyFontFamily};color:#475569;line-height:1.5;background:#fdf6e3;}
+.page{width:${paper.widthPx}px;min-height:${paper.heightPx}px;margin:0 auto;background:#fdf6e3}
 
 /* Header: name, title-case job title, wrapped contact row */
 .hdr{margin-bottom:20px;page-break-after:avoid;break-after:avoid}
@@ -1103,13 +1103,13 @@ function generateFallbackHTML(
 <meta charset="UTF-8">
 <style>
 ${paper.css}
-@page { margin: ${marginPx}px 0 0 0; }
-@page :first { margin-top: 0; }
+@page { margin: 0; }
+@page :first { margin: 0; }
 *{margin:0;padding:0;box-sizing:border-box}
 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 html, body { margin: 0; padding: 0; }
-body{font-family:${bodyFontFamily};color:${textColor};line-height:1.5;font-size:${bodyFontSize};background:#fff;orphans:3;widows:3}
-.page{width:${paper.widthPx}px;min-height:${paper.heightPx}px;padding:${marginPx}px;margin:0 auto;background:${c.bg}}
+body{font-family:${bodyFontFamily};color:${textColor};line-height:1.5;font-size:${bodyFontSize};background:${c.bg};orphans:3;widows:3}
+.page{width:${paper.widthPx}px;min-height:${paper.heightPx}px;margin:0 auto;background:${c.bg}}
 h1{font-size:${headerFontSize};font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;page-break-after:avoid;break-after:avoid}
 .job-title{font-size:${jobTitleFontSize};font-weight:700;color:${c.accent};text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;page-break-after:avoid;break-after:avoid}
 .contact{font-size:${contactFontSize};color:${contactColor};margin-bottom:16px;page-break-after:avoid;break-after:avoid}.contact span{margin-right:10px}
