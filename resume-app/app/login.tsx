@@ -12,12 +12,12 @@ import { useAuth } from '../context/AuthContext';
 import { COLORS } from '../constants';
 
 export default function LoginScreen() {
-  const { signInWithGoogle, loading } = useAuth();
+  const { loading } = useAuth();
   const [signingIn, setSigningIn] = React.useState(false);
 
   const handleGoogleSignIn = async () => {
     setSigningIn(true);
-    await signInWithGoogle();
+    // Google sign-in removed
     setSigningIn(false);
   };
 

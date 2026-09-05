@@ -30,12 +30,12 @@
         "expo-build-properties",
         {
           "android": {
-            "googleServicesFile": "./google-services.json",
+            
             "kotlinVersion": "2.1.20"
           }
         }
-      ],      "./plugins/withKotlinGradlePluginVersion",
-      "./plugins/withAdMobAppId",
+      ],      
+      
       ["@react-native-google-signin/google-signin",
         {
           "scopes": ["profile", "email"],

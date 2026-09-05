@@ -1,38 +1,18 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import {
-  onAuthStateChanged,
-  signInWithCredential,
-  signOut as firebaseSignOut,
-  GoogleAuthProvider,
-  User,
-} from 'firebase/auth';
-import { auth } from '../utils/firebase';
+// Firebase and Google integration removed.
 
-// Lazy-load GoogleSignin to prevent crash in Expo Go or when native module is unavailable
-let GoogleSignin: any = null;
-let statusCodes: any = null;
-let googleSigninAvailable = false;
-
-try {
-  const gs = require('@react-native-google-signin/google-signin');
-  GoogleSignin = gs.GoogleSignin;
-  statusCodes = gs.statusCodes;
-  googleSigninAvailable = !!(GoogleSignin && statusCodes);
-} catch (e) {
-  // Native module not available (e.g. Expo Go) — Google Sign-In will be disabled
-}
 
 interface AuthContextType {
-  user: User | null;
+  user: null;
   loading: boolean;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGoogle: () => Promise<void>; // Removed implementation
   signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  loading: true,
-  signInWithGoogle: async () => {},
+  loading: false,
+  signInWithGoogle: async () => {}, // Removed implementation
   signOut: async () => {},
 });
 
@@ -46,36 +26,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Configure Google Sign-In with web client ID (for Firebase)
   useEffect(() => {
-    if (googleSigninAvailable && GoogleSignin) {
+    // Google Sign-In removed
       GoogleSignin.configure({
-        webClientId: '559842224512-r3ub8nu65oq46dgjq80m0kosplfdf8pl.apps.googleusercontent.com',
+        // webClientId removed
         offlineAccess: true,
       });
     }
   }, []);
 
-  // Listen for auth state changes
+  // Listen for auth state changes (removed)
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    // onAuthStateChanged removed
       setUser(user);
       setLoading(false);
     });
     return unsubscribe;
   }, []);
 
-  const signInWithGoogle = async () => {
-    if (!googleSigninAvailable || !GoogleSignin) {
+  // signInWithGoogle removed
+    // Google Sign-In removed
       console.warn('Google Sign-In is not available in this environment (Expo Go).');
       return;
     }
 
     try {
       await GoogleSignin.hasPlayServices();
-      const userInfo = await GoogleSignin.signIn();
+      // Google Sign-In removed
       // Handle both old and new API shapes
       const idToken = (userInfo as any)?.idToken ?? (userInfo as any)?.user?.idToken;
       const credential = GoogleAuthProvider.credential(idToken);
-      await signInWithCredential(auth, credential);
+      // signInWithCredential removed
     } catch (error: any) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         // User cancelled the login flow
@@ -91,14 +71,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
-      await firebaseSignOut(auth);
+      // firebaseSignOut removed
     } catch (error) {
       console.error('Sign-out error:', error);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signInWithGoogle: async () => {}, signOut }}>
       {children}
     </AuthContext.Provider>
   );

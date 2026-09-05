@@ -29,7 +29,7 @@ interface WelcomeScreenProps {
 
 export default function WelcomeScreen({ onStartFresh, onDuplicate, onUploadData, savedResumes, onLoadSaved, onDeleteSaved }: WelcomeScreenProps) {
   const [isUploading, setIsUploading] = React.useState(false);
-  const { user, signInWithGoogle } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
 
   const handleDelete = (id: string, name: string) => {
@@ -131,8 +131,7 @@ export default function WelcomeScreen({ onStartFresh, onDuplicate, onUploadData,
               : 'Sign in to save your resumes and access them anywhere.'}
           </Text>
           {!user && (
-            <TouchableOpacity style={styles.heroSignInButton} onPress={signInWithGoogle}>
-              <Ionicons name="logo-google" size={18} color="#fff" />
+
               <Text style={styles.heroSignInText}>Sign in with Google</Text>
             </TouchableOpacity>
           )}

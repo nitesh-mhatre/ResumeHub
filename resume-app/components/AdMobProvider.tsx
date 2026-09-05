@@ -1,43 +1,5 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { Platform, View } from 'react-native';
+// Google Mobile Ads integration removed.
 
-// Lazy-load the native module — fails gracefully in Expo Go or when plugin is not configured
-let MobileAds: any = null;
-let InterstitialAd: any = null;
-let AdEventType: any = null;
-let TestIds: any = null;
-let BannerAdSize: any = null;
-let BannerAd: any = null;
-let RewardedAd: any = null;
-let RewardedAdEventType: any = null;
-
-let nativeAdsAvailable = false;
-
-try {
-  const adsModule = require('react-native-google-mobile-ads');
-  MobileAds = adsModule.MobileAds;
-  InterstitialAd = adsModule.InterstitialAd;
-  AdEventType = adsModule.AdEventType;
-  TestIds = adsModule.TestIds;
-  BannerAdSize = adsModule.BannerAdSize;
-  BannerAd = adsModule.BannerAd;
-  RewardedAd = adsModule.RewardedAd;
-  RewardedAdEventType = adsModule.RewardedAdEventType;
-  nativeAdsAvailable = !!(MobileAds && InterstitialAd && BannerAd);
-} catch (e) {
-  // Native ads not available — using fallback placeholder banners
-}
-
-const BANNER_AD_UNIT_ID = __DEV__
-  ? TestIds?.BANNER || 'ca-app-pub-2889632845666311/5648358555'
-  : Platform.select({
-      ios: 'ca-app-pub-2889632845666311/5648358555',
-      android: 'ca-app-pub-2889632845666311/5648358555',
-    }) || 'ca-app-pub-2889632845666311/5648358555';
-
-const INTERSTITIAL_AD_UNIT_ID = __DEV__
-  ? TestIds?.INTERSTITIAL || 'ca-app-pub-3940256099942544/1033173712'
-  : Platform.select({
       ios: 'ca-app-pub-2889632845666311/TODO_INTERSTITIAL_IOS',
       android: 'ca-app-pub-2889632845666311/TODO_INTERSTITIAL_ANDROID',
     }) || 'ca-app-pub-2889632845666311/TODO_INTERSTITIAL_ANDROID';
