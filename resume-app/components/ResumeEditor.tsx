@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ResumeData } from '../types';
 import { COLORS } from '../constants';
 import { generateId } from '../utils/helpers';
@@ -76,7 +77,7 @@ export default function ResumeEditor({ data, onChange, onNext, onBack }: ResumeE
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
-      <View style={styles.header}>
+      <LinearGradient colors={[COLORS.primary, COLORS.primaryDark]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color={COLORS.white} />
         </TouchableOpacity>
@@ -84,7 +85,7 @@ export default function ResumeEditor({ data, onChange, onNext, onBack }: ResumeE
           <Text style={styles.headerTitle}>Your Details</Text>
           <Text style={styles.headerSubtitle}>Fill in your professional information</Text>
         </View>
-      </View>
+      </LinearGradient>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scrollContent}>
         {/* Personal Info */}

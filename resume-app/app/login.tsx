@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../context/AuthContext';
 import { COLORS } from '../constants';
 
@@ -23,14 +24,20 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <LinearGradient colors={['#ffffff', '#eef2ff']} style={styles.gradient}>
       <View style={[styles.blob, styles.blobTop]} />
       <View style={[styles.blob, styles.blobBottom]} />
       <View style={styles.content}>
         {/* Logo */}
         <View style={styles.logoArea}>
-          <View style={styles.logoCircle}>
+          <LinearGradient
+            colors={['#6366f1', COLORS.primary, '#7c3aed']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.logoCircle}
+          >
             <Ionicons name="document-text" size={44} color={COLORS.white} />
-          </View>
+          </LinearGradient>
           <Text style={styles.appName}>Resume Hub</Text>
         </View>
 
@@ -64,6 +71,7 @@ export default function LoginScreen() {
           <Text style={styles.termsLink}>Privacy Policy</Text>
         </Text>
       </View>
+      </LinearGradient>
     </SafeAreaView>
   );
 }
@@ -73,6 +81,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.white,
   },
+  gradient: { flex: 1 },
   blob: { position: 'absolute', borderRadius: 999 },
   blobTop: {
     width: 260,

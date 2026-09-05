@@ -10,11 +10,21 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS } from '../constants';
 
 const { width, height } = Dimensions.get('window');
+
+// Darken a hex color for gradient ends
+function darken(hex: string, amount = 0.2): string {
+  const clean = hex.replace('#', '');
+  const r = Math.round(parseInt(clean.substring(0, 2), 16) * (1 - amount));
+  const g = Math.round(parseInt(clean.substring(2, 4), 16) * (1 - amount));
+  const b = Math.round(parseInt(clean.substring(4, 6), 16) * (1 - amount));
+  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+}
 
 const ONBOARDING_STEPS = [
   {
@@ -128,9 +138,16 @@ export default function OnboardingScreen() {
         {ONBOARDING_STEPS.map((step, idx) => (
           <View key={step.id} style={[styles.slide, { width }]}>
             <View style={[styles.slideContent, { backgroundColor: step.bgColor }]}>
-              <View style={[styles.emojiContainer, { backgroundColor: step.color + '20' }]}>
+              <View style={[styles.slideBlob, styles.slideBlobTop, { backgroundColor: step.color + '12' }]} />
+              <View style={[styles.slideBlob, styles.slideBlobBottom, { backgroundColor: step.color + '0d' }]} />
+              <LinearGradient
+                colors={[step.color, darken(step.color)]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.emojiContainer}
+              >
                 <Text style={styles.emoji}>{step.emoji}</Text>
-              </View>
+              </LinearGradient>
               <Text style={[styles.slideTitle, { color: step.color }]}>{step.title}</Text>
               <Text style={styles.slideSubtitle}>{step.subtitle}</Text>
               <Text style={styles.slideDescription}>{step.description}</Text>
@@ -141,18 +158,22 @@ export default function OnboardingScreen() {
 
       {/* Bottom Actions */}
       <View style={styles.bottomBar}>
-        <TouchableOpacity
-          style={[styles.nextButton, { backgroundColor: ONBOARDING_STEPS[currentStep].color }]}
-          onPress={handleNext}
-        >
-          <Text style={styles.nextText}>
-            {currentStep === ONBOARDING_STEPS.length - 1 ? 'Get Started' : 'Next'}
-          </Text>
-          <Ionicons
-            name={currentStep === ONBOARDING_STEPS.length - 1 ? 'rocket' : 'arrow-forward'}
-            size={18}
-            color={COLORS.white}
-          />
+        <TouchableOpacity onPress={handleNext} activeOpacity={0.85}>
+          <LinearGradient
+            colors={[ONBOARDING_STEPS[currentStep].color, darken(ONBOARDING_STEPS[currentStep].color)]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.nextButton}
+          >
+            <Text style={styles.nextText}>
+              {currentStep === ONBOARDING_STEPS.length - 1 ? 'Get Started' : 'Next'}
+            </Text>
+            <Ionicons
+              name={currentStep === ONBOARDING_STEPS.length - 1 ? 'rocket' : 'arrow-forward'}
+              size={18}
+              color={COLORS.white}
+            />
+          </LinearGradient>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -181,15 +202,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 40,
     marginHorizontal: 20,
-    borderRadius: 24,
+    borderRadius: 28,
+    overflow: 'hidden',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
   },
+  slideBlob: { position: 'absolute', borderRadius: 999 },
+  slideBlobTop: { width: 220, height: 220, top: -80, right: -90 },
+  slideBlobBottom: { width: 180, height: 180, bottom: -70, left: -80 },
   emojiContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 124,
+    height: 124,
+    borderRadius: 62,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 32,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
   },
   emoji: { fontSize: 56 },
   slideTitle: { fontSize: 28, fontWeight: '800', textAlign: 'center', marginBottom: 8 },
@@ -206,6 +241,11 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 14,
     gap: 8,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
   },
   nextText: { color: COLORS.white, fontWeight: '700', fontSize: 16 },
 });

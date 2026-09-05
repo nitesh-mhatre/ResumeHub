@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   HeaderConfig,
@@ -545,7 +546,7 @@ export default function TemplateBuilderScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       {/* Header */}
-      <View style={styles.header}>
+      <LinearGradient colors={[COLORS.primary, COLORS.primaryDark]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={22} color={COLORS.white} />
         </TouchableOpacity>
@@ -560,7 +561,7 @@ export default function TemplateBuilderScreen() {
           <Ionicons name="checkmark" size={20} color={COLORS.primary} />
           <Text style={styles.saveButtonText}>Done</Text>
         </TouchableOpacity>
-      </View>
+      </LinearGradient>
 
       {/* Template Name */}
       <View style={styles.nameContainer}>

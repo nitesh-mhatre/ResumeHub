@@ -1,6 +1,6 @@
-import { ResumeData, PaperSize, CustomTemplateConfig, SectionOrderItem } from '../types';
+import { ResumeData, PaperSize, CustomTemplateConfig, SectionOrderItem, HeaderLayoutType } from '../types';
 import { PAPER_SIZES, COLORS } from '../constants';
-import { getTemplateConfig } from './templateFactory';
+import { getTemplateConfig, TemplateConfig } from './templateFactory';
 
 interface TemplateColors {
   bg: string;
@@ -196,7 +196,7 @@ function generateCustomTemplateHTML(
       headerHtml = `<div style="border-left:4px solid ${h.accentColor};padding-left:14px;padding-bottom:14px;margin-bottom:16px;border-bottom:1px solid ${border};">${nameHtml}${jobTitleHtml}${contactHtml}</div>`;
       break;
     case 'boxed':
-      headerHtml = `<div style="border:2px solid ${h.accentColor};border-radius:12px;padding:16px;margin-bottom:16px;text-align:center;">${nameHtml}${jobTitleHtml}${contactHtml}</div>`;
+      headerHtml = `<div style="background:${h.backgroundColor};border:2px solid ${h.accentColor};border-radius:12px;padding:16px;margin-bottom:16px;text-align:center;">${nameHtml}${jobTitleHtml}${contactHtml}</div>`;
       break;
     case 'gradient':
       headerHtml = `<div style="background:${h.backgroundColor};padding:16px;border-radius:12px;margin-bottom:16px;">${nameHtml}${jobTitleHtml}${contactHtml}</div>`;
@@ -206,7 +206,8 @@ function generateCustomTemplateHTML(
       break;
     case 'full-width':
     default:
-      headerHtml = `<div style="background:${h.backgroundColor};padding:16px;border-radius:12px;margin-bottom:16px;">${nameHtml}${jobTitleHtml}${contactHtml}</div>`;
+      const fwBorder = h.borderColor ? `;border-bottom:2px solid ${h.borderColor}` : '';
+      headerHtml = `<div style="background:${h.backgroundColor};padding:16px;border-radius:12px;margin-bottom:16px${fwBorder};">${nameHtml}${jobTitleHtml}${contactHtml}</div>`;
       break;
   }
 
@@ -324,6 +325,9 @@ ${paper.css}
 @page { margin: ${marginPx}px 0 0 0; }
 @page :first { margin-top: 0; }
 *{margin:0;padding:0;box-sizing:border-box}
+/* Keep theme background colors (dark pages, colored header blocks, skill chips)
+   when Chromium/WebView renders the PDF — otherwise they print as white. */
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 html, body { margin: 0; padding: 0; }
 body{font-family:${bodyFontFamily};color:${textColor};line-height:1.5;font-size:${bodyFontSize};background:#fff;}
 .page{width:${paper.widthPx}px;min-height:${paper.heightPx}px;padding:${marginPx}px;margin:0 auto;background:${bg}}
@@ -339,18 +343,484 @@ ${bodyHtml}
 
 export function generateResumeHTML(data: ResumeData, templateId: string, paperSize: PaperSize, fontOptions?: FontOptions, customConfig?: CustomTemplateConfig): string {
   const paper = PAPER_SIZES.find(p => p.id === paperSize) || PAPER_SIZES[0];
-  
-  // If custom template config is provided, generate HTML from it
+
+  // If a custom template config is provided, use it directly
   if (customConfig) {
     return generateCustomTemplateHTML(data, paper, customConfig, fontOptions);
   }
-  
-  const c = getTemplateColors(templateId);
 
+  // Try to get a factory template config — if found, render through the same
+  // rich HTML path used for custom templates so the PDF matches the on-screen
+  // GenericTemplate preview pixel-for-pixel.
+  const factoryConfig = getTemplateConfig(templateId);
+  if (factoryConfig) {
+    return renderViaCustomHTML(data, paper, factoryConfig, fontOptions);
+  }
+
+  // Built-in templates (modern, minimal, ats, tech-dark, etc.) don't have
+  // factory configs but DO have dedicated rich RN preview components in
+  // ResumePreview.templateMap. Build a matching config for each so the PDF
+  // goes through generateCustomTemplateHTML and matches the preview.
+  const builtinConfig = getBuiltInTemplateConfig(templateId, data, fontOptions);
+  if (builtinConfig) {
+    return generateCustomTemplateHTML(data, paper, builtinConfig, fontOptions);
+  }
+
+  // Ultimate fallback: generic HTML with just the theme colors applied.
+  // Only reached for completely unknown template IDs.
+  const c = getTemplateColors(templateId);
+  return generateFallbackHTML(data, paper, c, fontOptions);
+}
+
+// ─── Helper: route a factory TemplateConfig through generateCustomTemplateHTML ───
+function renderViaCustomHTML(
+  data: ResumeData,
+  paper: { widthMm: number; heightMm: number; widthPx: number; heightPx: number; css: string },
+  factoryConfig: TemplateConfig,
+  fontOptions?: FontOptions,
+): string {
+  const safeCustomSections = data.customSections ?? [];
+  const sectionStyle: CustomTemplateConfig['sectionStyle'] = mapFactorySectionStyle(factoryConfig.sectionStyle) as CustomTemplateConfig['sectionStyle'];
+  const chipStyle: CustomTemplateConfig['chipStyle'] = mapFactoryChipStyle(factoryConfig.chipStyle) as CustomTemplateConfig['chipStyle'];
+  const itemStyle: CustomTemplateConfig['itemStyle'] = mapFactoryItemStyle(factoryConfig.itemStyle) as CustomTemplateConfig['itemStyle'];
+  const wrappedConfig: CustomTemplateConfig = {
+    id: factoryConfig.id,
+    name: factoryConfig.name,
+    globalStyles: {
+      fontFamily: fontOptions?.fontFamily || DEFAULT_FONT_FAMILY,
+      bodySize: fontOptions?.fontSize || DEFAULT_FONT_SIZE,
+      accentColor: factoryConfig.accentColor,
+      backgroundColor: factoryConfig.bg,
+      textColor: factoryConfig.textColor,
+      subtextColor: factoryConfig.subtextColor,
+      borderColor: factoryConfig.borderColor,
+    },
+    header: {
+      layout: pickHeaderLayout(factoryConfig) as HeaderLayoutType,
+      backgroundColor: factoryConfig.headerBg,
+      textColor: factoryConfig.headerColor,
+      accentColor: factoryConfig.accentColor,
+      showPhoto: false,
+      showJobTitle: true,
+      showContactRow: true,
+      contactLayout: 'row',
+    },
+    sections: [
+      { id: 'header', type: 'header', visible: true, label: 'Header' },
+      { id: 'summary', type: 'summary', visible: !!data.summary, label: 'Profile' },
+      { id: 'experience', type: 'experience', visible: data.experience.length > 0, label: 'Experience' },
+      { id: 'education', type: 'education', visible: data.education.length > 0, label: 'Education' },
+      { id: 'skills', type: 'skills', visible: data.skills.length > 0, label: 'Skills' },
+      { id: 'projects', type: 'projects', visible: data.projects.length > 0, label: 'Projects' },
+      { id: 'certificates', type: 'certificates', visible: data.certificates.length > 0, label: 'Certificates' },
+      { id: 'awards', type: 'awards', visible: data.awards.length > 0, label: 'Awards' },
+      { id: 'languages', type: 'languages', visible: data.languages.length > 0, label: 'Languages' },
+      { id: 'interests', type: 'interests', visible: data.interests.length > 0, label: 'Interests' },
+      ...safeCustomSections.map(cs => ({ id: cs.id, type: 'custom' as const, visible: true, label: cs.title })),
+    ],
+    sectionStyle,
+    chipStyle,
+    itemStyle,
+  };
+  return generateCustomTemplateHTML(data, paper, wrappedConfig, fontOptions);
+}
+
+// ─── Built-in template configs ───────────────────────────────────────────
+// Each built-in template has a dedicated RN preview component in
+// ResumePreview.templateMap. These configs map each template to the
+// closest matching CustomTemplateConfig so the PDF resembles the preview.
+
+function getBuiltInTemplateConfig(
+  templateId: string,
+  data: ResumeData,
+  fontOptions?: FontOptions,
+): CustomTemplateConfig | null {
+  const c = BUILTIN_COLORS[templateId];
+  if (!c) return null;
+
+  // Per-template layout and style overrides based on the RN component
+  // inspected in ResumePreview.tsx.
+  const spec = BUILTIN_TEMPLATE_SPECS[templateId];
+
+  const safeCustomSections = data.customSections ?? [];
+
+  const sections: SectionOrderItem[] = [
+    { id: 'header', type: 'header', visible: true, label: 'Header' },
+    { id: 'summary', type: 'summary', visible: !!data.summary, label: spec?.summaryLabel || 'Profile' },
+    { id: 'experience', type: 'experience', visible: data.experience.length > 0, label: 'Experience' },
+    { id: 'education', type: 'education', visible: data.education.length > 0, label: 'Education' },
+    { id: 'skills', type: 'skills', visible: data.skills.length > 0, label: 'Skills' },
+    { id: 'projects', type: 'projects', visible: data.projects.length > 0, label: 'Projects' },
+    { id: 'certificates', type: 'certificates', visible: data.certificates.length > 0, label: 'Certificates' },
+    { id: 'awards', type: 'awards', visible: data.awards.length > 0, label: 'Awards' },
+    { id: 'languages', type: 'languages', visible: data.languages.length > 0, label: 'Languages' },
+    { id: 'interests', type: 'interests', visible: data.interests.length > 0, label: 'Interests' },
+    ...safeCustomSections.map(cs => ({ id: cs.id, type: 'custom' as const, visible: true, label: cs.title })),
+  ];
+
+  const headerLayout = (spec?.headerLayout || 'full-width') as HeaderLayoutType;
+  const sectionStyle = (spec?.sectionStyle || 'underline') as CustomTemplateConfig['sectionStyle'];
+  const chipStyle = (spec?.chipStyle || 'rounded') as CustomTemplateConfig['chipStyle'];
+  const itemStyle = (spec?.itemStyle || 'default') as CustomTemplateConfig['itemStyle'];
+  const headerBorderColor = spec?.headerBorderColor || null;
+
+  return {
+    id: templateId,
+    name: templateId.charAt(0).toUpperCase() + templateId.slice(1),
+    globalStyles: {
+      fontFamily: fontOptions?.fontFamily || DEFAULT_FONT_FAMILY,
+      bodySize: fontOptions?.fontSize || DEFAULT_FONT_SIZE,
+      accentColor: c.accent,
+      backgroundColor: c.bg,
+      textColor: c.text,
+      subtextColor: c.subtext,
+      borderColor: c.border,
+    },
+    header: {
+      layout: headerLayout,
+      backgroundColor: c.headerBg,
+      textColor: c.headerColor,
+      accentColor: c.accent,
+      borderColor: headerBorderColor || undefined,
+      showPhoto: false,
+      showJobTitle: true,
+      showContactRow: true,
+      contactLayout: 'row',
+    },
+    sections,
+    sectionStyle,
+    chipStyle,
+    itemStyle,
+  };
+}
+
+// ─── Per-template style specs ──────────────────────────────────────────────
+// These approximate the RN preview components in ResumePreview.templateMap.
+// headerLayout: which HTML header layout best matches the RN header.
+// sectionStyle: how section titles are rendered in the RN component.
+// chipStyle: how skill chips look in the RN component.
+// itemStyle: how experience/education items are laid out.
+// summaryLabel: optional custom label for the summary section.
+
+interface BuiltInTemplateSpec {
+  headerLayout?: string;
+  sectionStyle?: string;
+  chipStyle?: string;
+  itemStyle?: string;
+  summaryLabel?: string;
+  headerBorderColor?: string;
+}
+
+const BUILTIN_TEMPLATE_SPECS: Record<string, BuiltInTemplateSpec> = {
+  // ── modern: underline header border, standard items ──
+  modern: {
+    headerBorderColor: '#4f46e5',
+  },
+
+  // ── minimal: light header border, compact items ──
+  minimal: {
+    headerLayout: 'minimal',
+    headerBorderColor: '#e5e7eb',
+    sectionStyle: 'minimal',
+    chipStyle: 'square',
+    itemStyle: 'compact',
+  },
+
+  // ── ats: simple centered header, clean sections, inline skills ──
+  ats: {
+    headerLayout: 'centered',
+    headerBorderColor: '#000000',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+
+  // ── tech-dark: dark bg, green header text, purple accents ──
+  'tech-dark': {
+    headerLayout: 'full-width',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+
+  // ── creative: warm bg, teal section titles, bordered items ──
+  creative: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#14b8a6',
+    sectionStyle: 'underline',
+    chipStyle: 'square',
+    itemStyle: 'bordered',
+  },
+
+  // ── corporate: dark header bg, two-column body, sidebar skills ──
+  corporate: {
+    headerLayout: 'boxed',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+
+  // ── swiss: red accents, sidebar layout, date column ──
+  swiss: {
+    headerLayout: 'split',
+    headerBorderColor: '#dc2626',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+
+  // ── professional: navy underline, blue accents, pill-like chips ──
+  professional: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#1e3a5f',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+
+  // ── executive: left accent bar on name, bold section titles ──
+  executive: {
+    headerLayout: 'left-accent',
+    headerBorderColor: '#e5e7eb',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+
+  // ── classic: divider line between name/job, inline skills ──
+  classic: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#374151',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+
+  // ── elegant: gold accents, specific item styling ──
+  elegant: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#d97706',
+    sectionStyle: 'underline',
+    chipStyle: 'outlined',
+    itemStyle: 'default',
+  },
+
+  // ── artistic: orange sidebar, dot timeline items ──
+  artistic: {
+    headerLayout: 'split',
+    headerBorderColor: '#f97316',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'timeline',
+  },
+
+  // ── compact: badge-style job title, inline skills ──
+  compact: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#ea580c',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'compact',
+  },
+
+  // ── medical: green header bg, icon header, green accents ──
+  medical: {
+    headerLayout: 'boxed',
+    sectionStyle: 'underline',
+    chipStyle: 'outlined',
+    itemStyle: 'default',
+  },
+
+  // ── academic: clean header, normal sections ──
+  academic: {
+    headerLayout: 'minimal',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+
+  // ── legal: minimal styling ──
+  legal: {
+    headerLayout: 'minimal',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+
+  // ── playful: warm bg, orange accents ──
+  playful: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#fb923c',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+
+  // ── borderless: clean, no borders ──
+  borderless: {
+    headerLayout: 'minimal',
+    sectionStyle: 'minimal',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+
+  // ── monochrome: grayscale ──
+  monochrome: {
+    headerLayout: 'minimal',
+    headerBorderColor: '#374151',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+
+  // ── technical: light bg, cyan accents ──
+  technical: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#0891b2',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+
+  // ── startup: pink accents ──
+  startup: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#ec4899',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+
+  // ── timeline: blue accents, timeline items ──
+  timeline: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#2563eb',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'timeline',
+  },
+
+  // ── urban: dark header, yellow accents ──
+  urban: {
+    headerLayout: 'boxed',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+
+  // ── nature: green theme ──
+  nature: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#65a30d',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+
+  // ── bold: dark red header, bold text ──
+  bold: {
+    headerLayout: 'boxed',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+};
+
+// ─── Mappers: translate factory TemplateConfig values to CustomTemplateConfig values ───
+
+function pickHeaderLayout(config: TemplateConfig): string {
+  // Combine layout + headerStyle to pick the best matching HTML header layout.
+  const layout = config.layout;
+  const style = config.headerStyle;
+
+  // Sidebar layouts always render as full-width in the HTML path
+  if (layout === 'sidebar-left' || layout === 'sidebar-right') return 'full-width';
+
+  // Centered layout stays centered regardless of header style
+  if (layout === 'centered') return 'centered';
+
+  // For standard layout, headerStyle decides
+  switch (style) {
+    case 'background': return 'boxed';
+    case 'accent-bar': return 'left-accent';
+    case 'double-line': return 'minimal';
+    case 'gradient': return 'gradient';
+    case 'pill': return 'centered';
+    case 'bordered': return 'boxed';
+    case 'none':
+    case 'underline':
+    default: return 'full-width';
+  }
+}
+
+function mapFactoryLayout(layout: string): string {
+  // Factory layouts: standard, sidebar-left, sidebar-right, centered,
+  // two-column, timeline, card-based
+  // CustomTemplateConfig header layouts: full-width, centered, left-accent,
+  // split, boxed, gradient, minimal
+  switch (layout) {
+    case 'centered': return 'centered';
+    case 'two-column': return 'split';
+    case 'timeline': return 'left-accent';
+    case 'card-based': return 'boxed';
+    case 'sidebar-left':
+    case 'sidebar-right':
+      return 'full-width';
+    default:
+      return 'full-width';
+  }
+}
+
+function mapFactoryHeaderStyle(headerStyle: string): string {
+  // Factory header styles: underline, background, accent-bar, none,
+  // double-line, gradient, pill, bordered
+  // CustomTemplateConfig header layouts map to visual styles internally —
+  // we pick the closest matching layout.
+  switch (headerStyle) {
+    case 'background': return 'boxed';
+    case 'accent-bar': return 'left-accent';
+    case 'double-line': return 'minimal';
+    case 'gradient': return 'gradient';
+    case 'pill': return 'centered';
+    case 'bordered': return 'boxed';
+    case 'none':
+    case 'underline':
+    default:
+      return 'full-width';
+  }
+}
+
+function mapFactorySectionStyle(style: string): string {
+  // Factory: underline, background, border-left, pill, minimal, numbered, icon
+  // CustomTemplateConfig: underline, background, border-left, pill, minimal, numbered
+  switch (style) {
+    case 'icon': return 'minimal';
+    default: return style;
+  }
+}
+
+function mapFactoryChipStyle(style: string): string {
+  // Factory: rounded, square, pill, outlined, filled
+  // CustomTemplateConfig: rounded, square, pill, outlined, filled
+  return style;
+}
+
+function mapFactoryItemStyle(style: string): string {
+  // Factory: default, bordered, card, timeline, compact
+  // CustomTemplateConfig: default, bordered, card, timeline, compact
+  return style;
+}
+
+// ─── Fallback HTML generator for built-in templates without a factory config ───
+function generateFallbackHTML(
+  data: ResumeData,
+  paper: { widthMm: number; heightMm: number; widthPx: number; heightPx: number; css: string },
+  c: TemplateColors,
+  fontOptions?: FontOptions,
+): string {
   const bodyFontSize = fontOptions?.fontSize || DEFAULT_FONT_SIZE;
   const rawFontFamily = fontOptions?.fontFamily || DEFAULT_FONT_FAMILY;
 
-  // Add CSS fallbacks for single font names
   const FONT_CSS_FALLBACKS: Record<string, string> = {
     'System': '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
     'Helvetica': 'Helvetica, Arial, sans-serif',
@@ -379,7 +849,6 @@ export function generateResumeHTML(data: ResumeData, templateId: string, paperSi
   };
   const bodyFontFamily = FONT_CSS_FALLBACKS[rawFontFamily] || rawFontFamily;
 
-  // Parse body font size (handle both '12px' and '12' formats)
   const parsePx = (val: string): number => {
     const m = val.match(/^(\d+)(px)?$/);
     return m ? parseInt(m[1], 10) : 12;
@@ -398,10 +867,7 @@ export function generateResumeHTML(data: ResumeData, templateId: string, paperSi
   const subtextColor = c.subtext;
   const contactColor = c.isDark ? '#cbd5e1' : c.subtext;
 
-  // Uniform page margin, implemented with the .page box's own padding:
-  // @page margins and the print width/height options are ignored (or applied
-  // inconsistently) by expo-print on Android, so margins must come from CSS.
-  const marginPx = 45; // ~12mm at 96dpi
+  const marginPx = 45;
 
   return `<!DOCTYPE html>
 <html>
@@ -409,11 +875,10 @@ export function generateResumeHTML(data: ResumeData, templateId: string, paperSi
 <meta charset="UTF-8">
 <style>
 ${paper.css}
-/* Top margin on every page: the .page box's padding-top only applies on the
-   first printed page, so continuation pages need a @page margin instead. */
 @page { margin: ${marginPx}px 0 0 0; }
 @page :first { margin-top: 0; }
 *{margin:0;padding:0;box-sizing:border-box}
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 html, body { margin: 0; padding: 0; }
 body{font-family:${bodyFontFamily};color:${textColor};line-height:1.5;font-size:${bodyFontSize};background:#fff;orphans:3;widows:3}
 .page{width:${paper.widthPx}px;min-height:${paper.heightPx}px;padding:${marginPx}px;margin:0 auto;background:${c.bg}}

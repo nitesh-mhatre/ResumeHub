@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TemplateType, CustomTemplateConfig } from '../types';
@@ -209,15 +210,15 @@ function TemplateSelectorInner({ currentTemplate, onSelect, onBack }: TemplateSe
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <View style={styles.header}>
+      <LinearGradient colors={[COLORS.primary, COLORS.primaryDark]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={22} color={COLORS.gray700} />
+          <Ionicons name="arrow-back" size={22} color={COLORS.white} />
         </TouchableOpacity>
         <View style={styles.headerText}>
           <Text style={styles.headerTitle}>Choose Template</Text>
           <Text style={styles.headerSubtitle}>{filteredTemplates.length} templates available</Text>
         </View>
-      </View>
+      </LinearGradient>
 
       {/* Search Bar */}
       <View style={styles.searchContainer}>
@@ -370,12 +371,12 @@ function TemplateSelectorInner({ currentTemplate, onSelect, onBack }: TemplateSe
       {/* Preview Modal */}
       <Modal visible={previewTemplate !== null} animationType="slide">
         <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
+          <LinearGradient colors={[COLORS.primary, COLORS.primaryDark]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Template Preview</Text>
             <TouchableOpacity onPress={() => setPreviewTemplate(null)} style={styles.closeButton}>
-              <Ionicons name="close" size={24} color={COLORS.gray700} />
+              <Ionicons name="close" size={24} color={COLORS.white} />
             </TouchableOpacity>
-          </View>
+          </LinearGradient>
           <ScrollView style={styles.modalContent} contentContainerStyle={{ padding: 16 }}>
             {previewTemplate && <LazyPreview template={previewTemplate} />}
           </ScrollView>
@@ -385,9 +386,9 @@ function TemplateSelectorInner({ currentTemplate, onSelect, onBack }: TemplateSe
       {/* Custom Template Modal */}
       <Modal visible={showCustomTemplate} animationType="slide">
         <SafeAreaView style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
+          <LinearGradient colors={[COLORS.primary, COLORS.primaryDark]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.modalHeader}>
             <TouchableOpacity onPress={() => setShowCustomTemplate(false)}>
-              <Ionicons name="close" size={24} color={COLORS.gray700} />
+              <Ionicons name="close" size={24} color={COLORS.white} />
             </TouchableOpacity>
             <Text style={styles.modalTitle}>Create Custom Template</Text>
             <TouchableOpacity onPress={() => {
@@ -395,9 +396,9 @@ function TemplateSelectorInner({ currentTemplate, onSelect, onBack }: TemplateSe
               onSelect(customId as TemplateType);
               setShowCustomTemplate(false);
             }}>
-              <Text style={{ color: COLORS.primary, fontWeight: '700', fontSize: 14 }}>Save</Text>
+              <Text style={{ color: COLORS.white, fontWeight: '700', fontSize: 14 }}>Save</Text>
             </TouchableOpacity>
-          </View>
+          </LinearGradient>
           <ScrollView style={styles.modalContent} contentContainerStyle={{ padding: 16, gap: 16 }}>
             {/* Template Name */}
             <View>
@@ -475,7 +476,7 @@ const ErrorFallback = ({ onBack }: { onBack: () => void }) => {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={22} color={COLORS.gray700} />
+          <Ionicons name="arrow-back" size={22} color={COLORS.white} />
         </TouchableOpacity>
         <View style={styles.headerText}>
           <Text style={styles.headerTitle}>Choose Template</Text>
@@ -548,8 +549,8 @@ const styles = StyleSheet.create({
   emptyText: { fontSize: 16, fontWeight: '600', color: COLORS.gray500 },
   emptySubtext: { fontSize: 12, color: COLORS.gray400 },
   modalContainer: { flex: 1, backgroundColor: COLORS.white },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: COLORS.gray200 },
-  modalTitle: { fontSize: 18, fontWeight: '700', color: COLORS.secondary },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, elevation: 3, shadowColor: COLORS.primaryDark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 6 },
+  modalTitle: { fontSize: 18, fontWeight: '700', color: COLORS.white },
   closeButton: { padding: 8 },
   modalContent: { flex: 1, backgroundColor: COLORS.gray100, padding: 16 },
   buildCustomButton: {

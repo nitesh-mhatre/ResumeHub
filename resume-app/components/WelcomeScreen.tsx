@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import { COLORS } from '../constants';
@@ -86,7 +87,7 @@ export default function WelcomeScreen({ onStartFresh, onDuplicate, onUploadData,
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
       
       {/* Top Header Bar */}
-      <View style={styles.topBar}>
+      <LinearGradient colors={[COLORS.primary, COLORS.primaryDark]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.topBar}>
         <View style={styles.topBarLeft}>
           <View style={styles.logoSmall}>
             <Ionicons name="document-text" size={18} color={COLORS.white} />
@@ -113,11 +114,16 @@ export default function WelcomeScreen({ onStartFresh, onDuplicate, onUploadData,
             )}
           </TouchableOpacity>
         </View>
-      </View>
+      </LinearGradient>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Hero Section */}
-        <View style={styles.heroSection}>
+        <LinearGradient
+          colors={['#6366f1', COLORS.primary, '#7c3aed']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroSection}
+        >
           <View style={[styles.heroBlob, styles.heroBlobTop]} />
           <View style={[styles.heroBlob, styles.heroBlobBottom]} />
           <View style={styles.heroBackground}>
@@ -137,7 +143,7 @@ export default function WelcomeScreen({ onStartFresh, onDuplicate, onUploadData,
               <Text style={styles.heroSignInText}>Sign in with Google</Text>
             </TouchableOpacity>
           )}
-        </View>
+        </LinearGradient>
 
         {/* Quick Actions */}
         <View style={styles.section}>
