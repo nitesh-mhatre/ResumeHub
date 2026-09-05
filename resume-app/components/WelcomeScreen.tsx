@@ -131,7 +131,7 @@ export default function WelcomeScreen({ onStartFresh, onDuplicate, onUploadData,
               : 'Sign in to save your resumes and access them anywhere.'}
           </Text>
           {!user && (
-
+            <TouchableOpacity style={styles.heroSignInButton} onPress={() => router.push('/login')}>
               <Text style={styles.heroSignInText}>Sign in with Google</Text>
             </TouchableOpacity>
           )}

@@ -9,6 +9,7 @@ import {
   Share,
   Modal,
   FlatList,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -77,20 +78,44 @@ export default function BuilderScreen() {
       const mmToPoint = 72 / 25.4;
       const pdfWidth = currentPaper.widthMm * mmToPoint;
       const pdfHeight = currentPaper.heightMm * mmToPoint;
-      const { uri } = await Print.printToFileAsync({
+      const printOptions: any = {
         html,
-        base64: false,
         width: pdfWidth,
         height: pdfHeight,
-        margins: { left: 0, right: 0, top: 0, bottom: 0 },
-      });
-      if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: 'Export Resume as PDF', UTI: '.pdf' });
-      } else {
-        Alert.alert('Export Complete', `PDF saved to: ${uri}`);
+      };
+      // margins is iOS-only; pass it only on iOS to avoid Android crashes
+      if (Platform.OS === 'ios') {
+        printOptions.margins = { left: 0, right: 0, top: 0, bottom: 0 };
       }
-    } catch (error) {
-      Alert.alert('Export Failed', 'Failed to generate PDF. Please try again.');
+      // Ask expo-print for the PDF as base64: on Android/Expo Go the file URI
+      // it returns lives outside the sandbox that expo-sharing/expo-file-system
+      // can read, so we re-write the bytes into our own cache before sharing.
+      printOptions.base64 = true;
+      const { uri, base64 } = await Print.printToFileAsync(printOptions);
+
+      const baseName = (resumeData.personalInfo.fullName || 'Resume').replace(/[^a-zA-Z0-9]/g, '_') || 'Resume';
+      const shareFile = new ExpoFile(ExpoPaths.cache.uri + `${baseName}_Resume.pdf`);
+      let shareUri = uri;
+      if (base64) {
+        try {
+          if (shareFile.exists) {
+            shareFile.delete();
+          }
+          shareFile.write(base64, { encoding: 'base64' });
+          shareUri = shareFile.uri;
+        } catch (writeError) {
+          console.warn('Could not write PDF into app cache, sharing original file:', writeError);
+        }
+      }
+
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(shareUri, { mimeType: 'application/pdf', dialogTitle: 'Export Resume as PDF', UTI: '.pdf' });
+      } else {
+        Alert.alert('Export Complete', `PDF saved to: ${shareUri}`);
+      }
+    } catch (error: any) {
+      console.error('PDF export error:', error);
+      Alert.alert('Export Failed', error?.message || 'Failed to generate PDF. Please try again.');
     } finally {
       setIsExporting(false);
     }

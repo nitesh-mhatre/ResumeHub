@@ -22,26 +22,12 @@
     },
     "plugins": [
       "expo-router",
-      ["react-native-google-mobile-ads", {
-        "android_app_id": "ca-app-pub-2889632845666311~2812266052",
-        "ios_app_id": "ca-app-pub-2889632845666311~2812266052"
-      }],
       [
         "expo-build-properties",
         {
           "android": {
-            
             "kotlinVersion": "2.1.20"
           }
-        }
-      ],      
-      
-      ["@react-native-google-signin/google-signin",
-        {
-          "scopes": ["profile", "email"],
-          "webClientId": "559842224512-r3ub8nu65oq46dgjq80m0kosplfdf8pl.apps.googleusercontent.com",
-          "iosUrlScheme": "com.googleusercontent.apps.559842224512-r3ub8nu65oq46dgjq80m0kosplfdf8pl",
-          "offlineAccess": true
         }
       ]
     ],

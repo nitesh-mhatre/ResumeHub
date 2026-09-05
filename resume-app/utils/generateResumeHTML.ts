@@ -113,7 +113,7 @@ const DEFAULT_FONT_FAMILY = 'System';
 
 function generateCustomTemplateHTML(
   data: ResumeData,
-  paper: { widthMm: number; heightMm: number; widthPx: number; css: string },
+  paper: { widthMm: number; heightMm: number; widthPx: number; heightPx: number; css: string },
   config: CustomTemplateConfig,
   fontOptions?: FontOptions,
 ): string {
@@ -155,8 +155,10 @@ function generateCustomTemplateHTML(
     'Verdana': 'Verdana, sans-serif',
   };
   const bodyFontFamily = FONT_CSS_FALLBACKS[rawFontFamily] || rawFontFamily;
-  const marginPx = 45;
-  const contentWidthPx = paper.widthPx - (marginPx * 2);
+  // Uniform page margin, implemented with the .page box's own padding:
+  // @page margins and the print width/height options are ignored (or applied
+  // inconsistently) by expo-print on Android, so margins must come from CSS.
+  const marginPx = 45; // ~12mm at 96dpi
 
   // Build header HTML
   const h = config.header;
@@ -317,12 +319,14 @@ function generateCustomTemplateHTML(
 <meta charset="UTF-8">
 <style>
 ${paper.css}
-@page { size: ${paper.widthMm}mm ${paper.heightMm}mm; margin: 12mm; }
-@media print { html, body { width: ${paper.widthMm}mm; margin: 0; padding: 0; } .page { width: ${contentWidthPx}px; padding: 0; margin: 0; } }
+/* Top margin on every page: the .page box's padding-top only applies on the
+   first printed page, so continuation pages need a @page margin instead. */
+@page { margin: ${marginPx}px 0 0 0; }
+@page :first { margin-top: 0; }
 *{margin:0;padding:0;box-sizing:border-box}
-html, body { width: ${paper.widthMm}mm; margin: 0; padding: 0; }
+html, body { margin: 0; padding: 0; }
 body{font-family:${bodyFontFamily};color:${textColor};line-height:1.5;font-size:${bodyFontSize};background:#fff;}
-.page{width:${paper.widthMm}mm;margin:0 auto;background:${bg}}
+.page{width:${paper.widthPx}px;min-height:${paper.heightPx}px;padding:${marginPx}px;margin:0 auto;background:${bg}}
 </style>
 </head>
 <body>
@@ -394,9 +398,10 @@ export function generateResumeHTML(data: ResumeData, templateId: string, paperSi
   const subtextColor = c.subtext;
   const contactColor = c.isDark ? '#cbd5e1' : c.subtext;
 
-  // Margin in pixels (12mm ≈ 45px at 96dpi)
-  const marginPx = 45;
-  const contentWidthPx = paper.widthPx - (marginPx * 2);
+  // Uniform page margin, implemented with the .page box's own padding:
+  // @page margins and the print width/height options are ignored (or applied
+  // inconsistently) by expo-print on Android, so margins must come from CSS.
+  const marginPx = 45; // ~12mm at 96dpi
 
   return `<!DOCTYPE html>
 <html>
@@ -404,20 +409,17 @@ export function generateResumeHTML(data: ResumeData, templateId: string, paperSi
 <meta charset="UTF-8">
 <style>
 ${paper.css}
-@page { size: ${paper.widthMm}mm ${paper.heightMm}mm; margin: 12mm; }
-@media print {
-  html, body { width: ${paper.widthMm}mm; margin: 0; padding: 0; }
-  .page { width: ${contentWidthPx}px; padding: 0; margin: 0; border: none; }
-  .section-title { page-break-after: avoid; break-after: avoid; }
-  h1, .job-title, .contact { page-break-after: avoid; break-after: avoid; }
-}
+/* Top margin on every page: the .page box's padding-top only applies on the
+   first printed page, so continuation pages need a @page margin instead. */
+@page { margin: ${marginPx}px 0 0 0; }
+@page :first { margin-top: 0; }
 *{margin:0;padding:0;box-sizing:border-box}
-html, body { width: ${paper.widthMm}mm; margin: 0; padding: 0; }
+html, body { margin: 0; padding: 0; }
 body{font-family:${bodyFontFamily};color:${textColor};line-height:1.5;font-size:${bodyFontSize};background:#fff;orphans:3;widows:3}
-.page{width:${paper.widthMm}mm;margin:0 auto;background:${c.bg}}
-h1{font-size:${headerFontSize};font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.job-title{font-size:${jobTitleFontSize};font-weight:700;color:${c.accent};text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
-.contact{font-size:${contactFontSize};color:${contactColor};margin-bottom:16px}.contact span{margin-right:10px}
+.page{width:${paper.widthPx}px;min-height:${paper.heightPx}px;padding:${marginPx}px;margin:0 auto;background:${c.bg}}
+h1{font-size:${headerFontSize};font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;page-break-after:avoid;break-after:avoid}
+.job-title{font-size:${jobTitleFontSize};font-weight:700;color:${c.accent};text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;page-break-after:avoid;break-after:avoid}
+.contact{font-size:${contactFontSize};color:${contactColor};margin-bottom:16px;page-break-after:avoid;break-after:avoid}.contact span{margin-right:10px}
 .section{margin-bottom:12px;page-break-inside:avoid;break-inside:avoid}
 .section-title{font-size:${sectionTitleFontSize};font-weight:700;text-transform:uppercase;letter-spacing:1px;color:${c.accent};border-bottom:2px solid ${c.border};padding-bottom:2px;margin-bottom:6px;page-break-after:avoid;break-after:avoid}
 .item{margin-bottom:8px}.item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
