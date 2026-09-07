@@ -371,7 +371,7 @@ const CorporateTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
       </View>
     </View>
     <View style={tStyles.corp.body}>
-      <View style={{ flex: 2 }}>
+      <View style={{ flex: 1.7 }}>
         {data.summary ? <View style={dyn.section}><Text style={[tStyles.corp.secTitle, ff]}>Professional Summary</Text><Text style={dyn.bodyText}>{data.summary}</Text></View> : null}
         <View style={dyn.section}>
           <Text style={[tStyles.corp.secTitle, ff]}>Experience</Text>
@@ -1673,7 +1673,6 @@ const TealTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
   );
 };
 
-// Double Column Template (two-column layout)
 const DoubleColumnTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
   const { fontFamily, dyn } = useFont();
   const ff = fontFamily ? { fontFamily } : {};
@@ -1681,28 +1680,30 @@ const DoubleColumnTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
   <View style={tStyles.doubleCol.container}>
     <View style={tStyles.doubleCol.leftCol}>
       <View style={tStyles.doubleCol.header}>
-        <Text style={[tStyles.doubleCol.name, ff]}>{data.personalInfo.fullName}</Text>
-        <Text style={[tStyles.doubleCol.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
+        <Text style={[tStyles.doubleCol.name, ff]} numberOfLines={2}>{data.personalInfo.fullName}</Text>
+        {data.personalInfo.jobTitle ? <Text style={[tStyles.doubleCol.jobTitle, ff]} numberOfLines={2}>{data.personalInfo.jobTitle}</Text> : null}
         <View style={tStyles.doubleCol.contactRow}>
-          {data.personalInfo.email ? <Text style={[tStyles.doubleCol.contact, ff]}>{data.personalInfo.email}</Text> : null}
-          {data.personalInfo.phone ? <Text style={[tStyles.doubleCol.contact, ff]}>{data.personalInfo.phone}</Text> : null}
-          {data.personalInfo.location ? <Text style={[tStyles.doubleCol.contact, ff]}>{data.personalInfo.location}</Text> : null}
+          {data.personalInfo.email ? <Text style={[tStyles.doubleCol.contact, ff]} numberOfLines={2}>{data.personalInfo.email}</Text> : null}
+          {data.personalInfo.phone ? <Text style={[tStyles.doubleCol.contact, ff]} numberOfLines={2}>{data.personalInfo.phone}</Text> : null}
+          {data.personalInfo.location ? <Text style={[tStyles.doubleCol.contact, ff]} numberOfLines={2}>{data.personalInfo.location}</Text> : null}
         </View>
       </View>
-      <View style={tStyles.doubleCol.section}>
-        <Text style={[tStyles.doubleCol.secTitle, ff]}>SUMMARY</Text>
-        <Text style={dyn.bodyText}>{formatText(data.summary)}</Text>
-      </View>
+      {data.summary ? (
+        <View style={tStyles.doubleCol.section}>
+          <Text style={[tStyles.doubleCol.secTitle, ff]}>SUMMARY</Text>
+          <Text style={[dyn.bodyText, { color: '#475569' }]}>{formatText(data.summary)}</Text>
+        </View>
+      ) : null}
       <View style={tStyles.doubleCol.section}>
         <Text style={[tStyles.doubleCol.secTitle, ff]}>SKILLS</Text>
-        <Text style={dyn.bodyText}>{data.skills.join(' • ')}</Text>
+        <Text style={[dyn.bodyText, { color: '#475569' }]}>{data.skills.join('  •  ')}</Text>
       </View>
       <View style={tStyles.doubleCol.section}>
         <Text style={[tStyles.doubleCol.secTitle, ff]}>EDUCATION</Text>
         {data.education.map(edu => (
           <View key={edu.id} style={{ marginBottom: 6 }}>
             <Text style={[tStyles.doubleCol.eduSchool, ff]}>{edu.school}</Text>
-            <Text style={[tStyles.doubleCol.eduDegree, ff]}>{edu.degree} • {edu.startDate} – {edu.endDate}</Text>
+            <Text style={[tStyles.doubleCol.eduDegree, ff]}>{edu.degree}</Text>
           </View>
         ))}
       </View>
@@ -1711,14 +1712,14 @@ const DoubleColumnTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
       <View style={tStyles.doubleCol.section}>
         <Text style={[tStyles.doubleCol.secTitle, ff]}>EXPERIENCE</Text>
         {data.experience.map(exp => (
-          <View key={exp.id} style={{ marginBottom: 8 }}>
+          <View key={exp.id} style={{ marginBottom: 6 }}>
             <View style={dyn.itemHeader}><Text style={[tStyles.doubleCol.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
             <Text style={[tStyles.doubleCol.itemCompany, ff]}>{exp.company}</Text>
             <Text style={{ fontSize: 11, color: '#475569', lineHeight: 14, ...ff }}>{formatText(exp.description)}</Text>
           </View>
         ))}
       </View>
-      <ExtraSections data={data} titleColor="#111827" />
+      <ExtraSections data={data} titleColor="#1f2937" />
     </View>
   </View>
   );
@@ -1733,36 +1734,36 @@ const SingleColumnTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
     <View style={tStyles.singleCol.header}>
       <Text style={[tStyles.singleCol.name, ff]}>{data.personalInfo.fullName}</Text>
       <Text style={[tStyles.singleCol.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
-    </View>
-    <View style={tStyles.singleCol.divider} />
-    <View style={tStyles.singleCol.contactRow}>
-      {data.personalInfo.email ? <Text style={[tStyles.singleCol.contact, ff]}>{data.personalInfo.email}</Text> : null}
-      {data.personalInfo.phone ? <Text style={[tStyles.singleCol.contact, ff]}>{data.personalInfo.phone}</Text> : null}
-      {data.personalInfo.location ? <Text style={[tStyles.singleCol.contact, ff]}>{data.personalInfo.location}</Text> : null}
+      <View style={tStyles.singleCol.divider} />
+      <View style={tStyles.singleCol.contactRow}>
+        {data.personalInfo.email ? <Text style={[tStyles.singleCol.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.singleCol.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.singleCol.contact, ff]}>{data.personalInfo.location}</Text> : null}
+      </View>
     </View>
     {data.summary ? <View style={dyn.section}><Text style={[tStyles.singleCol.secTitle, ff]}>PROFILE</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
     <View style={dyn.section}>
       <Text style={[tStyles.singleCol.secTitle, ff]}>EXPERIENCE</Text>
       {data.experience.map(exp => (
-        <View key={exp.id} style={dyn.item}>
+        <View key={exp.id} style={{ marginBottom: 8 }}>
           <View style={dyn.itemHeader}><Text style={[tStyles.singleCol.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
-          <Text style={{ fontSize: 12, color: '#1e3a5f', fontWeight: '600', marginBottom: 3, ...ff }}>{exp.company}</Text>
-          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
+          <Text style={{ fontSize: 12, color: '#1e3a5f', fontWeight: '600', marginBottom: 2, ...ff }}>{exp.company}</Text>
+          <Text style={{ fontSize: 12, color: '#475569', lineHeight: 18, ...ff }}>{formatText(exp.description)}</Text>
         </View>
       ))}
     </View>
     <View style={dyn.section}>
       <Text style={[tStyles.singleCol.secTitle, ff]}>EDUCATION</Text>
       {data.education.map(edu => (
-        <View key={edu.id} style={dyn.item}>
-          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
-          <Text style={dyn.itemDesc}>{edu.degree}</Text>
+        <View key={edu.id} style={{ marginBottom: 8 }}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.singleCol.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={{ fontSize: 12, color: '#475569', ...ff }}>{edu.degree}</Text>
         </View>
       ))}
     </View>
     <View style={dyn.section}>
       <Text style={[tStyles.singleCol.secTitle, ff]}>SKILLS</Text>
-      <Text style={dyn.bodyText}>{data.skills.join('  •  ')}</Text>
+      <Text style={{ fontSize: 12, color: '#475569', ...ff }}>{data.skills.join('  •  ')}</Text>
     </View>
     <ExtraSections data={data} titleColor="#374151" />
   </View>
@@ -2103,6 +2104,9 @@ const templateMap: Record<string, React.FC<{ data: ResumeData }>> = {
   pink: PinkTemplate,
   teal: TealTemplate,
   indigo: IndigoTemplate,
+  // Layout variants
+  'double-column': DoubleColumnTemplate,
+  'single-column': SingleColumnTemplate,
 };
 
 // ─── Custom Template Renderer ───
@@ -2405,13 +2409,13 @@ const styles = StyleSheet.create({
 const tStyles = {
   modern: StyleSheet.create({
     container: { backgroundColor: '#ffffff', borderRadius: 12, padding: 20, elevation: 4 },
-    header: { borderBottomWidth: 2, borderBottomColor: COLORS.primary, paddingBottom: 16, marginBottom: 16 },
-    name: { fontSize: 24, fontWeight: '800', color: COLORS.secondary, textTransform: 'uppercase', letterSpacing: 0.5 },
-    jobTitle: { fontSize: 14, fontWeight: '700', color: COLORS.primary, textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
+    header: { borderBottomWidth: 2, borderBottomColor: '#4f46e5', paddingBottom: 16, marginBottom: 16 },
+    name: { fontSize: 24, fontWeight: '800', color: '#0f172a', textTransform: 'uppercase', letterSpacing: 0.5 },
+    jobTitle: { fontSize: 14, fontWeight: '700', color: '#4f46e5', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
     contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-    contact: { fontSize: 11, color: COLORS.gray600 },
-    skillChip: { backgroundColor: COLORS.primaryLight, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-    skillText: { fontSize: 10, fontWeight: '600', color: COLORS.primaryDark },
+    contact: { fontSize: 11, color: '#64748b' },
+    skillChip: { backgroundColor: '#e0e7ff', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    skillText: { fontSize: 10, fontWeight: '600', color: '#4338ca' },
   }),
   min: StyleSheet.create({
     container: { backgroundColor: '#ffffff', borderRadius: 12, padding: 20, elevation: 2 },
@@ -2451,17 +2455,17 @@ const tStyles = {
   creative: StyleSheet.create({
     container: { backgroundColor: '#fdf6e3', borderRadius: 12, padding: 20 },
     header: { marginBottom: 20 },
-    name: { fontSize: 32, fontWeight: '900', color: COLORS.secondary },
+    name: { fontSize: 32, fontWeight: '900', color: '#111827' },
     jobTitle: { fontSize: 16, fontWeight: '700', color: '#64748b', marginTop: 4, marginBottom: 12 },
     contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
     contact: { fontSize: 12, color: '#64748b' },
-    secTitle: { fontSize: 18, fontWeight: '800', color: '#14b8a6', marginBottom: 12, borderBottomWidth: 4, borderBottomColor: '#99f6e4', paddingBottom: 4 },
+    secTitle: { fontSize: 18, fontWeight: '800', color: '#ec4899', marginBottom: 12, borderBottomWidth: 4, borderBottomColor: '#fbcfe8', paddingBottom: 4 },
     item: { marginBottom: 16, backgroundColor: 'rgba(255,255,255,0.5)', padding: 12, borderRadius: 8 },
-    itemTitle: { fontSize: 15, fontWeight: '800', color: COLORS.gray800, marginBottom: 4 },
+    itemTitle: { fontSize: 15, fontWeight: '800', color: '#111827', marginBottom: 4 },
     badge: { backgroundColor: '#fce7f3', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12, alignSelf: 'flex-start', marginBottom: 8 },
     badgeText: { fontSize: 10, fontWeight: '700', color: '#ec4899' },
-    skillChip: { borderWidth: 2, borderColor: COLORS.gray800, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20 },
-    skillText: { fontSize: 10, fontWeight: '700', color: COLORS.gray800 },
+    skillChip: { borderWidth: 2, borderColor: '#111827', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20 },
+    skillText: { fontSize: 10, fontWeight: '700', color: '#111827' },
   }),
   corp: StyleSheet.create({
     container: { backgroundColor: '#ffffff', borderRadius: 12, overflow: 'hidden', elevation: 4 },
@@ -2472,7 +2476,7 @@ const tStyles = {
     contact: { fontSize: 10, color: '#cbd5e1' },
     body: { flexDirection: 'row', padding: 20, gap: 16 },
     secTitle: { fontSize: 14, fontWeight: '700', color: '#1f2937', textTransform: 'uppercase', borderBottomWidth: 2, borderBottomColor: '#1f2937', paddingBottom: 4, marginBottom: 8 },
-    sidebar: { flex: 1, backgroundColor: '#f3f4f6', padding: 12, borderRadius: 8 },
+    sidebar: { flex: 1.15, backgroundColor: '#f3f4f6', padding: 12, borderRadius: 8 },
     sideTitle: { fontSize: 11, fontWeight: '700', color: '#1f2937', textTransform: 'uppercase', marginBottom: 8 },
     skillItem: { fontSize: 11, color: '#475569', marginBottom: 4 },
     eduSchool: { fontSize: 12, fontWeight: '700', color: '#1f2937' },
@@ -2480,7 +2484,7 @@ const tStyles = {
   }),
   swiss: StyleSheet.create({
     container: { backgroundColor: '#ffffff', borderRadius: 12, flexDirection: 'row', overflow: 'hidden', elevation: 4 },
-    sidebar: { width: 140, backgroundColor: '#ffffff', borderRightWidth: 4, borderRightColor: '#dc2626', padding: 16 },
+    sidebar: { width: 160, backgroundColor: '#ffffff', borderRightWidth: 4, borderRightColor: '#dc2626', padding: 16 },
     main: { flex: 1, padding: 16 },
     name: { fontSize: 22, fontWeight: '800', color: '#000000', marginBottom: 4 },
     jobTitle: { fontSize: 10, fontWeight: '700', color: '#dc2626', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 16 },
@@ -2549,7 +2553,7 @@ const tStyles = {
   }),
   artistic: StyleSheet.create({
     container: { backgroundColor: '#ffffff', borderRadius: 12, flexDirection: 'row', overflow: 'hidden', elevation: 4 },
-    sidebar: { width: 130, backgroundColor: '#f97316', padding: 16 },
+    sidebar: { width: 160, backgroundColor: '#f97316', padding: 16 },
     main: { flex: 1, padding: 16 },
     name: { fontSize: 20, fontWeight: '900', color: '#ffffff', marginBottom: 4 },
     jobTitle: { fontSize: 10, fontWeight: '700', color: '#fed7aa', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 },
@@ -2694,7 +2698,7 @@ const tStyles = {
   }),
   urban: StyleSheet.create({
     container: { backgroundColor: '#ffffff', borderRadius: 12, flexDirection: 'row', overflow: 'hidden', elevation: 4 },
-    sidebar: { width: 140, backgroundColor: '#1f2937', padding: 16 },
+    sidebar: { width: 170, backgroundColor: '#1f2937', padding: 16 },
     main: { flex: 1, padding: 16 },
     avatar: { width: 50, height: 50, borderRadius: 25, backgroundColor: '#facc15', justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
     avatarText: { fontSize: 18, fontWeight: '900', color: '#1f2937' },
@@ -2794,88 +2798,88 @@ const tStyles = {
     skillText: { fontSize: 10, fontWeight: '600', color: '#6d28d9' },
   }),
   slate: StyleSheet.create({
-    container: { backgroundColor: '#f8fafc', borderRadius: 12, padding: 20, elevation: 4 },
-    header: { backgroundColor: '#475569', borderRadius: 8, padding: 20, marginBottom: 16 },
-    name: { fontSize: 24, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.5 },
+    container: { backgroundColor: '#1e293b', borderRadius: 12, padding: 20, elevation: 4 },
+    header: { backgroundColor: '#334155', borderRadius: 8, padding: 20, marginBottom: 16 },
+    name: { fontSize: 24, fontWeight: '800', color: '#f8fafc', textTransform: 'uppercase', letterSpacing: 0.5 },
     jobTitle: { fontSize: 13, fontWeight: '700', color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
     contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-    contact: { fontSize: 11, color: '#e2e8f0' },
-    secTitle: { fontSize: 13, fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#94a3b8', paddingBottom: 4 },
-    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#94a3b8' },
-    itemTitle: { fontSize: 13, fontWeight: '700', color: '#1e293b' },
-    itemCompany: { fontSize: 12, color: '#64748b', fontWeight: '600', marginBottom: 3 },
-    skillChip: { backgroundColor: '#f1f5f9', borderWidth: 1, borderColor: '#94a3b8', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-    skillText: { fontSize: 10, fontWeight: '600', color: '#475569' },
+    contact: { fontSize: 11, color: '#94a3b8' },
+    secTitle: { fontSize: 13, fontWeight: '800', color: '#e2e8f0', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#475569', paddingBottom: 4 },
+    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#475569' },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#f1f5f9' },
+    itemCompany: { fontSize: 12, color: '#94a3b8', fontWeight: '600', marginBottom: 3 },
+    skillChip: { backgroundColor: '#334155', borderWidth: 1, borderColor: '#475569', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    skillText: { fontSize: 10, fontWeight: '600', color: '#e2e8f0' },
   }),
   charcoal: StyleSheet.create({
-    container: { backgroundColor: '#fafafa', borderRadius: 12, padding: 20, elevation: 4 },
-    header: { backgroundColor: '#1e293b', borderRadius: 8, padding: 20, marginBottom: 16 },
-    name: { fontSize: 24, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.5 },
-    jobTitle: { fontSize: 13, fontWeight: '700', color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
+    container: { backgroundColor: '#18181b', borderRadius: 12, padding: 20, elevation: 4 },
+    header: { backgroundColor: '#27272a', borderRadius: 8, padding: 20, marginBottom: 16 },
+    name: { fontSize: 24, fontWeight: '800', color: '#fafafa', textTransform: 'uppercase', letterSpacing: 0.5 },
+    jobTitle: { fontSize: 13, fontWeight: '700', color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
     contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-    contact: { fontSize: 11, color: '#e2e8f0' },
-    secTitle: { fontSize: 13, fontWeight: '800', color: '#1e293b', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#475569', paddingBottom: 4 },
-    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#475569' },
-    itemTitle: { fontSize: 13, fontWeight: '700', color: '#0f172a' },
-    itemCompany: { fontSize: 12, color: '#334155', fontWeight: '600', marginBottom: 3 },
-    skillChip: { backgroundColor: '#f1f5f9', borderWidth: 1, borderColor: '#475569', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-    skillText: { fontSize: 10, fontWeight: '600', color: '#1e293b' },
+    contact: { fontSize: 11, color: '#71717a' },
+    secTitle: { fontSize: 13, fontWeight: '800', color: '#e4e4e7', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#3f3f46', paddingBottom: 4 },
+    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#3f3f46' },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#fafafa' },
+    itemCompany: { fontSize: 12, color: '#a1a1aa', fontWeight: '600', marginBottom: 3 },
+    skillChip: { backgroundColor: '#27272a', borderWidth: 1, borderColor: '#3f3f46', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    skillText: { fontSize: 10, fontWeight: '600', color: '#e4e4e7' },
   }),
   midnight: StyleSheet.create({
-    container: { backgroundColor: '#eef2ff', borderRadius: 12, padding: 20, elevation: 4 },
-    header: { backgroundColor: '#312e81', borderRadius: 8, padding: 20, marginBottom: 16 },
-    name: { fontSize: 24, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.5 },
-    jobTitle: { fontSize: 13, fontWeight: '700', color: '#c7d2fe', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
+    container: { backgroundColor: '#0f172a', borderRadius: 12, padding: 20, elevation: 4 },
+    header: { backgroundColor: '#1e293b', borderRadius: 8, padding: 20, marginBottom: 16 },
+    name: { fontSize: 24, fontWeight: '800', color: '#f8fafc', textTransform: 'uppercase', letterSpacing: 0.5 },
+    jobTitle: { fontSize: 13, fontWeight: '700', color: '#38bdf8', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
     contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-    contact: { fontSize: 11, color: '#ddd6fe' },
-    secTitle: { fontSize: 13, fontWeight: '800', color: '#312e81', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#a5b4fc', paddingBottom: 4 },
-    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#a5b4fc' },
-    itemTitle: { fontSize: 13, fontWeight: '700', color: '#1e1b4b' },
-    itemCompany: { fontSize: 12, color: '#4338ca', fontWeight: '600', marginBottom: 3 },
-    skillChip: { backgroundColor: '#e0e7ff', borderWidth: 1, borderColor: '#a5b4fc', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-    skillText: { fontSize: 10, fontWeight: '600', color: '#312e81' },
+    contact: { fontSize: 11, color: '#94a3b8' },
+    secTitle: { fontSize: 13, fontWeight: '800', color: '#38bdf8', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#0c4a6e', paddingBottom: 4 },
+    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#0284c7' },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#f1f5f9' },
+    itemCompany: { fontSize: 12, color: '#38bdf8', fontWeight: '600', marginBottom: 3 },
+    skillChip: { backgroundColor: '#1e293b', borderWidth: 1, borderColor: '#0284c7', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    skillText: { fontSize: 10, fontWeight: '600', color: '#7dd3fc' },
   }),
   ruby: StyleSheet.create({
-    container: { backgroundColor: '#fef2f2', borderRadius: 12, padding: 20, elevation: 4 },
-    header: { backgroundColor: '#991b1b', borderRadius: 8, padding: 20, marginBottom: 16 },
-    name: { fontSize: 24, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.5 },
-    jobTitle: { fontSize: 13, fontWeight: '700', color: '#fecaca', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
+    container: { backgroundColor: '#450a0a', borderRadius: 12, padding: 20, elevation: 4 },
+    header: { backgroundColor: '#7f1d1d', borderRadius: 8, padding: 20, marginBottom: 16 },
+    name: { fontSize: 24, fontWeight: '800', color: '#fce7f3', textTransform: 'uppercase', letterSpacing: 0.5 },
+    jobTitle: { fontSize: 13, fontWeight: '700', color: '#f43f5e', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
     contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-    contact: { fontSize: 11, color: '#fce7f3' },
-    secTitle: { fontSize: 13, fontWeight: '800', color: '#991b1b', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#fca5a5', paddingBottom: 4 },
-    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#fca5a5' },
-    itemTitle: { fontSize: 13, fontWeight: '700', color: '#7f1d1d' },
-    itemCompany: { fontSize: 12, color: '#dc2626', fontWeight: '600', marginBottom: 3 },
-    skillChip: { backgroundColor: '#fce7f3', borderWidth: 1, borderColor: '#fca5a5', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-    skillText: { fontSize: 10, fontWeight: '600', color: '#991b1b' },
+    contact: { fontSize: 11, color: '#fda4af' },
+    secTitle: { fontSize: 13, fontWeight: '800', color: '#f43f5e', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#be123c', paddingBottom: 4 },
+    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#e11d48' },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#fce7f3' },
+    itemCompany: { fontSize: 12, color: '#f43f5e', fontWeight: '600', marginBottom: 3 },
+    skillChip: { backgroundColor: '#450a0a', borderWidth: 1, borderColor: '#e11d48', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    skillText: { fontSize: 10, fontWeight: '600', color: '#fecdd3' },
   }),
   emerald: StyleSheet.create({
-    container: { backgroundColor: '#ecfdf5', borderRadius: 12, padding: 20, elevation: 4 },
-    header: { backgroundColor: '#047857', borderRadius: 8, padding: 20, marginBottom: 16 },
-    name: { fontSize: 24, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.5 },
-    jobTitle: { fontSize: 13, fontWeight: '700', color: '#a7f3d0', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
+    container: { backgroundColor: '#022c22', borderRadius: 12, padding: 20, elevation: 4 },
+    header: { backgroundColor: '#065f46', borderRadius: 8, padding: 20, marginBottom: 16 },
+    name: { fontSize: 24, fontWeight: '800', color: '#d1fae5', textTransform: 'uppercase', letterSpacing: 0.5 },
+    jobTitle: { fontSize: 13, fontWeight: '700', color: '#10b981', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
     contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-    contact: { fontSize: 11, color: '#d1fae5' },
-    secTitle: { fontSize: 13, fontWeight: '800', color: '#047857', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#6ee7b7', paddingBottom: 4 },
-    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#6ee7b7' },
-    itemTitle: { fontSize: 13, fontWeight: '700', color: '#064e3b' },
-    itemCompany: { fontSize: 12, color: '#059669', fontWeight: '600', marginBottom: 3 },
-    skillChip: { backgroundColor: '#d1fae5', borderWidth: 1, borderColor: '#6ee7b7', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-    skillText: { fontSize: 10, fontWeight: '600', color: '#047857' },
+    contact: { fontSize: 11, color: '#6ee7b7' },
+    secTitle: { fontSize: 13, fontWeight: '800', color: '#10b981', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#065f46', paddingBottom: 4 },
+    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#059669' },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#d1fae5' },
+    itemCompany: { fontSize: 12, color: '#10b981', fontWeight: '600', marginBottom: 3 },
+    skillChip: { backgroundColor: '#022c22', borderWidth: 1, borderColor: '#059669', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    skillText: { fontSize: 10, fontWeight: '600', color: '#6ee7b7' },
   }),
   cobalt: StyleSheet.create({
-    container: { backgroundColor: '#eff6ff', borderRadius: 12, padding: 20, elevation: 4 },
-    header: { backgroundColor: '#1e3a8a', borderRadius: 8, padding: 20, marginBottom: 16 },
-    name: { fontSize: 24, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.5 },
-    jobTitle: { fontSize: 13, fontWeight: '700', color: '#bfdbfe', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
+    container: { backgroundColor: '#0c1929', borderRadius: 12, padding: 20, elevation: 4 },
+    header: { backgroundColor: '#1e3a5f', borderRadius: 8, padding: 20, marginBottom: 16 },
+    name: { fontSize: 24, fontWeight: '800', color: '#e0f2fe', textTransform: 'uppercase', letterSpacing: 0.5 },
+    jobTitle: { fontSize: 13, fontWeight: '700', color: '#38bdf8', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
     contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-    contact: { fontSize: 11, color: '#dbeafe' },
-    secTitle: { fontSize: 13, fontWeight: '800', color: '#1e3a8a', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#93c5fd', paddingBottom: 4 },
-    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#93c5fd' },
-    itemTitle: { fontSize: 13, fontWeight: '700', color: '#172554' },
-    itemCompany: { fontSize: 12, color: '#2563eb', fontWeight: '600', marginBottom: 3 },
-    skillChip: { backgroundColor: '#dbeafe', borderWidth: 1, borderColor: '#93c5fd', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-    skillText: { fontSize: 10, fontWeight: '600', color: '#1e3a8a' },
+    contact: { fontSize: 11, color: '#7dd3fc' },
+    secTitle: { fontSize: 13, fontWeight: '800', color: '#38bdf8', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#1e3a5f', paddingBottom: 4 },
+    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#0284c7' },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#e0f2fe' },
+    itemCompany: { fontSize: 12, color: '#38bdf8', fontWeight: '600', marginBottom: 3 },
+    skillChip: { backgroundColor: '#0c1929', borderWidth: 1, borderColor: '#0284c7', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    skillText: { fontSize: 10, fontWeight: '600', color: '#7dd3fc' },
   }),
   gold: StyleSheet.create({
     container: { backgroundColor: '#fffbeb', borderRadius: 12, padding: 20, elevation: 4 },
@@ -2935,29 +2939,29 @@ const tStyles = {
   }),
   doubleCol: StyleSheet.create({
     container: { backgroundColor: '#ffffff', borderRadius: 12, flexDirection: 'row', overflow: 'hidden', elevation: 4 },
-    leftCol: { width: 140, backgroundColor: '#1f2937', padding: 16 },
+    leftCol: { width: 250, backgroundColor: '#f3f4f6', padding: 16, justifyContent: 'flex-start' },
     rightCol: { flex: 1, padding: 16 },
-    header: { paddingBottom: 12, marginBottom: 12, borderBottomWidth: 2, borderBottomColor: '#334155' },
-    name: { fontSize: 16, fontWeight: '800', color: '#ffffff' },
-    jobTitle: { fontSize: 9, fontWeight: '600', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 1, marginTop: 2 },
-    contactRow: { flexDirection: 'column', gap: 2 },
-    contact: { fontSize: 9, color: '#d1d5db' },
-    section: { marginBottom: 16 },
-    secTitle: { fontSize: 11, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 },
-    eduSchool: { fontSize: 12, fontWeight: '700', color: '#ffffff' },
-    eduDegree: { fontSize: 10, color: '#9ca3af' },
+    header: { paddingBottom: 12, marginBottom: 12, borderBottomWidth: 2, borderBottomColor: '#d1d5db' },
+    name: { fontSize: 16, fontWeight: '800', color: '#1f2937' },
+    jobTitle: { fontSize: 9, fontWeight: '600', color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1, marginTop: 2 },
+    contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 4 },
+    contact: { fontSize: 9, color: '#9ca3af' },
+    section: { marginBottom: 14 },
+    secTitle: { fontSize: 11, fontWeight: '800', color: '#1f2937', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 },
+    eduSchool: { fontSize: 12, fontWeight: '700', color: '#1f2937' },
+    eduDegree: { fontSize: 10, color: '#64748b' },
     itemTitle: { fontSize: 13, fontWeight: '700', color: '#1f2937' },
-    itemCompany: { fontSize: 11, color: '#374151', fontWeight: '600', marginBottom: 2 },
+    itemCompany: { fontSize: 11, color: '#475569', fontWeight: '600', marginBottom: 2 },
   }),
   singleCol: StyleSheet.create({
     container: { backgroundColor: '#ffffff', borderRadius: 12, padding: 20, elevation: 4 },
     header: { alignItems: 'center', paddingBottom: 12, marginBottom: 8 },
     name: { fontSize: 26, fontWeight: '900', color: '#111827', letterSpacing: 0.5 },
     jobTitle: { fontSize: 12, fontWeight: '700', color: '#6b7280', textTransform: 'uppercase', letterSpacing: 2, marginTop: 4 },
-    divider: { width: 50, height: 2, backgroundColor: COLORS.primary, marginTop: 8, marginBottom: 8 },
+    divider: { width: 50, height: 2, backgroundColor: '#374151', marginTop: 8, marginBottom: 8 },
     contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center' },
     contact: { fontSize: 11, color: '#6b7280' },
-    secTitle: { fontSize: 12, fontWeight: '800', color: COLORS.primary, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 8, borderBottomWidth: 1, borderBottomColor: '#d1d5db', paddingBottom: 4 },
+    secTitle: { fontSize: 12, fontWeight: '800', color: '#1e3a5f', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 8, borderBottomWidth: 1, borderBottomColor: '#d1d5db', paddingBottom: 4 },
     itemTitle: { fontSize: 13, fontWeight: '700', color: '#111827' },
   }),
 };

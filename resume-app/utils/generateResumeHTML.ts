@@ -1,6 +1,6 @@
 import { ResumeData, PaperSize, CustomTemplateConfig, SectionOrderItem, HeaderLayoutType } from '../types';
 import { PAPER_SIZES, COLORS } from '../constants';
-import { getTemplateConfig, TemplateConfig } from './templateFactory';
+import { getTemplateConfig, TemplateConfig, FONT_MAP } from './templateFactory';
 import { formatText } from './helpers';
 import { renderBuiltInHTML } from './builtinPrint';
 
@@ -356,15 +356,14 @@ ${paper.css}
 html, body { margin: 0; padding: 0; background:${bg}; }
 body{font-family:${bodyFontFamily};color:${textColor};line-height:1.5;font-size:${bodyFontSize};}
 /* .content flows continuously; the PDF engine cuts it into ${paper.heightMm}mm
-   pages. box-decoration-break: clone re-applies the top padding at the start
-   of every page fragment so page 2+ starts 12mm below the page edge. */
+   pages. Standard 12mm margins on all sides.
+   box-decoration-break: clone re-applies padding at the start
+   of every page fragment for consistent spacing on all pages. */
 .content{
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
-  padding-top:12mm;
+  padding:12mm 14mm 12mm 14mm;
 }
-/* Keep page 1 edge-to-edge: pull the header (first child) back over the padding */
-.content > :first-child{ margin-top:-12mm; }
 strong{font-weight:800;}
 </style>
 </head>
@@ -540,15 +539,14 @@ ${paper.css}
 html, body { margin: 0; padding: 0; background:#fdf6e3; }
 body{font-family:${bodyFontFamily};color:#475569;line-height:1.5;}
 /* .content flows continuously; the PDF engine cuts it into ${paper.heightMm}mm
-   pages. box-decoration-break: clone re-applies the top padding at the start
-   of every page fragment so page 2+ starts 12mm below the page edge. */
+   pages. Standard 12mm margins on all sides.
+   box-decoration-break: clone re-applies padding at the start
+   of every page fragment for consistent spacing on all pages. */
 .content{
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
-  padding-top:12mm;
+  padding:12mm 14mm 12mm 14mm;
 }
-/* Keep page 1 edge-to-edge: pull the header (first child) back over the padding */
-.content > :first-child{ margin-top:-12mm; }
 strong{font-weight:800;}
 
 /* Header: name, title-case job title, wrapped contact row */
@@ -609,6 +607,12 @@ export function generateResumeHTML(data: ResumeData, templateId: string, paperSi
   // GenericTemplate preview pixel-for-pixel.
   const factoryConfig = getTemplateConfig(templateId);
   if (factoryConfig) {
+    // Factory templates with a real side panel keep their two-pane layout in
+    // the PDF so the export matches the GenericTemplate preview on screen
+    // instead of flattening to a single column.
+    if (factoryConfig.layout === 'sidebar-left' || factoryConfig.layout === 'sidebar-right') {
+      return renderFactorySidebarHTML(data, paper, factoryConfig, fontOptions);
+    }
     return renderViaCustomHTML(data, paper, factoryConfig, fontOptions);
   }
 
@@ -693,6 +697,215 @@ function renderViaCustomHTML(
     itemStyle,
   };
   return generateCustomTemplateHTML(data, paper, wrappedConfig, fontOptions);
+}
+
+// ─── Factory sidebar templates (sidebar-left / sidebar-right) ─────────────
+// The preview renders these factory templates with GenericTemplate, which
+// draws a colored 175px rail (first name, job title, contact, skills,
+// languages) next to a white main column (Profile/Experience/Education +
+// skill chips). This renderer mirrors that component in HTML so the exported
+// PDF keeps the same two-column layout and colors.
+function renderFactorySidebarHTML(
+  data: ResumeData,
+  paper: { widthMm: number; heightMm: number; widthPx: number; heightPx: number; css: string },
+  config: TemplateConfig,
+  fontOptions?: FontOptions,
+): string {
+  const FONT_CSS_FALLBACKS: Record<string, string> = {
+    'System': '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
+    'Helvetica': 'Helvetica, Arial, sans-serif',
+    'Helvetica Neue': 'Helvetica Neue, Helvetica, Arial, sans-serif',
+    'HelveticaNeue': 'Helvetica Neue, Helvetica, Arial, sans-serif',
+    'Arial': 'Arial, Helvetica, sans-serif',
+    'Georgia': 'Georgia, serif',
+    'Times New Roman': 'Times New Roman, Times, serif',
+    'TimesNewRomanPSMT': 'Times New Roman, Times, serif',
+    'Courier New': 'Courier New, Courier, monospace',
+    'CourierNewPSMT': 'Courier New, Courier, monospace',
+    'Courier': 'Courier, monospace',
+    'Trebuchet MS': 'Trebuchet MS, sans-serif',
+    'TrebuchetMS': 'Trebuchet MS, sans-serif',
+    'Palatino': 'Palatino Linotype, Palatino, serif',
+    'Garamond': 'Garamond, serif',
+    'Verdana': 'Verdana, Geneva, sans-serif',
+    'Tahoma': 'Tahoma, Geneva, sans-serif',
+    'Futura': 'Futura, sans-serif',
+    'Avenir': 'Avenir, sans-serif',
+    'Didot': 'Didot, serif',
+    'Baskerville': 'Baskerville, serif',
+    'Cochin': 'Cochin, serif',
+    'AmericanTypewriter': 'American Typewriter, monospace',
+    'Menlo': 'Menlo, monospace',
+    'Monaco': 'Monaco, monospace',
+    'Optima': 'Optima, sans-serif',
+    'Rockwell': 'Rockwell, serif',
+    'SnellRoundhand': 'Snell Roundhand, cursive',
+  };
+  const userFont = fontOptions?.fontFamily;
+  const bodyFontFamily = (userFont && FONT_CSS_FALLBACKS[userFont]) || (userFont ? userFont : (FONT_MAP[config.fontStyle] || FONT_MAP.modern));
+
+  const pi = data.personalInfo;
+  const isLeft = config.layout === 'sidebar-left';
+  const accent = config.accentColor;
+  const headerBg = config.headerBg;
+  const border = config.borderColor;
+
+  // Same contrast rule GenericTemplate uses to pick dark vs white text on a bg.
+  const textOn = (bg: string): string => {
+    const clean = bg.replace('#', '');
+    if (clean.length < 6) return config.textColor;
+    const r = parseInt(clean.substring(0, 2), 16);
+    const g = parseInt(clean.substring(2, 4), 16);
+    const b = parseInt(clean.substring(4, 6), 16);
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.5 ? config.textColor : '#ffffff';
+  };
+  const chipTextOn = (bg: string): string => {
+    const clean = bg.replace('#', '');
+    if (clean.length < 6) return config.textColor;
+    const r = parseInt(clean.substring(0, 2), 16);
+    const g = parseInt(clean.substring(2, 4), 16);
+    const b = parseInt(clean.substring(4, 6), 16);
+    return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.5 ? config.textColor : '#ffffff';
+  };
+  const contactColor = config.headerColor === config.headerBg ? 'rgba(255,255,255,0.8)' : config.subtextColor;
+  const bulletColor = config.headerColor === config.headerBg ? 'rgba(255,255,255,0.73)' : config.subtextColor;
+
+  // Mirrors SectionTitleText in GenericTemplate.
+  const sectionTitle = (title: string, index: number): string => {
+    const base = 'font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;';
+    switch (config.sectionStyle) {
+      case 'underline':
+        return `<div style="${base}color:${config.sectionTitleColor};border-bottom:2px solid ${accent};padding-bottom:4px;">${escapeHTML(title)}</div>`;
+      case 'background':
+        return `<div style="background:${config.accentLight};padding:6px 10px;border-radius:6px;margin-bottom:8px;"><span style="${base}color:${accent};margin:0;">${escapeHTML(title)}</span></div>`;
+      case 'border-left':
+        return `<div style="border-left:3px solid ${accent};padding-left:10px;margin-bottom:8px;"><span style="${base}color:${config.sectionTitleColor};margin:0;">${escapeHTML(title)}</span></div>`;
+      case 'pill':
+        return `<div style="background:${accent};border-radius:20px;padding:5px 12px;display:inline-block;margin-bottom:10px;"><span style="${base}color:#ffffff;margin:0;font-size:10px;">${escapeHTML(title)}</span></div>`;
+      case 'minimal':
+        return `<div style="${base}color:${config.subtextColor};border-bottom:1px solid ${border};padding-bottom:4px;letter-spacing:3px;font-size:10px;">${escapeHTML(title)}</div>`;
+      case 'numbered':
+        return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="width:22px;height:22px;border-radius:11px;background:${accent};color:#ffffff;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;">${index + 1}</span><span style="${base}color:${config.sectionTitleColor};margin:0;">${escapeHTML(title)}</span></div>`;
+      default:
+        return `<div style="${base}color:${config.sectionTitleColor};border-bottom:1px solid ${border};padding-bottom:4px;">${escapeHTML(title)}</div>`;
+    }
+  };
+
+  // Mirrors SkillChip in GenericTemplate.
+  const chip = (skill: string): string => {
+    const txt = chipTextOn(config.chipBg);
+    const pad = 'padding:3px 8px;margin:0 6px 6px 0;';
+    switch (config.chipStyle) {
+      case 'pill':
+        return `<span style="display:inline-block;background:${accent};border-radius:20px;${pad}font-size:9px;font-weight:600;color:#ffffff;">${escapeHTML(skill)}</span>`;
+      case 'outlined':
+        return `<span style="display:inline-block;border:1px solid ${accent};border-radius:8px;${pad}font-size:9px;font-weight:600;color:${txt};">${escapeHTML(skill)}</span>`;
+      case 'filled':
+        return `<span style="display:inline-block;background:${accent}20;border-radius:6px;${pad}font-size:9px;font-weight:600;color:${txt};">${escapeHTML(skill)}</span>`;
+      case 'square':
+        return `<span style="display:inline-block;background:${config.chipBg};border-radius:4px;${pad}font-size:9px;font-weight:600;color:${txt};">${escapeHTML(skill)}</span>`;
+      case 'rounded':
+      default:
+        return `<span style="display:inline-block;background:${config.chipBg};border-radius:12px;${pad}font-size:9px;font-weight:600;color:${txt};">${escapeHTML(skill)}</span>`;
+    }
+  };
+
+  // Mirrors ExperienceItem in GenericTemplate.
+  let expHtml = '';
+  for (const exp of data.experience) {
+    const dateRange = `${escapeHTML(exp.startDate)} – ${exp.current ? 'Present' : escapeHTML(exp.endDate)}`;
+    const mb = config.itemStyle === 'compact' ? 'margin-bottom:8px;' : 'margin-bottom:12px;';
+    const head = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;"><span style="font-size:12px;font-weight:700;color:${config.textColor};">${escapeHTML(exp.title)}</span><span style="font-size:9px;color:${config.dateColor};">${dateRange}</span></div>`;
+    const company = `<div style="font-size:11px;font-weight:600;color:${accent};margin-bottom:3px;">${escapeHTML(exp.company)}</div>`;
+    const companySub = `<div style="font-size:11px;font-weight:600;color:${config.subtextColor};margin-bottom:3px;">${escapeHTML(exp.company)}</div>`;
+    const desc = `<div style="font-size:10px;color:${config.subtextColor};line-height:16px;white-space:pre-line;">${nl2br(formatBoldText(exp.description))}</div>`;
+    switch (config.itemStyle) {
+      case 'bordered':
+        expHtml += `<div style="${mb}border:1px solid ${border};border-radius:8px;padding:10px;page-break-inside:avoid;">${head}${company}${desc}</div>`;
+        break;
+      case 'card':
+        expHtml += `<div style="${mb}background:${config.accentLight}40;border-radius:8px;padding:10px;border-left:3px solid ${accent};page-break-inside:avoid;">${head}${company}${desc}</div>`;
+        break;
+      case 'timeline':
+        expHtml += `<div style="${mb}display:flex;gap:10px;"><div style="width:10px;flex:none;display:flex;flex-direction:column;"><div style="width:10px;height:10px;border-radius:5px;background:${accent};margin-top:4px;"></div><div style="flex:1;width:2px;background:${border};margin-top:4px;"></div></div><div style="flex:1;min-width:0;"><div style="font-size:9px;font-weight:600;color:${accent};margin-bottom:2px;">${dateRange}</div><div style="font-size:12px;font-weight:700;color:${config.textColor};">${escapeHTML(exp.title)}</div>${companySub}${desc}</div></div>`;
+        break;
+      case 'compact':
+        expHtml += `<div style="${mb}">${head}<div style="font-size:10px;font-weight:600;color:${accent};">${escapeHTML(exp.company)}</div><div style="font-size:9px;color:${config.subtextColor};line-height:14px;white-space:pre-line;">${nl2br(formatBoldText(exp.description))}</div></div>`;
+        break;
+      default:
+        expHtml += `<div style="${mb}page-break-inside:avoid;">${head}${company}${desc}</div>`;
+        break;
+    }
+  }
+
+  let eduHtml = '';
+  for (const edu of data.education) {
+    eduHtml += `<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:11px;font-weight:700;color:${config.textColor};">${escapeHTML(edu.school)}</span><span style="font-size:8px;color:${config.dateColor};">${escapeHTML(edu.startDate)} – ${escapeHTML(edu.endDate)}</span></div><div style="font-size:10px;color:${config.subtextColor};">${escapeHTML(edu.degree)}</div></div>`;
+  }
+
+  let side = '';
+  side += `<div class="sb-name">${escapeHTML(pi.fullName.split(' ')[0] || pi.fullName)}</div>`;
+  if (pi.jobTitle) side += `<div class="sb-job">${escapeHTML(pi.jobTitle)}</div>`;
+  side += `<div class="sb-h">Contact</div>`;
+  if (pi.email) side += `<div class="sb-item">${escapeHTML(pi.email)}</div>`;
+  if (pi.phone) side += `<div class="sb-item">${escapeHTML(pi.phone)}</div>`;
+  if (pi.location) side += `<div class="sb-item">${escapeHTML(pi.location)}</div>`;
+  side += `<div class="sb-h">Skills</div>`;
+  for (const s of data.skills) side += `<div class="sb-bullet">• ${escapeHTML(s)}</div>`;
+  if (data.languages && data.languages.length > 0) {
+    side += `<div class="sb-h">Languages</div>`;
+    for (const l of data.languages) side += `<div class="sb-bullet">${escapeHTML(l)}</div>`;
+  }
+
+  let main = '';
+  if (data.summary) {
+    main += `<div style="margin-bottom:14px;">${sectionTitle('Profile', 0)}<div style="font-size:10px;color:${config.subtextColor};line-height:16px;white-space:pre-line;">${nl2br(formatBoldText(data.summary))}</div></div>`;
+  }
+  main += `<div style="margin-bottom:14px;">${sectionTitle('Experience', 1)}${expHtml}</div>`;
+  main += `<div style="margin-bottom:14px;">${sectionTitle('Education', 2)}${eduHtml}</div>`;
+  main += `<div style="display:flex;flex-wrap:wrap;">${data.skills.map(s => chip(s)).join('')}</div>`;
+
+  const sideBorder = isLeft
+    ? `border-right:3px solid ${accent};`
+    : `border-left:3px solid ${accent};`;
+
+  const rowHtml = `<div class="sb">${isLeft ? `<div class="sb-side">${side}</div><div class="sb-main">${main}</div>` : `<div class="sb-main">${main}</div><div class="sb-side">${side}</div>`}</div>`;
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+${paper.css}
+@page { margin: 0; size: ${paper.widthMm}mm ${paper.heightMm}mm; }
+*{margin:0;padding:0;box-sizing:border-box}
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+html, body { margin: 0; padding: 0; background:${config.bg}; }
+body{font-family:${bodyFontFamily};color:${config.textColor};line-height:1.5;}
+.content{
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding:12mm 14mm 12mm 14mm;
+}
+.sb{display:flex;align-items:stretch;}
+.sb-side{flex:none;width:300px;padding:14px;background:${headerBg};${sideBorder}min-width:0;}
+.sb-side .sb-name{font-size:16px;font-weight:900;line-height:1.3;color:${textOn(headerBg)};word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;}
+.sb-side .sb-job{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-top:2px;margin-bottom:12px;color:${accent};word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;}
+.sb-side .sb-h{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-top:14px;margin-bottom:6px;color:${accent};}
+.sb-side .sb-h:first-of-type{margin-top:0;}
+.sb-side .sb-item{font-size:9px;margin-bottom:4px;color:${contactColor};word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;}
+.sb-side .sb-bullet{font-size:9px;margin-bottom:4px;color:${bulletColor};word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;}
+.sb-main{flex:1;min-width:0;padding-left:16px;}
+.sb-main .exp-title-row{display:flex;justify-content:space-between;align-items:center;}
+.sb {page-break-inside:auto;}
+</style>
+</head>
+<body>
+<div class="content">
+${rowHtml}
+</div>
+</body>
+</html>`;
 }
 
 // ─── Built-in template configs ───────────────────────────────────────────

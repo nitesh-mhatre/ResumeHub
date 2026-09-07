@@ -28,33 +28,33 @@ interface TemplateSelectorProps {
 // Built-in hand-crafted templates (shown first)
 const builtinTemplates = [
   { name: 'Hand-Crafted', templates: [
-    { id: 'modern', name: 'Modern', colors: [COLORS.primary, COLORS.gray800, COLORS.gray100], category: 'Hand-Crafted' },
+    { id: 'modern', name: 'Modern', colors: [COLORS.primary, COLORS.secondary, '#e0e7ff'], category: 'Hand-Crafted' },
     { id: 'ats', name: 'ATS Optimized', colors: ['#000000', '#6b7280', '#ffffff'], category: 'Hand-Crafted' },
-    { id: 'professional', name: 'Professional', colors: ['#374151', '#6b7280', '#f3f4f6'], category: 'Hand-Crafted' },
-    { id: 'corporate', name: 'Corporate', colors: ['#1f2937', '#6b7280', '#f3f4f6'], category: 'Hand-Crafted' },
-    { id: 'executive', name: 'Executive', colors: ['#111827', '#6b7280', '#f3f4f6'], category: 'Hand-Crafted' },
-    { id: 'classic', name: 'Classic', colors: ['#111827', '#e5e7eb', '#ffffff'], category: 'Hand-Crafted' },
-    { id: 'legal', name: 'Legal', colors: ['#111827', '#d1d5db', '#ffffff'], category: 'Hand-Crafted' },
-    { id: 'minimal', name: 'Minimal', colors: ['#10b981', '#1e293b', '#f8fafc'], category: 'Hand-Crafted' },
-    { id: 'creative', name: 'Creative', colors: ['#9333ea', '#f472b6', '#f3e8ff'], category: 'Hand-Crafted' },
-    { id: 'artistic', name: 'Artistic', colors: ['#f97316', '#1f2937', '#f8fafc'], category: 'Hand-Crafted' },
-    { id: 'playful', name: 'Playful', colors: ['#fb923c', '#fde047', '#fff7ed'], category: 'Hand-Crafted' },
+    { id: 'professional', name: 'Professional', colors: ['#1e3a5f', '#2563eb', '#eff6ff'], category: 'Hand-Crafted' },
+    { id: 'corporate', name: 'Corporate', colors: ['#1f2937', '#ffffff', '#f3f4f6'], category: 'Hand-Crafted' },
+    { id: 'executive', name: 'Executive', colors: ['#111827', '#e5e7eb', '#f9fafb'], category: 'Hand-Crafted' },
+    { id: 'classic', name: 'Classic', colors: ['#111827', '#374151', '#ffffff'], category: 'Hand-Crafted' },
+    { id: 'legal', name: 'Legal', colors: ['#1f2937', '#d1d5db', '#ffffff'], category: 'Hand-Crafted' },
+    { id: 'minimal', name: 'Minimal', colors: ['#000000', '#e2e8f0', '#f8fafc'], category: 'Hand-Crafted' },
+    { id: 'creative', name: 'Creative', colors: ['#14b8a6', '#ec4899', '#fdf6e3'], category: 'Hand-Crafted' },
+    { id: 'artistic', name: 'Artistic', colors: ['#f97316', '#1c1917', '#ffffff'], category: 'Hand-Crafted' },
+    { id: 'playful', name: 'Playful', colors: ['#f97316', '#fed7aa', '#fff7ed'], category: 'Hand-Crafted' },
     { id: 'elegant', name: 'Elegant', colors: ['#d97706', '#451a03', '#ffffff'], category: 'Hand-Crafted' },
     { id: 'compact', name: 'Compact', colors: ['#ea580c', '#1c1917', '#ffffff'], category: 'Hand-Crafted' },
     { id: 'technical', name: 'Technical', colors: ['#0891b2', '#1e293b', '#f8fafc'], category: 'Hand-Crafted' },
     { id: 'tech-dark', name: 'Dark Mode', colors: ['#0f172a', '#4ade80', '#c084fc'], category: 'Hand-Crafted' },
     { id: 'swiss', name: 'Swiss', colors: ['#dc2626', '#000000', '#ffffff'], category: 'Hand-Crafted' },
-    { id: 'academic', name: 'Academic', colors: ['#374151', '#6b7280', '#ffffff'], category: 'Hand-Crafted' },
+    { id: 'academic', name: 'Academic', colors: ['#111827', '#6b7280', '#ffffff'], category: 'Hand-Crafted' },
     { id: 'startup', name: 'Startup', colors: ['#ec4899', '#f97316', '#ffffff'], category: 'Hand-Crafted' },
     { id: 'medical', name: 'Medical', colors: ['#059669', '#d1fae5', '#ffffff'], category: 'Hand-Crafted' },
     { id: 'timeline', name: 'Timeline', colors: ['#2563eb', '#dbeafe', '#ffffff'], category: 'Hand-Crafted' },
-    { id: 'urban', name: 'Urban', colors: ['#1f2937', '#facc15', '#f8fafc'], category: 'Hand-Crafted' },
+    { id: 'urban', name: 'Urban', colors: ['#1f2937', '#facc15', '#ffffff'], category: 'Hand-Crafted' },
     { id: 'nature', name: 'Nature', colors: ['#65a30d', '#166534', '#f7fee7'], category: 'Hand-Crafted' },
     { id: 'bold', name: 'Bold', colors: ['#7f1d1d', '#fca5a5', '#ffffff'], category: 'Hand-Crafted' },
     { id: 'monochrome', name: 'Monochrome', colors: ['#374151', '#9ca3af', '#ffffff'], category: 'Hand-Crafted' },
-    { id: 'borderless', name: 'Borderless', colors: ['#ffffff', '#e2e8f0', '#f8fafc'], category: 'Hand-Crafted' },
-    { id: 'double-column', name: 'Double Column', colors: ['#1f2937', '#facc15', '#ffffff'], category: 'Hand-Crafted' },
-    { id: 'single-column', name: 'Single Column', colors: ['#111827', COLORS.primary, '#ffffff'], category: 'Hand-Crafted' },
+    { id: 'borderless', name: 'Borderless', colors: ['#94a3b8', '#64748b', '#ffffff'], category: 'Hand-Crafted' },
+    { id: 'double-column', name: 'Double Column', colors: ['#1f2937', '#334155', '#ffffff'], category: 'Hand-Crafted' },
+    { id: 'single-column', name: 'Single Column', colors: ['#111827', '#1e3a5f', '#ffffff'], category: 'Hand-Crafted' },
   ]},
   { name: 'Color Themes', templates: [
     { id: 'ocean', name: 'Ocean Blue', colors: ['#0369a1', '#7dd3fc', '#f0f9ff'], category: 'Color Themes' },
@@ -196,7 +196,7 @@ function TemplateSelectorInner({ currentTemplate, onSelect, onBack }: TemplateSe
     }
     return {} as Record<string, any[]>;
   }, []);
-  const categories = useMemo(() => ['All', 'Hand-Crafted', ...Object.keys(factoryByCategory)], [factoryByCategory]);
+  const categories = useMemo(() => ['All', 'Hand-Crafted', 'Color Themes', ...Object.keys(factoryByCategory)], [factoryByCategory]);
 
   const filteredTemplates = useMemo(() => {
     try {
@@ -204,6 +204,10 @@ function TemplateSelectorInner({ currentTemplate, onSelect, onBack }: TemplateSe
 
       if (activeCategory === 'All' || activeCategory === 'Hand-Crafted') {
         results = [...results, ...builtinTemplates[0].templates];
+      }
+
+      if (activeCategory === 'All' || activeCategory === 'Color Themes') {
+        results = [...results, ...builtinTemplates[1].templates];
       }
 
       if (activeCategory === 'All') {

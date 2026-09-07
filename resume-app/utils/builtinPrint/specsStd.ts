@@ -4,6 +4,74 @@ import { StdSpec } from './engine';
 
 const INDIGO = '#4f46e5';
 
+// ─── Color-theme templates (ocean … indigo) ────────────────────────────────
+// Each Color Theme renders in the preview (ResumePreview.templateMap) as a
+// light pastel page with a solid colored header band and ABOUT/EXPERIENCE/
+// EDUCATION/SKILLS sections. These specs are generated from one palette table
+// so the exported PDF mirrors the on-screen component 1:1.
+interface BandedThemePalette {
+  id: string;
+  pageBg: string;
+  band: string;       // header band background + section-title color
+  jobTint: string;    // job title inside the band
+  contactTint: string;// contact text inside the band
+  border: string;     // section/item/chip border tint
+  itemTitle: string;  // experience/education title color
+  company: string;    // company text color
+  chipBg: string;
+  chipTxt: string;
+  extra: string;      // ExtraSections title color
+}
+
+const BANDED_THEME_PALETTES: BandedThemePalette[] = [
+  { id: 'ocean', pageBg: '#f0f9ff', band: '#0369a1', jobTint: '#bae6fd', contactTint: '#e0f2fe', border: '#7dd3fc', itemTitle: '#0c4a6e', company: '#0284c7', chipBg: '#e0f2fe', chipTxt: '#0369a1', extra: '#0369a1' },
+  { id: 'forest', pageBg: '#f0fdf4', band: '#166534', jobTint: '#bbf7d0', contactTint: '#dcfce7', border: '#86efac', itemTitle: '#14532d', company: '#15803d', chipBg: '#dcfce7', chipTxt: '#166534', extra: '#166534' },
+  { id: 'sunset', pageBg: '#fff7ed', band: '#c2410c', jobTint: '#fed7aa', contactTint: '#fed7aa', border: '#fdba74', itemTitle: '#9a3412', company: '#ea580c', chipBg: '#ffedd5', chipTxt: '#c2410c', extra: '#ea580c' },
+  { id: 'lavender', pageBg: '#f5f3ff', band: '#6d28d9', jobTint: '#ddd6fe', contactTint: '#ede9fe', border: '#c4b5fd', itemTitle: '#5b21b6', company: '#7c3aed', chipBg: '#ede9fe', chipTxt: '#6d28d9', extra: '#7c3aed' },
+  { id: 'slate', pageBg: '#f8fafc', band: '#475569', jobTint: '#cbd5e1', contactTint: '#e2e8f0', border: '#94a3b8', itemTitle: '#1e293b', company: '#64748b', chipBg: '#f1f5f9', chipTxt: '#475569', extra: '#475569' },
+  { id: 'charcoal', pageBg: '#fafafa', band: '#1e293b', jobTint: '#cbd5e1', contactTint: '#e2e8f0', border: '#475569', itemTitle: '#0f172a', company: '#334155', chipBg: '#f1f5f9', chipTxt: '#1e293b', extra: '#1e293b' },
+  { id: 'midnight', pageBg: '#eef2ff', band: '#312e81', jobTint: '#c7d2fe', contactTint: '#ddd6fe', border: '#a5b4fc', itemTitle: '#1e1b4b', company: '#4338ca', chipBg: '#e0e7ff', chipTxt: '#312e81', extra: '#1e1b4b' },
+  { id: 'ruby', pageBg: '#fef2f2', band: '#991b1b', jobTint: '#fecaca', contactTint: '#fce7f3', border: '#fca5a5', itemTitle: '#7f1d1d', company: '#dc2626', chipBg: '#fce7f3', chipTxt: '#991b1b', extra: '#991b1b' },
+  { id: 'emerald', pageBg: '#ecfdf5', band: '#047857', jobTint: '#a7f3d0', contactTint: '#d1fae5', border: '#6ee7b7', itemTitle: '#064e3b', company: '#059669', chipBg: '#d1fae5', chipTxt: '#047857', extra: '#047857' },
+  { id: 'cobalt', pageBg: '#eff6ff', band: '#1e3a8a', jobTint: '#bfdbfe', contactTint: '#dbeafe', border: '#93c5fd', itemTitle: '#172554', company: '#2563eb', chipBg: '#dbeafe', chipTxt: '#1e3a8a', extra: '#1e3a8a' },
+  { id: 'gold', pageBg: '#fffbeb', band: '#b45309', jobTint: '#fde68a', contactTint: '#fef3c7', border: '#fcd34d', itemTitle: '#92400e', company: '#d97706', chipBg: '#fef3c7', chipTxt: '#b45309', extra: '#b45309' },
+  { id: 'pink', pageBg: '#fdf2f8', band: '#be185d', jobTint: '#fbcfe8', contactTint: '#fce7f3', border: '#f9a8d4', itemTitle: '#9d174d', company: '#db2777', chipBg: '#fce7f3', chipTxt: '#be185d', extra: '#be185d' },
+  { id: 'teal', pageBg: '#f0fdfa', band: '#0f766e', jobTint: '#99f6e4', contactTint: '#ccfbf1', border: '#5eead4', itemTitle: '#134e4a', company: '#0d9488', chipBg: '#ccfbf1', chipTxt: '#0f766e', extra: '#0f766e' },
+  { id: 'indigo', pageBg: '#eef2ff', band: '#3730a3', jobTint: '#c7d2fe', contactTint: '#ddd6fe', border: '#a5b4fc', itemTitle: '#1e1b4b', company: '#4f46e5', chipBg: '#e0e7ff', chipTxt: '#3730a3', extra: '#3730a3' },
+];
+
+function makeBandedColorThemeSpec(p: BandedThemePalette): StdSpec {
+  return {
+    pageBg: p.pageBg,
+    head: {
+      band: p.band,
+      bandRadius: 8,
+      bandPad: 20,
+      mgB: 16,
+      name: { fs: 24, w: 800, c: '#ffffff', up: true, ls: 0.5 },
+      job: { fs: 13, w: 700, c: p.jobTint, up: true, ls: 1, mt: 4, mb: 12 },
+      contact: { keys: ['email', 'phone', 'location'], fs: 11, c: p.contactTint, gap: 12 },
+    },
+    secs: [
+      { t: 'sum', label: 'ABOUT' },
+      { t: 'exp', label: 'EXPERIENCE' },
+      { t: 'edu', label: 'EDUCATION' },
+      { t: 'skill', label: 'SKILLS' },
+    ],
+    secTitle: { fs: 13, w: 800, c: p.band, up: true, ls: 1.5, borderB: [2, p.border], pb: 4, mb: 8 },
+    item: { cont: `padding-left:10px;border-left:2px solid ${p.border};`, titleC: p.itemTitle, titleFs: 13, companyC: p.company, companyFs: 12 },
+    coC: p.company,
+    chip: { bg: p.chipBg, bdC: p.border, bdW: 1, radius: 12, txtC: p.chipTxt, padH: 10, padV: 4 },
+    extra: { color: p.extra },
+  };
+}
+
+function makeBandedColorThemeSpecs(): Record<string, StdSpec> {
+  const out: Record<string, StdSpec> = {};
+  for (const p of BANDED_THEME_PALETTES) out[p.id] = makeBandedColorThemeSpec(p);
+  return out;
+}
+
 export const STD_SPECS: Record<string, StdSpec> = {
   // ─── Modern ─────────────────────────────────────────────────────────────
   modern: {
@@ -838,4 +906,7 @@ export const STD_SPECS: Record<string, StdSpec> = {
     chip: { bg: '#e0e7ff', bdC: '#a5b4fc', bdW: 1.5, radius: 8, txtC: '#312e81', padH: 12, padV: 5 },
     extra: { color: '#4f46e5' },
   },
+  // The color-theme entries below are intentionally generated from
+  // BANDED_THEME_PALETTES so the PDF matches the ResumePreview components.
+  ...makeBandedColorThemeSpecs(),
 };

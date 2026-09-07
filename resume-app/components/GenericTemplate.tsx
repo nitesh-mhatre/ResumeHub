@@ -230,7 +230,7 @@ export default function GenericTemplate({ data, config }: GenericTemplateProps) 
   if (config.layout === 'sidebar-left' || config.layout === 'sidebar-right') {
     const isLeft = config.layout === 'sidebar-left';
     const sidebar = (
-      <View style={{ width: 120, backgroundColor: config.headerBg, padding: 14, borderRightWidth: isLeft ? 3 : 0, borderRightColor: config.accentColor, borderLeftWidth: isLeft ? 0 : 3, borderLeftColor: config.accentColor }}>
+      <View style={{ width: 175, backgroundColor: config.headerBg, padding: 14, borderRightWidth: isLeft ? 3 : 0, borderRightColor: config.accentColor, borderLeftWidth: isLeft ? 0 : 3, borderLeftColor: config.accentColor }}>
         <Text style={{ fontSize: 16, fontWeight: '900', color: contrastText(config.headerBg, '#ffffff', config.textColor), fontFamily }}>{data.personalInfo.fullName.split(' ')[0]}</Text>
         <Text style={{ fontSize: 9, color: config.accentColor, textTransform: 'uppercase', letterSpacing: 1, marginTop: 2, fontFamily }}>{data.personalInfo.jobTitle}</Text>
         <View style={{ marginTop: 12 }}>

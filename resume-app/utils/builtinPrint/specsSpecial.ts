@@ -29,8 +29,8 @@ function sideCss(bodyPx: number): string {
   const d = dynSizes(bodyPx);
   return `
 .split{display:flex;gap:20px;align-items:flex-start}
-.split .main{flex:2;min-width:0}
-.split .side{flex:1;min-width:0}
+.split .main{flex:1.7;min-width:0}
+.split .side{flex:1.15;min-width:0}
 .side{background:#f3f4f6;border-radius:12px;padding:16px}
 .side .sd-title{font-size:12px;font-weight:700;color:#1f2937;text-transform:uppercase;margin-bottom:10px;page-break-after:avoid;break-after:avoid}
 .side .sd-item{font-size:11px;color:#475569;margin-bottom:5px}
@@ -38,7 +38,7 @@ function sideCss(bodyPx: number): string {
 .side .ed-degree{font-size:11px;color:#64748b}
 .side .ed-block{margin-bottom:14px}
 /* swiss / artistic / urban sidebars */
-.sbar{border-right:5px solid #dc2626;padding:20px;width:150px;flex:none}
+.sbar{border-right:5px solid #dc2626;padding:20px;width:250px;flex:none}
 .sbar .nm{font-size:24px;font-weight:800;color:#000;margin-bottom:6px;display:block}
 .sbar .sj{font-size:11px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:20px;display:block}
 .sbar .scon{font-size:11px;color:#000;font-weight:700;margin-bottom:5px;display:block}
@@ -53,7 +53,7 @@ function sideCss(bodyPx: number): string {
 .swiss-item .item-content{flex:1;min-width:0}
 .swiss-item .sjob{font-size:15px;font-weight:800;color:#111827}
 .swiss-item .scomp{font-size:13px;font-weight:700;color:#475569;margin:3px 0 5px}
-.art-side{background:#f97316;padding:20px;width:140px;flex:none;color:#fff}
+.art-side{background:#f97316;padding:20px;width:265px;flex:none;color:#fff}
 .art-side .nm{font-size:22px;font-weight:900;color:#fff;margin-bottom:6px;display:block}
 .art-side .sj{font-size:11px;font-weight:700;color:#fed7aa;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;display:block}
 .art-side .sd-title{font-size:12px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:1.5px;margin:20px 0 8px;display:block}
@@ -64,7 +64,7 @@ function sideCss(bodyPx: number): string {
 .art-item .acontent{flex:1;min-width:0}
 .art-title{font-size:14px;font-weight:700;color:#1c1917}
 .art-company{font-size:12px;color:#f97316;font-weight:600;margin-bottom:4px}
-.urban-side{background:#1f2937;padding:20px;width:150px;flex:none;border-radius:12px}
+.urban-side{background:#1f2937;padding:20px;width:265px;flex:none;border-radius:12px}
 .urban-side .av{width:56px;height:56px;border-radius:28px;background:#facc15;display:flex;align-items:center;justify-content:center;color:#1f2937;font-size:20px;font-weight:900;margin-bottom:12px}
 .urban-side .nm{font-size:18px;font-weight:800;color:#fff;margin-bottom:3px;display:block}
 .urban-side .sj{font-size:10px;font-weight:700;color:#facc15;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;display:block}
@@ -339,23 +339,24 @@ function renderDoubleColumn(data: ResumeData, paper: PaperBox, font: FontOptions
   const ff = cssFontFamily(font?.fontFamily);
   
   const css = `
-.dc-container{display:flex;gap:0;align-items:stretch}
-.dc-left{width:140px;background:#1f2937;padding:16px;color:#fff;min-width:0}
+.dc-container{display:flex;gap:0;align-items:stretch;width:100%;overflow:hidden;min-width:0}
+.dc-left{min-width:230px;max-width:320px;width:max-content;max-width:320px;background:#1f2937;padding:16px;color:#fff;flex-shrink:0}
 .dc-right{flex:1;padding:16px;min-width:0}
-.dc-header{padding-bottom:12px;margin-bottom:12px;border-bottom:2px solid #334155}
-.dc-name{font-size:16px;font-weight:800;color:#fff;display:block}
-.dc-job{font-size:9px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-top:2px;display:block}
-.dc-contact{display:flex;flex-direction:column;gap:2px;margin-top:8px}
-.dc-contact span{font-size:9px;color:#d1d5db;display:block}
+.dc-header{padding-bottom:12px;margin-bottom:12px;border-bottom:2px solid #334155;word-wrap:break-word;overflow-wrap:break-word}
+.dc-name{font-size:16px;font-weight:800;color:#fff;display:block;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;line-height:1.3;max-width:100%;word-break:break-all}
+.dc-job{font-size:9px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-top:2px;display:block;word-wrap:break-word;overflow-wrap:break-word;max-width:100%;word-break:break-all}
+.dc-contact{display:flex;flex-direction:column;gap:2px;margin-top:8px;max-width:100%;overflow-wrap:break-word;word-break:break-all;line-height:1.3}
+.dc-contact span{font-size:9px;color:#d1d5db;display:block;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;line-height:1.3;max-width:100%;word-break:break-all}
 .dc-section{margin-bottom:14px}
 .dc-sec-title{font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block}
-.dc-school{font-size:12px;font-weight:700;color:#fff;display:block}
-.dc-degree{font-size:10px;color:#9ca3af;display:block}
+.dc-school{font-size:12px;font-weight:700;color:#fff;display:block;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all}
+.dc-degree{font-size:10px;color:#9ca3af;display:block;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all}
 .dc-item{margin-bottom:6px}
-.dc-item-title{font-size:13px;font-weight:700;color:#1f2937;display:block}
-.dc-item-date{font-size:10px;color:#94a3af;display:block;margin-top:2px}
-.dc-item-company{font-size:11px;color:#374151;font-weight:600;display:block;margin-top:2px}
-.dc-item-desc{font-size:11px;color:#475569;line-height:14px;white-space:pre-line;display:block;margin-top:2px}
+.dc-item-title{font-size:13px;font-weight:700;color:#1f2937;display:block;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all}
+.dc-item-date{font-size:10px;color:#94a3b8;display:block;margin-top:2px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all}
+.dc-item-company{font-size:11px;color:#374151;font-weight:600;display:block;margin-top:2px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all}
+.dc-item-desc{font-size:11px;color:#475569;line-height:14px;white-space:pre-line;display:block;margin-top:2px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all;max-width:100%;overflow:hidden}
+.dc-left-body{font-size:11px;color:#cbd5e1;line-height:16px;display:block;margin-top:2px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;max-width:100%}
 .dc-exp-section{margin-bottom:14px}
 .dc-exp-title{font-size:13px;font-weight:700;color:#111827;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:block}
 .dc-extra-sec-title{font-size:${d.secTitle.fs}px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#111827;margin-bottom:8px;display:block}
@@ -380,13 +381,11 @@ ${sideCss(bodyPx)}
     </div>
     <div class="dc-section">
       <span class="dc-sec-title">SUMMARY</span>
-      <div class="dc-item-desc">${nl2br(plain(data.summary))}</div>
+      <div class="dc-left-body">${nl2br(plain(data.summary))}</div>
     </div>
     <div class="dc-section">
       <span class="dc-sec-title">SKILLS</span>
-      <div class="dc-skills">
-        ${data.skills.map(s => `<span class="dc-chip">${escapeHTML(s)}</span>`).join('')}
-      </div>
+      <div class="dc-left-body">${data.skills.map(s => escapeHTML(s)).join(' • ')}</div>
     </div>
     <div class="dc-section">
       <span class="dc-sec-title">EDUCATION</span>
@@ -439,15 +438,15 @@ function renderSingleColumn(data: ResumeData, paper: PaperBox, font: FontOptions
 .sc-job{font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:2px;margin-top:4px;display:block}
 .sc-divider{width:50px;height:2px;background:#374151;margin:8px auto}
 .sc-contact-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
-.sc-contact{font-size:11px;color:#6b7280}
+.sc-contact{font-size:11px;color:#6b7280;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all;max-width:100%;overflow:hidden}
 .sc-section{margin-bottom:14px}
 .sc-sec-title{font-size:12px;font-weight:800;color:#1e3a5f;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;border-bottom:1px solid #d1d5db;padding-bottom:4px;display:block}
 .sc-item{margin-bottom:8px}
 .sc-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
 .sc-item-title{font-size:13px;font-weight:700;color:#111827;flex:1}
-.sc-item-date{font-size:10px;color:#94a3af}
+.sc-item-date{font-size:10px;color:#94a3b8}
 .sc-item-company{font-size:12px;color:#1e3a5f;font-weight:600;margin-top:2px}
-.sc-item-desc{font-size:12px;color:#475569;line-height:18px;white-space:pre-line;margin-top:2px}
+.sc-item-desc{font-size:12px;color:#475569;line-height:18px;white-space:pre-line;margin-top:2px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all;max-width:100%;overflow:hidden}
 .sc-skills-text{font-size:12px;color:#475569}
 ${sideCss(bodyPx)}
 `;
@@ -491,7 +490,7 @@ ${sideCss(bodyPx)}
           <span class="sc-item-title">${escapeHTML(edu.school)}</span>
           <span class="sc-item-date">${escapeHTML(edu.startDate)} – ${escapeHTML(edu.endDate)}</span>
         </div>
-        <div class="sc-item-company">${escapeHTML(edu.degree)}</div>
+        <div class="sc-item-desc">${escapeHTML(edu.degree)}</div>
       </div>
     `).join('')}
   </div>
