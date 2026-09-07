@@ -356,15 +356,14 @@ ${paper.css}
 html, body { margin: 0; padding: 0; background:${bg}; }
 body{font-family:${bodyFontFamily};color:${textColor};line-height:1.5;font-size:${bodyFontSize};}
 /* .content flows continuously; the PDF engine cuts it into ${paper.heightMm}mm
-   pages. box-decoration-break: clone re-applies the top padding at the start
-   of every page fragment so page 2+ starts 12mm below the page edge. */
+   pages. Standard 12mm margins on all sides.
+   box-decoration-break: clone re-applies padding at the start
+   of every page fragment for consistent spacing on all pages. */
 .content{
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
-  padding-top:12mm;
+  padding:12mm 14mm 12mm 14mm;
 }
-/* Keep page 1 edge-to-edge: pull the header (first child) back over the padding */
-.content > :first-child{ margin-top:-12mm; }
 strong{font-weight:800;}
 </style>
 </head>
@@ -540,15 +539,14 @@ ${paper.css}
 html, body { margin: 0; padding: 0; background:#fdf6e3; }
 body{font-family:${bodyFontFamily};color:#475569;line-height:1.5;}
 /* .content flows continuously; the PDF engine cuts it into ${paper.heightMm}mm
-   pages. box-decoration-break: clone re-applies the top padding at the start
-   of every page fragment so page 2+ starts 12mm below the page edge. */
+   pages. Standard 12mm margins on all sides.
+   box-decoration-break: clone re-applies padding at the start
+   of every page fragment for consistent spacing on all pages. */
 .content{
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
-  padding-top:12mm;
+  padding:12mm 14mm 12mm 14mm;
 }
-/* Keep page 1 edge-to-edge: pull the header (first child) back over the padding */
-.content > :first-child{ margin-top:-12mm; }
 strong{font-weight:800;}
 
 /* Header: name, title-case job title, wrapped contact row */

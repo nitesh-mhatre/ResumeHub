@@ -1681,12 +1681,12 @@ const DoubleColumnTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
   <View style={tStyles.doubleCol.container}>
     <View style={tStyles.doubleCol.leftCol}>
       <View style={tStyles.doubleCol.header}>
-        <Text style={[tStyles.doubleCol.name, ff]}>{data.personalInfo.fullName}</Text>
-        <Text style={[tStyles.doubleCol.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
+        <Text style={[tStyles.doubleCol.name, ff]} numberOfLines={2}>{data.personalInfo.fullName}</Text>
+        <Text style={[tStyles.doubleCol.jobTitle, ff]} numberOfLines={2}>{data.personalInfo.jobTitle}</Text>
         <View style={tStyles.doubleCol.contactRow}>
-          {data.personalInfo.email ? <Text style={[tStyles.doubleCol.contact, ff]}>{data.personalInfo.email}</Text> : null}
-          {data.personalInfo.phone ? <Text style={[tStyles.doubleCol.contact, ff]}>{data.personalInfo.phone}</Text> : null}
-          {data.personalInfo.location ? <Text style={[tStyles.doubleCol.contact, ff]}>{data.personalInfo.location}</Text> : null}
+          {data.personalInfo.email ? <Text style={[tStyles.doubleCol.contact, ff]} numberOfLines={2}>{data.personalInfo.email}</Text> : null}
+          {data.personalInfo.phone ? <Text style={[tStyles.doubleCol.contact, ff]} numberOfLines={2}>{data.personalInfo.phone}</Text> : null}
+          {data.personalInfo.location ? <Text style={[tStyles.doubleCol.contact, ff]} numberOfLines={2}>{data.personalInfo.location}</Text> : null}
         </View>
       </View>
       <View style={tStyles.doubleCol.section}>
@@ -2935,12 +2935,12 @@ const tStyles = {
   }),
   doubleCol: StyleSheet.create({
     container: { backgroundColor: '#ffffff', borderRadius: 12, flexDirection: 'row', overflow: 'hidden', elevation: 4 },
-    leftCol: { width: 140, backgroundColor: '#1f2937', padding: 16 },
+    leftCol: { width: 145, backgroundColor: '#1f2937', padding: 16, justifyContent: 'flex-start' },
     rightCol: { flex: 1, padding: 16 },
     header: { paddingBottom: 12, marginBottom: 12, borderBottomWidth: 2, borderBottomColor: '#334155' },
     name: { fontSize: 16, fontWeight: '800', color: '#ffffff' },
     jobTitle: { fontSize: 9, fontWeight: '600', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 1, marginTop: 2 },
-    contactRow: { flexDirection: 'column', gap: 2 },
+    contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 4 },
     contact: { fontSize: 9, color: '#d1d5db' },
     section: { marginBottom: 16 },
     secTitle: { fontSize: 11, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 },

@@ -137,17 +137,14 @@ ${opts.paper.css}
 html, body { margin: 0; padding: 0; background:${opts.pageBg}; }
 body{font-family:${opts.fontFamily};color:#475569;line-height:1.5;}
 /* .content flows continuously; the PDF engine cuts it into
-   ${opts.paper.heightMm}mm pages. box-decoration-break: clone makes the engine
-   re-apply .content's top padding at the start of every page fragment, so
-   content that overflows onto page 2+ starts 12mm below the page edge. */
+   ${opts.paper.heightMm}mm pages. Standard 12mm margins on all sides.
+   box-decoration-break: clone makes the engine re-apply padding at the start
+   of every page fragment for consistent spacing on all pages. */
 .content{
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
-  padding-top:12mm;
+  padding:12mm 14mm 12mm 14mm;
 }
-/* Keep page 1 edge-to-edge: pull the header (first child) back over that
-   padding so it still begins flush at the very top of the first page. */
-.content > :first-child{ margin-top:-12mm; }
 strong{font-weight:800;}
 ${opts.css}
 </style>
