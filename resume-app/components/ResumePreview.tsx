@@ -982,6 +982,53 @@ const BorderlessTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
   );
 };
 
+
+// Indigo Template
+const IndigoTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
+  <View style={tStyles.indigo.container}>
+    <View style={tStyles.indigo.header}>
+      <Text style={[tStyles.indigo.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.indigo.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
+      <View style={tStyles.indigo.contactRow}>
+        {data.personalInfo.email ? <Text style={[tStyles.indigo.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.indigo.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.indigo.contact, ff]}>{data.personalInfo.location}</Text> : null}
+      </View>
+    </View>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.indigo.secTitle, ff]}>ABOUT</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.indigo.secTitle, ff]}>EXPERIENCE</Text>
+      {data.experience.map(exp => (
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.indigo.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={[tStyles.indigo.itemCompany, ff]}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.indigo.secTitle, ff]}>EDUCATION</Text>
+      {data.education.map(edu => (
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.indigo.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.indigo.secTitle, ff]}>SKILLS</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.indigo.skillChip}><Text style={[tStyles.indigo.skillText, ff]}>{s}</Text></View>)}
+      </View>
+    </View>
+    <ExtraSections data={data} titleColor="#3730a3" />
+  </View>
+  );
+};
+
 // Monochrome Template
 const MonochromeTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
   const { fontFamily, dyn } = useFont();
@@ -1028,6 +1075,700 @@ const MonochromeTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
   );
 };
 
+// Ocean Template
+const OceanTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
+  <View style={tStyles.ocean.container}>
+    <View style={tStyles.ocean.header}>
+      <Text style={[tStyles.ocean.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.ocean.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
+      <View style={tStyles.ocean.contactRow}>
+        {data.personalInfo.email ? <Text style={[tStyles.ocean.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.ocean.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.ocean.contact, ff]}>{data.personalInfo.location}</Text> : null}
+      </View>
+    </View>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.ocean.secTitle, ff]}>ABOUT</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.ocean.secTitle, ff]}>EXPERIENCE</Text>
+      {data.experience.map(exp => (
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.ocean.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={[tStyles.ocean.itemCompany, ff]}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.ocean.secTitle, ff]}>EDUCATION</Text>
+      {data.education.map(edu => (
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.ocean.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.ocean.secTitle, ff]}>SKILLS</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.ocean.skillChip}><Text style={[tStyles.ocean.skillText, ff]}>{s}</Text></View>)}
+      </View>
+    </View>
+    <ExtraSections data={data} titleColor="#0369a1" />
+  </View>
+  );
+};
+
+// Forest Template
+const ForestTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
+  <View style={tStyles.forest.container}>
+    <View style={tStyles.forest.header}>
+      <Text style={[tStyles.forest.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.forest.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
+      <View style={tStyles.forest.contactRow}>
+        {data.personalInfo.email ? <Text style={[tStyles.forest.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.forest.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.forest.contact, ff]}>{data.personalInfo.location}</Text> : null}
+      </View>
+    </View>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.forest.secTitle, ff]}>ABOUT</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.forest.secTitle, ff]}>EXPERIENCE</Text>
+      {data.experience.map(exp => (
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.forest.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={[tStyles.forest.itemCompany, ff]}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.forest.secTitle, ff]}>EDUCATION</Text>
+      {data.education.map(edu => (
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.forest.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.forest.secTitle, ff]}>SKILLS</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.forest.skillChip}><Text style={[tStyles.forest.skillText, ff]}>{s}</Text></View>)}
+      </View>
+    </View>
+    <ExtraSections data={data} titleColor="#166534" />
+  </View>
+  );
+};
+
+// Sunset Template
+const SunsetTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
+  <View style={tStyles.sunset.container}>
+    <View style={tStyles.sunset.header}>
+      <Text style={[tStyles.sunset.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.sunset.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
+      <View style={tStyles.sunset.contactRow}>
+        {data.personalInfo.email ? <Text style={[tStyles.sunset.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.sunset.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.sunset.contact, ff]}>{data.personalInfo.location}</Text> : null}
+      </View>
+    </View>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.sunset.secTitle, ff]}>ABOUT</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.sunset.secTitle, ff]}>EXPERIENCE</Text>
+      {data.experience.map(exp => (
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.sunset.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={[tStyles.sunset.itemCompany, ff]}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.sunset.secTitle, ff]}>EDUCATION</Text>
+      {data.education.map(edu => (
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.sunset.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.sunset.secTitle, ff]}>SKILLS</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.sunset.skillChip}><Text style={[tStyles.sunset.skillText, ff]}>{s}</Text></View>)}
+      </View>
+    </View>
+    <ExtraSections data={data} titleColor="#ea580c" />
+  </View>
+  );
+};
+
+// Lavender Template
+const LavenderTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
+  <View style={tStyles.lavender.container}>
+    <View style={tStyles.lavender.header}>
+      <Text style={[tStyles.lavender.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.lavender.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
+      <View style={tStyles.lavender.contactRow}>
+        {data.personalInfo.email ? <Text style={[tStyles.lavender.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.lavender.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.lavender.contact, ff]}>{data.personalInfo.location}</Text> : null}
+      </View>
+    </View>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.lavender.secTitle, ff]}>ABOUT</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.lavender.secTitle, ff]}>EXPERIENCE</Text>
+      {data.experience.map(exp => (
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.lavender.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={[tStyles.lavender.itemCompany, ff]}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.lavender.secTitle, ff]}>EDUCATION</Text>
+      {data.education.map(edu => (
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.lavender.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.lavender.secTitle, ff]}>SKILLS</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.lavender.skillChip}><Text style={[tStyles.lavender.skillText, ff]}>{s}</Text></View>)}
+      </View>
+    </View>
+    <ExtraSections data={data} titleColor="#7c3aed" />
+  </View>
+  );
+};
+
+// Slate Template
+const SlateTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
+  <View style={tStyles.slate.container}>
+    <View style={tStyles.slate.header}>
+      <Text style={[tStyles.slate.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.slate.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
+      <View style={tStyles.slate.contactRow}>
+        {data.personalInfo.email ? <Text style={[tStyles.slate.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.slate.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.slate.contact, ff]}>{data.personalInfo.location}</Text> : null}
+      </View>
+    </View>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.slate.secTitle, ff]}>ABOUT</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.slate.secTitle, ff]}>EXPERIENCE</Text>
+      {data.experience.map(exp => (
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.slate.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={[tStyles.slate.itemCompany, ff]}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.slate.secTitle, ff]}>EDUCATION</Text>
+      {data.education.map(edu => (
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.slate.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.slate.secTitle, ff]}>SKILLS</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.slate.skillChip}><Text style={[tStyles.slate.skillText, ff]}>{s}</Text></View>)}
+      </View>
+    </View>
+    <ExtraSections data={data} titleColor="#475569" />
+  </View>
+  );
+};
+
+// Charcoal Template
+const CharcoalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
+  <View style={tStyles.charcoal.container}>
+    <View style={tStyles.charcoal.header}>
+      <Text style={[tStyles.charcoal.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.charcoal.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
+      <View style={tStyles.charcoal.contactRow}>
+        {data.personalInfo.email ? <Text style={[tStyles.charcoal.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.charcoal.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.charcoal.contact, ff]}>{data.personalInfo.location}</Text> : null}
+      </View>
+    </View>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.charcoal.secTitle, ff]}>ABOUT</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.charcoal.secTitle, ff]}>EXPERIENCE</Text>
+      {data.experience.map(exp => (
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.charcoal.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={[tStyles.charcoal.itemCompany, ff]}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.charcoal.secTitle, ff]}>EDUCATION</Text>
+      {data.education.map(edu => (
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.charcoal.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.charcoal.secTitle, ff]}>SKILLS</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.charcoal.skillChip}><Text style={[tStyles.charcoal.skillText, ff]}>{s}</Text></View>)}
+      </View>
+    </View>
+    <ExtraSections data={data} titleColor="#1e293b" />
+  </View>
+  );
+};
+
+// Midnight Template
+const MidnightTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
+  <View style={tStyles.midnight.container}>
+    <View style={tStyles.midnight.header}>
+      <Text style={[tStyles.midnight.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.midnight.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
+      <View style={tStyles.midnight.contactRow}>
+        {data.personalInfo.email ? <Text style={[tStyles.midnight.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.midnight.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.midnight.contact, ff]}>{data.personalInfo.location}</Text> : null}
+      </View>
+    </View>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.midnight.secTitle, ff]}>ABOUT</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.midnight.secTitle, ff]}>EXPERIENCE</Text>
+      {data.experience.map(exp => (
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.midnight.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={[tStyles.midnight.itemCompany, ff]}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.midnight.secTitle, ff]}>EDUCATION</Text>
+      {data.education.map(edu => (
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.midnight.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.midnight.secTitle, ff]}>SKILLS</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.midnight.skillChip}><Text style={[tStyles.midnight.skillText, ff]}>{s}</Text></View>)}
+      </View>
+    </View>
+    <ExtraSections data={data} titleColor="#1e1b4b" />
+  </View>
+  );
+};
+
+// Ruby Template
+const RubyTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
+  <View style={tStyles.ruby.container}>
+    <View style={tStyles.ruby.header}>
+      <Text style={[tStyles.ruby.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.ruby.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
+      <View style={tStyles.ruby.contactRow}>
+        {data.personalInfo.email ? <Text style={[tStyles.ruby.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.ruby.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.ruby.contact, ff]}>{data.personalInfo.location}</Text> : null}
+      </View>
+    </View>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.ruby.secTitle, ff]}>ABOUT</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.ruby.secTitle, ff]}>EXPERIENCE</Text>
+      {data.experience.map(exp => (
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.ruby.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={[tStyles.ruby.itemCompany, ff]}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.ruby.secTitle, ff]}>EDUCATION</Text>
+      {data.education.map(edu => (
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.ruby.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.ruby.secTitle, ff]}>SKILLS</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.ruby.skillChip}><Text style={[tStyles.ruby.skillText, ff]}>{s}</Text></View>)}
+      </View>
+    </View>
+    <ExtraSections data={data} titleColor="#991b1b" />
+  </View>
+  );
+};
+
+// Emerald Template
+const EmeraldTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
+  <View style={tStyles.emerald.container}>
+    <View style={tStyles.emerald.header}>
+      <Text style={[tStyles.emerald.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.emerald.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
+      <View style={tStyles.emerald.contactRow}>
+        {data.personalInfo.email ? <Text style={[tStyles.emerald.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.emerald.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.emerald.contact, ff]}>{data.personalInfo.location}</Text> : null}
+      </View>
+    </View>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.emerald.secTitle, ff]}>ABOUT</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.emerald.secTitle, ff]}>EXPERIENCE</Text>
+      {data.experience.map(exp => (
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.emerald.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={[tStyles.emerald.itemCompany, ff]}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.emerald.secTitle, ff]}>EDUCATION</Text>
+      {data.education.map(edu => (
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.emerald.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.emerald.secTitle, ff]}>SKILLS</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.emerald.skillChip}><Text style={[tStyles.emerald.skillText, ff]}>{s}</Text></View>)}
+      </View>
+    </View>
+    <ExtraSections data={data} titleColor="#047857" />
+  </View>
+  );
+};
+
+// Cobalt Template
+const CobaltTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
+  <View style={tStyles.cobalt.container}>
+    <View style={tStyles.cobalt.header}>
+      <Text style={[tStyles.cobalt.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.cobalt.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
+      <View style={tStyles.cobalt.contactRow}>
+        {data.personalInfo.email ? <Text style={[tStyles.cobalt.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.cobalt.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.cobalt.contact, ff]}>{data.personalInfo.location}</Text> : null}
+      </View>
+    </View>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.cobalt.secTitle, ff]}>ABOUT</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.cobalt.secTitle, ff]}>EXPERIENCE</Text>
+      {data.experience.map(exp => (
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.cobalt.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={[tStyles.cobalt.itemCompany, ff]}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.cobalt.secTitle, ff]}>EDUCATION</Text>
+      {data.education.map(edu => (
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.cobalt.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.cobalt.secTitle, ff]}>SKILLS</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.cobalt.skillChip}><Text style={[tStyles.cobalt.skillText, ff]}>{s}</Text></View>)}
+      </View>
+    </View>
+    <ExtraSections data={data} titleColor="#1e3a8a" />
+  </View>
+  );
+};
+
+// Gold Template
+const GoldTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
+  <View style={tStyles.gold.container}>
+    <View style={tStyles.gold.header}>
+      <Text style={[tStyles.gold.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.gold.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
+      <View style={tStyles.gold.contactRow}>
+        {data.personalInfo.email ? <Text style={[tStyles.gold.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.gold.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.gold.contact, ff]}>{data.personalInfo.location}</Text> : null}
+      </View>
+    </View>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.gold.secTitle, ff]}>ABOUT</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.gold.secTitle, ff]}>EXPERIENCE</Text>
+      {data.experience.map(exp => (
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.gold.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={[tStyles.gold.itemCompany, ff]}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.gold.secTitle, ff]}>EDUCATION</Text>
+      {data.education.map(edu => (
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.gold.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.gold.secTitle, ff]}>SKILLS</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.gold.skillChip}><Text style={[tStyles.gold.skillText, ff]}>{s}</Text></View>)}
+      </View>
+    </View>
+    <ExtraSections data={data} titleColor="#b45309" />
+  </View>
+  );
+};
+
+// Pink Template
+const PinkTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
+  <View style={tStyles.pink.container}>
+    <View style={tStyles.pink.header}>
+      <Text style={[tStyles.pink.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.pink.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
+      <View style={tStyles.pink.contactRow}>
+        {data.personalInfo.email ? <Text style={[tStyles.pink.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.pink.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.pink.contact, ff]}>{data.personalInfo.location}</Text> : null}
+      </View>
+    </View>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.pink.secTitle, ff]}>ABOUT</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.pink.secTitle, ff]}>EXPERIENCE</Text>
+      {data.experience.map(exp => (
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.pink.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={[tStyles.pink.itemCompany, ff]}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.pink.secTitle, ff]}>EDUCATION</Text>
+      {data.education.map(edu => (
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.pink.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.pink.secTitle, ff]}>SKILLS</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.pink.skillChip}><Text style={[tStyles.pink.skillText, ff]}>{s}</Text></View>)}
+      </View>
+    </View>
+    <ExtraSections data={data} titleColor="#be185d" />
+  </View>
+  );
+};
+
+// Teal Template
+const TealTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
+  <View style={tStyles.teal.container}>
+    <View style={tStyles.teal.header}>
+      <Text style={[tStyles.teal.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.teal.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
+      <View style={tStyles.teal.contactRow}>
+        {data.personalInfo.email ? <Text style={[tStyles.teal.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.teal.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.teal.contact, ff]}>{data.personalInfo.location}</Text> : null}
+      </View>
+    </View>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.teal.secTitle, ff]}>ABOUT</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.teal.secTitle, ff]}>EXPERIENCE</Text>
+      {data.experience.map(exp => (
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.teal.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={[tStyles.teal.itemCompany, ff]}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.teal.secTitle, ff]}>EDUCATION</Text>
+      {data.education.map(edu => (
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.teal.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.teal.secTitle, ff]}>SKILLS</Text>
+      <View style={dyn.chips}>
+        {data.skills.map(s => <View key={s} style={tStyles.teal.skillChip}><Text style={[tStyles.teal.skillText, ff]}>{s}</Text></View>)}
+      </View>
+    </View>
+    <ExtraSections data={data} titleColor="#0f766e" />
+  </View>
+  );
+};
+
+// Double Column Template (two-column layout)
+const DoubleColumnTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
+  <View style={tStyles.doubleCol.container}>
+    <View style={tStyles.doubleCol.leftCol}>
+      <View style={tStyles.doubleCol.header}>
+        <Text style={[tStyles.doubleCol.name, ff]}>{data.personalInfo.fullName}</Text>
+        <Text style={[tStyles.doubleCol.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
+        <View style={tStyles.doubleCol.contactRow}>
+          {data.personalInfo.email ? <Text style={[tStyles.doubleCol.contact, ff]}>{data.personalInfo.email}</Text> : null}
+          {data.personalInfo.phone ? <Text style={[tStyles.doubleCol.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+          {data.personalInfo.location ? <Text style={[tStyles.doubleCol.contact, ff]}>{data.personalInfo.location}</Text> : null}
+        </View>
+      </View>
+      <View style={tStyles.doubleCol.section}>
+        <Text style={[tStyles.doubleCol.secTitle, ff]}>SUMMARY</Text>
+        <Text style={dyn.bodyText}>{formatText(data.summary)}</Text>
+      </View>
+      <View style={tStyles.doubleCol.section}>
+        <Text style={[tStyles.doubleCol.secTitle, ff]}>SKILLS</Text>
+        <Text style={dyn.bodyText}>{data.skills.join(' • ')}</Text>
+      </View>
+      <View style={tStyles.doubleCol.section}>
+        <Text style={[tStyles.doubleCol.secTitle, ff]}>EDUCATION</Text>
+        {data.education.map(edu => (
+          <View key={edu.id} style={{ marginBottom: 6 }}>
+            <Text style={[tStyles.doubleCol.eduSchool, ff]}>{edu.school}</Text>
+            <Text style={[tStyles.doubleCol.eduDegree, ff]}>{edu.degree} • {edu.startDate} – {edu.endDate}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+    <View style={tStyles.doubleCol.rightCol}>
+      <View style={tStyles.doubleCol.section}>
+        <Text style={[tStyles.doubleCol.secTitle, ff]}>EXPERIENCE</Text>
+        {data.experience.map(exp => (
+          <View key={exp.id} style={{ marginBottom: 8 }}>
+            <View style={dyn.itemHeader}><Text style={[tStyles.doubleCol.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+            <Text style={[tStyles.doubleCol.itemCompany, ff]}>{exp.company}</Text>
+            <Text style={{ fontSize: 11, color: '#475569', lineHeight: 14, ...ff }}>{formatText(exp.description)}</Text>
+          </View>
+        ))}
+      </View>
+      <ExtraSections data={data} titleColor="#111827" />
+    </View>
+  </View>
+  );
+};
+
+// Single Column Template (clean single column)
+const SingleColumnTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
+  const { fontFamily, dyn } = useFont();
+  const ff = fontFamily ? { fontFamily } : {};
+  return (
+  <View style={tStyles.singleCol.container}>
+    <View style={tStyles.singleCol.header}>
+      <Text style={[tStyles.singleCol.name, ff]}>{data.personalInfo.fullName}</Text>
+      <Text style={[tStyles.singleCol.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
+    </View>
+    <View style={tStyles.singleCol.divider} />
+    <View style={tStyles.singleCol.contactRow}>
+      {data.personalInfo.email ? <Text style={[tStyles.singleCol.contact, ff]}>{data.personalInfo.email}</Text> : null}
+      {data.personalInfo.phone ? <Text style={[tStyles.singleCol.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+      {data.personalInfo.location ? <Text style={[tStyles.singleCol.contact, ff]}>{data.personalInfo.location}</Text> : null}
+    </View>
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.singleCol.secTitle, ff]}>PROFILE</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    <View style={dyn.section}>
+      <Text style={[tStyles.singleCol.secTitle, ff]}>EXPERIENCE</Text>
+      {data.experience.map(exp => (
+        <View key={exp.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={[tStyles.singleCol.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+          <Text style={{ fontSize: 12, color: '#1e3a5f', fontWeight: '600', marginBottom: 3, ...ff }}>{exp.company}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.singleCol.secTitle, ff]}>EDUCATION</Text>
+      {data.education.map(edu => (
+        <View key={edu.id} style={dyn.item}>
+          <View style={dyn.itemHeader}><Text style={dyn.itemTitle}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
+          <Text style={dyn.itemDesc}>{edu.degree}</Text>
+        </View>
+      ))}
+    </View>
+    <View style={dyn.section}>
+      <Text style={[tStyles.singleCol.secTitle, ff]}>SKILLS</Text>
+      <Text style={dyn.bodyText}>{data.skills.join('  •  ')}</Text>
+    </View>
+    <ExtraSections data={data} titleColor="#374151" />
+  </View>
+  );
+};
+
 // Technical Template
 const TechnicalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
   const { fontFamily, dyn } = useFont();
@@ -1041,9 +1782,9 @@ const TechnicalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
       </View>
       <Text style={[tStyles.tech.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
       <View style={tStyles.tech.contactRow}>
-        {data.personalInfo.email ? <Text style={[tStyles.tech.contact, ff]}>📧 {data.personalInfo.email}</Text> : null}
-        {data.personalInfo.phone ? <Text style={[tStyles.tech.contact, ff]}>📱 {data.personalInfo.phone}</Text> : null}
-        {data.personalInfo.website ? <Text style={[tStyles.tech.contact, ff]}>🌐 {data.personalInfo.website}</Text> : null}
+        {data.personalInfo.email ? <Text style={[tStyles.tech.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.tech.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.website ? <Text style={[tStyles.tech.contact, ff]}>{data.personalInfo.website}</Text> : null}
       </View>
     </View>
     {data.summary ? <View style={dyn.section}><Text style={[tStyles.tech.secTitle, ff]}>{'// SUMMARY'}</Text><Text style={{ fontSize: 11, color: '#334155', lineHeight: 18, fontFamily: 'monospace', ...ff }}>{formatText(data.summary)}</Text></View> : null}
@@ -1053,7 +1794,7 @@ const TechnicalTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
         <View key={exp.id} style={tStyles.tech.item}>
           <View style={dyn.itemHeader}><Text style={[tStyles.tech.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
           <Text style={[tStyles.tech.itemCompany, ff]}>{exp.company}</Text>
-          <Text style={[tStyles.tech.itemDesc, ff]}>{formatText(exp.description)}</Text>
+          <Text style={dyn.itemDesc}>{formatText(exp.description)}</Text>
         </View>
       ))}
     </View>
@@ -1201,12 +1942,6 @@ const UrbanTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
         <Text style={[tStyles.urban.sideLabel, ff]}>Skills</Text>
         {data.skills.map(s => <Text key={s} style={[tStyles.urban.skillItem, ff]}>• {s}</Text>)}
       </View>
-      {data.languages && data.languages.length > 0 && (
-        <View style={{ marginTop: 20 }}>
-          <Text style={[tStyles.urban.sideLabel, ff]}>Languages</Text>
-          {data.languages.map(l => <Text key={l} style={[tStyles.urban.sideItem, ff]}>{l}</Text>)}
-        </View>
-      )}
     </View>
     <View style={tStyles.urban.main}>
       {data.summary ? <View style={dyn.section}><Text style={[tStyles.urban.secTitle, ff]}>PROFILE</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
@@ -1245,14 +1980,14 @@ const NatureTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
       <Text style={[tStyles.nature.name, ff]}>{data.personalInfo.fullName}</Text>
       <Text style={[tStyles.nature.jobTitle, ff]}>{data.personalInfo.jobTitle}</Text>
       <View style={tStyles.nature.contactRow}>
-        {data.personalInfo.email ? <Text style={[tStyles.nature.contact, ff]}>📧 {data.personalInfo.email}</Text> : null}
-        {data.personalInfo.phone ? <Text style={[tStyles.nature.contact, ff]}>📱 {data.personalInfo.phone}</Text> : null}
-        {data.personalInfo.location ? <Text style={[tStyles.nature.contact, ff]}>📍 {data.personalInfo.location}</Text> : null}
+        {data.personalInfo.email ? <Text style={[tStyles.nature.contact, ff]}>{data.personalInfo.email}</Text> : null}
+        {data.personalInfo.phone ? <Text style={[tStyles.nature.contact, ff]}>{data.personalInfo.phone}</Text> : null}
+        {data.personalInfo.location ? <Text style={[tStyles.nature.contact, ff]}>{data.personalInfo.location}</Text> : null}
       </View>
     </View>
-    {data.summary ? <View style={dyn.section}><Text style={[tStyles.nature.secTitle, ff]}>🌿 About Me</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
+    {data.summary ? <View style={dyn.section}><Text style={[tStyles.nature.secTitle, ff]}>ABOUT</Text><Text style={dyn.bodyText}>{formatText(data.summary)}</Text></View> : null}
     <View style={dyn.section}>
-      <Text style={[tStyles.nature.secTitle, ff]}>🌱 Experience</Text>
+      <Text style={[tStyles.nature.secTitle, ff]}>EXPERIENCE</Text>
       {data.experience.map(exp => (
         <View key={exp.id} style={tStyles.nature.item}>
           <View style={dyn.itemHeader}><Text style={[tStyles.nature.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
@@ -1262,7 +1997,7 @@ const NatureTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
       ))}
     </View>
     <View style={dyn.section}>
-      <Text style={[tStyles.nature.secTitle, ff]}>📚 Education</Text>
+      <Text style={[tStyles.nature.secTitle, ff]}>EDUCATION</Text>
       {data.education.map(edu => (
         <View key={edu.id} style={dyn.item}>
           <View style={dyn.itemHeader}><Text style={[tStyles.nature.itemTitle, ff]}>{edu.school}</Text><Text style={dyn.itemDate}>{edu.startDate} – {edu.endDate}</Text></View>
@@ -1271,7 +2006,7 @@ const NatureTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
       ))}
     </View>
     <View style={dyn.section}>
-      <Text style={[tStyles.nature.secTitle, ff]}>🍃 Skills</Text>
+      <Text style={[tStyles.nature.secTitle, ff]}>SKILLS</Text>
       <View style={dyn.chips}>
         {data.skills.map(s => <View key={s} style={tStyles.nature.skillChip}><Text style={[tStyles.nature.skillText, ff]}>{s}</Text></View>)}
       </View>
@@ -1353,6 +2088,21 @@ const templateMap: Record<string, React.FC<{ data: ResumeData }>> = {
   urban: UrbanTemplate,
   nature: NatureTemplate,
   bold: BoldTemplate,
+  // Color variant templates
+  ocean: OceanTemplate,
+  forest: ForestTemplate,
+  sunset: SunsetTemplate,
+  lavender: LavenderTemplate,
+  slate: SlateTemplate,
+  charcoal: CharcoalTemplate,
+  midnight: MidnightTemplate,
+  ruby: RubyTemplate,
+  emerald: EmeraldTemplate,
+  cobalt: CobaltTemplate,
+  gold: GoldTemplate,
+  pink: PinkTemplate,
+  teal: TealTemplate,
+  indigo: IndigoTemplate,
 };
 
 // ─── Custom Template Renderer ───
@@ -1985,5 +2735,229 @@ const tStyles = {
     itemCompany: { fontSize: 12, color: '#dc2626', fontWeight: '600', marginBottom: 3 },
     skillChip: { backgroundColor: '#fef2f2', borderWidth: 2, borderColor: '#fecaca', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6 },
     skillText: { fontSize: 10, fontWeight: '700', color: '#991b1b' },
+  }),
+  // Color variant template styles
+  ocean: StyleSheet.create({
+    container: { backgroundColor: '#f0f9ff', borderRadius: 12, padding: 20, elevation: 4 },
+    header: { backgroundColor: '#0369a1', borderRadius: 8, padding: 20, marginBottom: 16 },
+    name: { fontSize: 24, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.5 },
+    jobTitle: { fontSize: 13, fontWeight: '700', color: '#bae6fd', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
+    contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    contact: { fontSize: 11, color: '#e0f2fe' },
+    secTitle: { fontSize: 13, fontWeight: '800', color: '#0369a1', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#7dd3fc', paddingBottom: 4 },
+    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#7dd3fc' },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#0c4a6e' },
+    itemCompany: { fontSize: 12, color: '#0284c7', fontWeight: '600', marginBottom: 3 },
+    skillChip: { backgroundColor: '#e0f2fe', borderWidth: 1, borderColor: '#7dd3fc', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    skillText: { fontSize: 10, fontWeight: '600', color: '#0369a1' },
+  }),
+  forest: StyleSheet.create({
+    container: { backgroundColor: '#f0fdf4', borderRadius: 12, padding: 20, elevation: 4 },
+    header: { backgroundColor: '#166534', borderRadius: 8, padding: 20, marginBottom: 16 },
+    name: { fontSize: 24, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.5 },
+    jobTitle: { fontSize: 13, fontWeight: '700', color: '#bbf7d0', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
+    contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    contact: { fontSize: 11, color: '#dcfce7' },
+    secTitle: { fontSize: 13, fontWeight: '800', color: '#166534', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#86efac', paddingBottom: 4 },
+    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#86efac' },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#14532d' },
+    itemCompany: { fontSize: 12, color: '#15803d', fontWeight: '600', marginBottom: 3 },
+    skillChip: { backgroundColor: '#dcfce7', borderWidth: 1, borderColor: '#86efac', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    skillText: { fontSize: 10, fontWeight: '600', color: '#166534' },
+  }),
+  sunset: StyleSheet.create({
+    container: { backgroundColor: '#fff7ed', borderRadius: 12, padding: 20, elevation: 4 },
+    header: { backgroundColor: '#c2410c', borderRadius: 8, padding: 20, marginBottom: 16 },
+    name: { fontSize: 24, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.5 },
+    jobTitle: { fontSize: 13, fontWeight: '700', color: '#fed7aa', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
+    contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    contact: { fontSize: 11, color: '#fed7aa' },
+    secTitle: { fontSize: 13, fontWeight: '800', color: '#c2410c', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#fdba74', paddingBottom: 4 },
+    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#fdba74' },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#9a3412' },
+    itemCompany: { fontSize: 12, color: '#ea580c', fontWeight: '600', marginBottom: 3 },
+    skillChip: { backgroundColor: '#ffedd5', borderWidth: 1, borderColor: '#fdba74', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    skillText: { fontSize: 10, fontWeight: '600', color: '#c2410c' },
+  }),
+  lavender: StyleSheet.create({
+    container: { backgroundColor: '#f5f3ff', borderRadius: 12, padding: 20, elevation: 4 },
+    header: { backgroundColor: '#6d28d9', borderRadius: 8, padding: 20, marginBottom: 16 },
+    name: { fontSize: 24, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.5 },
+    jobTitle: { fontSize: 13, fontWeight: '700', color: '#ddd6fe', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
+    contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    contact: { fontSize: 11, color: '#ede9fe' },
+    secTitle: { fontSize: 13, fontWeight: '800', color: '#6d28d9', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#c4b5fd', paddingBottom: 4 },
+    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#c4b5fd' },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#5b21b6' },
+    itemCompany: { fontSize: 12, color: '#7c3aed', fontWeight: '600', marginBottom: 3 },
+    skillChip: { backgroundColor: '#ede9fe', borderWidth: 1, borderColor: '#c4b5fd', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    skillText: { fontSize: 10, fontWeight: '600', color: '#6d28d9' },
+  }),
+  slate: StyleSheet.create({
+    container: { backgroundColor: '#f8fafc', borderRadius: 12, padding: 20, elevation: 4 },
+    header: { backgroundColor: '#475569', borderRadius: 8, padding: 20, marginBottom: 16 },
+    name: { fontSize: 24, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.5 },
+    jobTitle: { fontSize: 13, fontWeight: '700', color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
+    contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    contact: { fontSize: 11, color: '#e2e8f0' },
+    secTitle: { fontSize: 13, fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#94a3b8', paddingBottom: 4 },
+    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#94a3b8' },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#1e293b' },
+    itemCompany: { fontSize: 12, color: '#64748b', fontWeight: '600', marginBottom: 3 },
+    skillChip: { backgroundColor: '#f1f5f9', borderWidth: 1, borderColor: '#94a3b8', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    skillText: { fontSize: 10, fontWeight: '600', color: '#475569' },
+  }),
+  charcoal: StyleSheet.create({
+    container: { backgroundColor: '#fafafa', borderRadius: 12, padding: 20, elevation: 4 },
+    header: { backgroundColor: '#1e293b', borderRadius: 8, padding: 20, marginBottom: 16 },
+    name: { fontSize: 24, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.5 },
+    jobTitle: { fontSize: 13, fontWeight: '700', color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
+    contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    contact: { fontSize: 11, color: '#e2e8f0' },
+    secTitle: { fontSize: 13, fontWeight: '800', color: '#1e293b', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#475569', paddingBottom: 4 },
+    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#475569' },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#0f172a' },
+    itemCompany: { fontSize: 12, color: '#334155', fontWeight: '600', marginBottom: 3 },
+    skillChip: { backgroundColor: '#f1f5f9', borderWidth: 1, borderColor: '#475569', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    skillText: { fontSize: 10, fontWeight: '600', color: '#1e293b' },
+  }),
+  midnight: StyleSheet.create({
+    container: { backgroundColor: '#eef2ff', borderRadius: 12, padding: 20, elevation: 4 },
+    header: { backgroundColor: '#312e81', borderRadius: 8, padding: 20, marginBottom: 16 },
+    name: { fontSize: 24, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.5 },
+    jobTitle: { fontSize: 13, fontWeight: '700', color: '#c7d2fe', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
+    contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    contact: { fontSize: 11, color: '#ddd6fe' },
+    secTitle: { fontSize: 13, fontWeight: '800', color: '#312e81', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#a5b4fc', paddingBottom: 4 },
+    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#a5b4fc' },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#1e1b4b' },
+    itemCompany: { fontSize: 12, color: '#4338ca', fontWeight: '600', marginBottom: 3 },
+    skillChip: { backgroundColor: '#e0e7ff', borderWidth: 1, borderColor: '#a5b4fc', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    skillText: { fontSize: 10, fontWeight: '600', color: '#312e81' },
+  }),
+  ruby: StyleSheet.create({
+    container: { backgroundColor: '#fef2f2', borderRadius: 12, padding: 20, elevation: 4 },
+    header: { backgroundColor: '#991b1b', borderRadius: 8, padding: 20, marginBottom: 16 },
+    name: { fontSize: 24, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.5 },
+    jobTitle: { fontSize: 13, fontWeight: '700', color: '#fecaca', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
+    contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    contact: { fontSize: 11, color: '#fce7f3' },
+    secTitle: { fontSize: 13, fontWeight: '800', color: '#991b1b', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#fca5a5', paddingBottom: 4 },
+    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#fca5a5' },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#7f1d1d' },
+    itemCompany: { fontSize: 12, color: '#dc2626', fontWeight: '600', marginBottom: 3 },
+    skillChip: { backgroundColor: '#fce7f3', borderWidth: 1, borderColor: '#fca5a5', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    skillText: { fontSize: 10, fontWeight: '600', color: '#991b1b' },
+  }),
+  emerald: StyleSheet.create({
+    container: { backgroundColor: '#ecfdf5', borderRadius: 12, padding: 20, elevation: 4 },
+    header: { backgroundColor: '#047857', borderRadius: 8, padding: 20, marginBottom: 16 },
+    name: { fontSize: 24, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.5 },
+    jobTitle: { fontSize: 13, fontWeight: '700', color: '#a7f3d0', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
+    contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    contact: { fontSize: 11, color: '#d1fae5' },
+    secTitle: { fontSize: 13, fontWeight: '800', color: '#047857', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#6ee7b7', paddingBottom: 4 },
+    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#6ee7b7' },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#064e3b' },
+    itemCompany: { fontSize: 12, color: '#059669', fontWeight: '600', marginBottom: 3 },
+    skillChip: { backgroundColor: '#d1fae5', borderWidth: 1, borderColor: '#6ee7b7', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    skillText: { fontSize: 10, fontWeight: '600', color: '#047857' },
+  }),
+  cobalt: StyleSheet.create({
+    container: { backgroundColor: '#eff6ff', borderRadius: 12, padding: 20, elevation: 4 },
+    header: { backgroundColor: '#1e3a8a', borderRadius: 8, padding: 20, marginBottom: 16 },
+    name: { fontSize: 24, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.5 },
+    jobTitle: { fontSize: 13, fontWeight: '700', color: '#bfdbfe', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
+    contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    contact: { fontSize: 11, color: '#dbeafe' },
+    secTitle: { fontSize: 13, fontWeight: '800', color: '#1e3a8a', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#93c5fd', paddingBottom: 4 },
+    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#93c5fd' },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#172554' },
+    itemCompany: { fontSize: 12, color: '#2563eb', fontWeight: '600', marginBottom: 3 },
+    skillChip: { backgroundColor: '#dbeafe', borderWidth: 1, borderColor: '#93c5fd', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    skillText: { fontSize: 10, fontWeight: '600', color: '#1e3a8a' },
+  }),
+  gold: StyleSheet.create({
+    container: { backgroundColor: '#fffbeb', borderRadius: 12, padding: 20, elevation: 4 },
+    header: { backgroundColor: '#b45309', borderRadius: 8, padding: 20, marginBottom: 16 },
+    name: { fontSize: 24, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.5 },
+    jobTitle: { fontSize: 13, fontWeight: '700', color: '#fde68a', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
+    contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    contact: { fontSize: 11, color: '#fef3c7' },
+    secTitle: { fontSize: 13, fontWeight: '800', color: '#b45309', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#fcd34d', paddingBottom: 4 },
+    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#fcd34d' },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#92400e' },
+    itemCompany: { fontSize: 12, color: '#d97706', fontWeight: '600', marginBottom: 3 },
+    skillChip: { backgroundColor: '#fef3c7', borderWidth: 1, borderColor: '#fcd34d', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    skillText: { fontSize: 10, fontWeight: '600', color: '#b45309' },
+  }),
+  pink: StyleSheet.create({
+    container: { backgroundColor: '#fdf2f8', borderRadius: 12, padding: 20, elevation: 4 },
+    header: { backgroundColor: '#be185d', borderRadius: 8, padding: 20, marginBottom: 16 },
+    name: { fontSize: 24, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.5 },
+    jobTitle: { fontSize: 13, fontWeight: '700', color: '#fbcfe8', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
+    contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    contact: { fontSize: 11, color: '#fce7f3' },
+    secTitle: { fontSize: 13, fontWeight: '800', color: '#be185d', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#f9a8d4', paddingBottom: 4 },
+    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#f9a8d4' },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#9d174d' },
+    itemCompany: { fontSize: 12, color: '#db2777', fontWeight: '600', marginBottom: 3 },
+    skillChip: { backgroundColor: '#fce7f3', borderWidth: 1, borderColor: '#f9a8d4', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    skillText: { fontSize: 10, fontWeight: '600', color: '#be185d' },
+  }),
+  teal: StyleSheet.create({
+    container: { backgroundColor: '#f0fdfa', borderRadius: 12, padding: 20, elevation: 4 },
+    header: { backgroundColor: '#0f766e', borderRadius: 8, padding: 20, marginBottom: 16 },
+    name: { fontSize: 24, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.5 },
+    jobTitle: { fontSize: 13, fontWeight: '700', color: '#99f6e4', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
+    contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    contact: { fontSize: 11, color: '#ccfbf1' },
+    secTitle: { fontSize: 13, fontWeight: '800', color: '#0f766e', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#5eead4', paddingBottom: 4 },
+    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#5eead4' },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#134e4a' },
+    itemCompany: { fontSize: 12, color: '#0d9488', fontWeight: '600', marginBottom: 3 },
+    skillChip: { backgroundColor: '#ccfbf1', borderWidth: 1, borderColor: '#5eead4', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    skillText: { fontSize: 10, fontWeight: '600', color: '#0f766e' },
+  }),
+  indigo: StyleSheet.create({
+    container: { backgroundColor: '#eef2ff', borderRadius: 12, padding: 20, elevation: 4 },
+    header: { backgroundColor: '#3730a3', borderRadius: 8, padding: 20, marginBottom: 16 },
+    name: { fontSize: 24, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 0.5 },
+    jobTitle: { fontSize: 13, fontWeight: '700', color: '#c7d2fe', textTransform: 'uppercase', letterSpacing: 1, marginTop: 4, marginBottom: 12 },
+    contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    contact: { fontSize: 11, color: '#ddd6fe' },
+    secTitle: { fontSize: 13, fontWeight: '800', color: '#3730a3', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, borderBottomWidth: 2, borderBottomColor: '#a5b4fc', paddingBottom: 4 },
+    item: { marginBottom: 12, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: '#a5b4fc' },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#1e1b4b' },
+    itemCompany: { fontSize: 12, color: '#4f46e5', fontWeight: '600', marginBottom: 3 },
+    skillChip: { backgroundColor: '#e0e7ff', borderWidth: 1, borderColor: '#a5b4fc', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+    skillText: { fontSize: 10, fontWeight: '600', color: '#3730a3' },
+  }),
+  doubleCol: StyleSheet.create({
+    container: { backgroundColor: '#ffffff', borderRadius: 12, flexDirection: 'row', overflow: 'hidden', elevation: 4 },
+    leftCol: { width: 140, backgroundColor: '#1f2937', padding: 16 },
+    rightCol: { flex: 1, padding: 16 },
+    header: { paddingBottom: 12, marginBottom: 12, borderBottomWidth: 2, borderBottomColor: '#334155' },
+    name: { fontSize: 16, fontWeight: '800', color: '#ffffff' },
+    jobTitle: { fontSize: 9, fontWeight: '600', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 1, marginTop: 2 },
+    contactRow: { flexDirection: 'column', gap: 2 },
+    contact: { fontSize: 9, color: '#d1d5db' },
+    section: { marginBottom: 16 },
+    secTitle: { fontSize: 11, fontWeight: '800', color: '#ffffff', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 },
+    eduSchool: { fontSize: 12, fontWeight: '700', color: '#ffffff' },
+    eduDegree: { fontSize: 10, color: '#9ca3af' },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#1f2937' },
+    itemCompany: { fontSize: 11, color: '#374151', fontWeight: '600', marginBottom: 2 },
+  }),
+  singleCol: StyleSheet.create({
+    container: { backgroundColor: '#ffffff', borderRadius: 12, padding: 20, elevation: 4 },
+    header: { alignItems: 'center', paddingBottom: 12, marginBottom: 8 },
+    name: { fontSize: 26, fontWeight: '900', color: '#111827', letterSpacing: 0.5 },
+    jobTitle: { fontSize: 12, fontWeight: '700', color: '#6b7280', textTransform: 'uppercase', letterSpacing: 2, marginTop: 4 },
+    divider: { width: 50, height: 2, backgroundColor: COLORS.primary, marginTop: 8, marginBottom: 8 },
+    contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center' },
+    contact: { fontSize: 11, color: '#6b7280' },
+    secTitle: { fontSize: 12, fontWeight: '800', color: COLORS.primary, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 8, borderBottomWidth: 1, borderBottomColor: '#d1d5db', paddingBottom: 4 },
+    itemTitle: { fontSize: 13, fontWeight: '700', color: '#111827' },
   }),
 };

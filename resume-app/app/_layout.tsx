@@ -7,9 +7,9 @@ import { COLORS } from '../constants';
 import { AdMobProvider } from '../components/AdMobProvider';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 
-// Routes that don't require authentication
-const AUTH_ROUTES = ['login', 'onboarding'];
-
+// Firebase auth is currently stubbed out (user is always null), so the app
+// runs in local-only mode: no screen is forced to redirect to /login.
+// Onboarding is handled by index.tsx checking the AsyncStorage flag.
 function RootLayoutNav() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -19,15 +19,10 @@ function RootLayoutNav() {
 
     const currentRoute = segments[0] as string | undefined;
 
-    if (!user && currentRoute !== 'login' && currentRoute !== 'onboarding') {
-      // Not logged in and not on an auth screen — redirect to login
-      router.replace('/login');
-    } else if (user && currentRoute === 'login') {
-      // Logged in but on the login screen — redirect to home
+    // Once sign-in is re-enabled: keep a signed-in user off the login screen.
+    if (user && currentRoute === 'login') {
       router.replace('/');
     }
-    // Note: onboarding is handled by index.tsx checking the AsyncStorage flag,
-    // so we don't force-redirect away from it
   }, [user, loading]);
 
   // Show splash/loading screen while Firebase checks auth state

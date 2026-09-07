@@ -9,9 +9,11 @@ import {
   Share,
   Modal,
   FlatList,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
@@ -73,24 +75,49 @@ export default function BuilderScreen() {
     setIsExporting(true);
     try {
       const html = generateHTML(resumeData, paperSize);
-      // Convert mm to points (1mm = 2.835pt)
+      // Convert mm to points (1mm = 2.835pt) for expo-print
       const mmToPoint = 72 / 25.4;
       const pdfWidth = currentPaper.widthMm * mmToPoint;
       const pdfHeight = currentPaper.heightMm * mmToPoint;
-      const { uri } = await Print.printToFileAsync({
+      const printOptions: any = {
         html,
-        base64: false,
         width: pdfWidth,
         height: pdfHeight,
+        // Margins must be 0 because the HTML handles page sizing internally
+        // (page 1 is edge-to-edge; overflow pages get their top spacing from
+        // the CSS). Without this, expo-print may add its own margins that
+        // shift content.
         margins: { left: 0, right: 0, top: 0, bottom: 0 },
-      });
-      if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: 'Export Resume as PDF', UTI: '.pdf' });
-      } else {
-        Alert.alert('Export Complete', `PDF saved to: ${uri}`);
+      };
+      // Ask expo-print for the PDF as base64: on Android/Expo Go the file URI
+      // it returns lives outside the sandbox that expo-sharing/expo-file-system
+      // can read, so we re-write the bytes into our own cache before sharing.
+      printOptions.base64 = true;
+      const { uri, base64 } = await Print.printToFileAsync(printOptions);
+
+      const baseName = (resumeData.personalInfo.fullName || 'Resume').replace(/[^a-zA-Z0-9]/g, '_') || 'Resume';
+      const shareFile = new ExpoFile(ExpoPaths.cache.uri + `${baseName}_Resume.pdf`);
+      let shareUri = uri;
+      if (base64) {
+        try {
+          if (shareFile.exists) {
+            shareFile.delete();
+          }
+          shareFile.write(base64, { encoding: 'base64' });
+          shareUri = shareFile.uri;
+        } catch (writeError) {
+          console.warn('Could not write PDF into app cache, sharing original file:', writeError);
+        }
       }
-    } catch (error) {
-      Alert.alert('Export Failed', 'Failed to generate PDF. Please try again.');
+
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(shareUri, { mimeType: 'application/pdf', dialogTitle: 'Export Resume as PDF', UTI: '.pdf' });
+      } else {
+        Alert.alert('Export Complete', `PDF saved to: ${shareUri}`);
+      }
+    } catch (error: any) {
+      console.error('PDF export error:', error);
+      Alert.alert('Export Failed', error?.message || 'Failed to generate PDF. Please try again.');
     } finally {
       setIsExporting(false);
     }
@@ -175,9 +202,9 @@ export default function BuilderScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right', 'bottom']}>
       {/* Header */}
-      <View style={styles.header}>
+      <LinearGradient colors={[COLORS.primary, COLORS.primaryDark]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={22} color={COLORS.gray700} />
+          <Ionicons name="arrow-back" size={22} color={COLORS.white} />
         </TouchableOpacity>
         <View style={styles.headerText}>
           <Text style={styles.headerTitle}>Preview</Text>
@@ -185,36 +212,43 @@ export default function BuilderScreen() {
         </View>
         <View style={styles.headerActions}>
           <TouchableOpacity style={[styles.headerButton, isSaving && styles.headerButtonDisabled]} onPress={handleSaveToStorage} disabled={isSaving}>
-            <Ionicons name={isSaving ? 'checkmark' : 'bookmark-outline'} size={18} color={isSaving ? COLORS.success : COLORS.primary} />
+            <Ionicons name={isSaving ? 'checkmark' : 'bookmark-outline'} size={18} color={isSaving ? COLORS.success : COLORS.white} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerButton} onPress={handleShare}>
-            <Ionicons name="share-outline" size={18} color={COLORS.gray600} />
+            <Ionicons name="share-outline" size={18} color={COLORS.white} />
           </TouchableOpacity>
         </View>
+      </LinearGradient>
+
+      {/* Paper / Font Selectors */}
+      <View style={styles.selectorCard}>
+        <TouchableOpacity style={styles.paperSelector} onPress={() => setShowPaperPicker(true)} activeOpacity={0.6}>
+          <View style={styles.selectorIcon}>
+            <Ionicons name="document-outline" size={16} color={COLORS.primary} />
+          </View>
+          <Text style={styles.paperSelectorText}>Paper Size</Text>
+          <Text style={styles.paperSelectorValue}>{currentPaper.name} · {currentPaper.widthMm}×{currentPaper.heightMm}mm</Text>
+          <Ionicons name="chevron-down" size={14} color={COLORS.gray400} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.paperSelector} onPress={() => setShowFontSizePicker(true)} activeOpacity={0.6}>
+          <View style={styles.selectorIcon}>
+            <Ionicons name="text-outline" size={16} color={COLORS.primary} />
+          </View>
+          <Text style={styles.paperSelectorText}>Font Size</Text>
+          <Text style={styles.paperSelectorValue}>{fontSize.replace('px', '')}px</Text>
+          <Ionicons name="chevron-down" size={14} color={COLORS.gray400} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={[styles.paperSelector, styles.selectorLast]} onPress={() => setShowFontFamilyPicker(true)} activeOpacity={0.6}>
+          <View style={styles.selectorIcon}>
+            <Ionicons name="color-fill-outline" size={16} color={COLORS.primary} />
+          </View>
+          <Text style={styles.paperSelectorText}>Font Family</Text>
+          <Text style={styles.paperSelectorValue}>{FONT_FAMILY_OPTIONS.find(f => f.value === fontFamily)?.label || fontFamily}</Text>
+          <Ionicons name="chevron-down" size={14} color={COLORS.gray400} />
+        </TouchableOpacity>
       </View>
-
-      {/* Paper Size Selector */}
-      <TouchableOpacity style={styles.paperSelector} onPress={() => setShowPaperPicker(true)} activeOpacity={0.7}>
-        <Ionicons name="document-outline" size={16} color={COLORS.primary} />
-        <Text style={styles.paperSelectorText}>Paper: {currentPaper.name}</Text>
-        <Text style={styles.paperSelectorSize}>{currentPaper.widthMm}×{currentPaper.heightMm}mm</Text>
-        <Ionicons name="chevron-down" size={14} color={COLORS.gray400} />
-      </TouchableOpacity>
-
-      {/* Font Size Selector */}
-      <TouchableOpacity style={styles.paperSelector} onPress={() => setShowFontSizePicker(true)} activeOpacity={0.7}>
-        <Ionicons name="text-outline" size={16} color={COLORS.primary} />
-        <Text style={styles.paperSelectorText}>Font Size: {fontSize.replace('px', '')}px</Text>
-        <Text style={styles.paperSelectorSize}>{fontSize}</Text>
-        <Ionicons name="chevron-down" size={14} color={COLORS.gray400} />
-      </TouchableOpacity>
-
-      {/* Font Family Selector */}
-      <TouchableOpacity style={styles.paperSelector} onPress={() => setShowFontFamilyPicker(true)} activeOpacity={0.7}>
-        <Ionicons name="color-fill-outline" size={16} color={COLORS.primary} />
-        <Text style={styles.paperSelectorText}>Font: {FONT_FAMILY_OPTIONS.find(f => f.value === fontFamily)?.label || fontFamily}</Text>
-        <Ionicons name="chevron-down" size={14} color={COLORS.gray400} />
-      </TouchableOpacity>
 
       {/* Resume Preview */}
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
@@ -373,17 +407,20 @@ export default function BuilderScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.gray50 },
-  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 8, backgroundColor: COLORS.white, borderBottomWidth: 1, borderBottomColor: COLORS.gray200, gap: 6 },
-  backButton: { width: 36, height: 36, borderRadius: 8, justifyContent: 'center', alignItems: 'center', flexShrink: 0 },
+  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 10, backgroundColor: COLORS.primary, gap: 6, elevation: 3, shadowColor: COLORS.primaryDark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 6 },
+  backButton: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center', flexShrink: 0, backgroundColor: 'rgba(255,255,255,0.12)' },
   headerText: { flex: 1, minWidth: 60 },
-  headerTitle: { fontSize: 15, fontWeight: '700', color: COLORS.secondary },
-  headerSubtitle: { fontSize: 9, color: COLORS.gray500, textTransform: 'capitalize' },
-  headerActions: { flexDirection: 'row', gap: 4, flexShrink: 0 },
-  headerButton: { width: 36, height: 36, borderRadius: 8, backgroundColor: COLORS.gray100, justifyContent: 'center', alignItems: 'center' },
-  headerButtonDisabled: { backgroundColor: '#d1fae5' },
-  paperSelector: { flexDirection: 'row', alignItems: 'center', paddingVertical: 6, paddingHorizontal: 12, backgroundColor: COLORS.primaryLight, gap: 6 },
-  paperSelectorText: { fontSize: 11, fontWeight: '600', color: COLORS.primary, flex: 1 },
-  paperSelectorSize: { fontSize: 10, color: COLORS.gray500 },
+  headerTitle: { fontSize: 16, fontWeight: '700', color: COLORS.white },
+  headerSubtitle: { fontSize: 10, color: 'rgba(255,255,255,0.75)', textTransform: 'capitalize' },
+  headerActions: { flexDirection: 'row', gap: 8, flexShrink: 0 },
+  headerButton: { width: 36, height: 36, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.12)', justifyContent: 'center', alignItems: 'center' },
+  headerButtonDisabled: { backgroundColor: 'rgba(255,255,255,0.4)' },
+  selectorCard: { margin: 12, backgroundColor: COLORS.white, borderRadius: 16, borderWidth: 1, borderColor: COLORS.gray100, overflow: 'hidden', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8 },
+  paperSelector: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 14, borderBottomWidth: 1, borderBottomColor: COLORS.gray100, gap: 10 },
+  selectorIcon: { width: 30, height: 30, borderRadius: 9, backgroundColor: COLORS.primaryLight, justifyContent: 'center', alignItems: 'center' },
+  paperSelectorText: { fontSize: 13, fontWeight: '600', color: COLORS.gray700, flexShrink: 0 },
+  paperSelectorValue: { fontSize: 11, color: COLORS.gray500, flex: 1, textAlign: 'right' },
+  selectorLast: { borderBottomWidth: 0 },
   scrollView: { flex: 1 },
   scrollContent: { padding: 12 },
   bannerAdContainer: { alignItems: 'center', backgroundColor: COLORS.white, borderTopWidth: 1, borderTopColor: COLORS.gray200, minHeight: 50 },

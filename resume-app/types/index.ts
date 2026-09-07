@@ -169,6 +169,7 @@ export interface HeaderConfig {
   showJobTitle: boolean;
   showContactRow: boolean;
   contactLayout: 'row' | 'grid' | 'icons';
+  borderColor?: string;
 }
 
 export interface SectionOrderItem {

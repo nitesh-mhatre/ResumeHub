@@ -8,27 +8,36 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../context/AuthContext';
 import { COLORS } from '../constants';
 
 export default function LoginScreen() {
-  const { signInWithGoogle, loading } = useAuth();
+  const { loading } = useAuth();
   const [signingIn, setSigningIn] = React.useState(false);
 
   const handleGoogleSignIn = async () => {
     setSigningIn(true);
-    await signInWithGoogle();
+    // Google sign-in removed
     setSigningIn(false);
   };
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <LinearGradient colors={['#ffffff', '#eef2ff']} style={styles.gradient}>
+      <View style={[styles.blob, styles.blobTop]} />
+      <View style={[styles.blob, styles.blobBottom]} />
       <View style={styles.content}>
         {/* Logo */}
         <View style={styles.logoArea}>
-          <View style={styles.logoCircle}>
+          <LinearGradient
+            colors={['#6366f1', COLORS.primary, '#7c3aed']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.logoCircle}
+          >
             <Ionicons name="document-text" size={44} color={COLORS.white} />
-          </View>
+          </LinearGradient>
           <Text style={styles.appName}>Resume Hub</Text>
         </View>
 
@@ -62,6 +71,7 @@ export default function LoginScreen() {
           <Text style={styles.termsLink}>Privacy Policy</Text>
         </Text>
       </View>
+      </LinearGradient>
     </SafeAreaView>
   );
 }
@@ -70,6 +80,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.white,
+  },
+  gradient: { flex: 1 },
+  blob: { position: 'absolute', borderRadius: 999 },
+  blobTop: {
+    width: 260,
+    height: 260,
+    top: -90,
+    right: -110,
+    backgroundColor: 'rgba(79,70,229,0.06)',
+  },
+  blobBottom: {
+    width: 220,
+    height: 220,
+    bottom: -80,
+    left: -100,
+    backgroundColor: 'rgba(16,185,129,0.06)',
   },
   content: {
     flex: 1,
@@ -84,11 +110,16 @@ const styles = StyleSheet.create({
   logoCircle: {
     width: 88,
     height: 88,
-    borderRadius: 24,
+    borderRadius: 26,
     backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
+    elevation: 6,
+    shadowColor: COLORS.primaryDark,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
   },
   appName: {
     fontSize: 20,

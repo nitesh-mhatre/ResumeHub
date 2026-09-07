@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import { COLORS } from '../constants';
@@ -29,7 +30,7 @@ interface WelcomeScreenProps {
 
 export default function WelcomeScreen({ onStartFresh, onDuplicate, onUploadData, savedResumes, onLoadSaved, onDeleteSaved }: WelcomeScreenProps) {
   const [isUploading, setIsUploading] = React.useState(false);
-  const { user, signInWithGoogle } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
 
   const handleDelete = (id: string, name: string) => {
@@ -86,7 +87,7 @@ export default function WelcomeScreen({ onStartFresh, onDuplicate, onUploadData,
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
       
       {/* Top Header Bar */}
-      <View style={styles.topBar}>
+      <LinearGradient colors={[COLORS.primary, COLORS.primaryDark]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.topBar}>
         <View style={styles.topBarLeft}>
           <View style={styles.logoSmall}>
             <Ionicons name="document-text" size={18} color={COLORS.white} />
@@ -113,11 +114,18 @@ export default function WelcomeScreen({ onStartFresh, onDuplicate, onUploadData,
             )}
           </TouchableOpacity>
         </View>
-      </View>
+      </LinearGradient>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Hero Section */}
-        <View style={styles.heroSection}>
+        <LinearGradient
+          colors={['#6366f1', COLORS.primary, '#7c3aed']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroSection}
+        >
+          <View style={[styles.heroBlob, styles.heroBlobTop]} />
+          <View style={[styles.heroBlob, styles.heroBlobBottom]} />
           <View style={styles.heroBackground}>
             <Text style={styles.heroEmoji}>🚀</Text>
           </View>
@@ -131,12 +139,11 @@ export default function WelcomeScreen({ onStartFresh, onDuplicate, onUploadData,
               : 'Sign in to save your resumes and access them anywhere.'}
           </Text>
           {!user && (
-            <TouchableOpacity style={styles.heroSignInButton} onPress={signInWithGoogle}>
-              <Ionicons name="logo-google" size={18} color="#fff" />
+            <TouchableOpacity style={styles.heroSignInButton} onPress={() => router.push('/login')}>
               <Text style={styles.heroSignInText}>Sign in with Google</Text>
             </TouchableOpacity>
           )}
-        </View>
+        </LinearGradient>
 
         {/* Quick Actions */}
         <View style={styles.section}>
@@ -275,8 +282,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 14,
     backgroundColor: COLORS.primary,
+    elevation: 3,
+    shadowColor: COLORS.primaryDark,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
   },
   topBarLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   logoSmall: {
@@ -311,39 +323,53 @@ const styles = StyleSheet.create({
   // Hero
   heroSection: {
     alignItems: 'center',
-    paddingTop: 32,
-    paddingBottom: 28,
-    paddingHorizontal: 20,
-    backgroundColor: COLORS.white,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
+    paddingTop: 36,
+    paddingBottom: 32,
+    paddingHorizontal: 24,
+    backgroundColor: COLORS.primary,
+    borderRadius: 24,
+    marginHorizontal: 16,
+    marginTop: 16,
     marginBottom: 20,
-    elevation: 2,
+    overflow: 'hidden',
+    elevation: 4,
+    shadowColor: COLORS.primaryDark,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
   },
+  heroBlob: { position: 'absolute', borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.08)' },
+  heroBlobTop: { width: 200, height: 200, top: -80, right: -60 },
+  heroBlobBottom: { width: 160, height: 160, bottom: -70, left: -50 },
   heroBackground: {
-    width: 64,
-    height: 64,
-    borderRadius: 20,
-    backgroundColor: COLORS.primaryLight,
+    width: 72,
+    height: 72,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255,255,255,0.15)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 18,
   },
-  heroEmoji: { fontSize: 32 },
-  greeting: { fontSize: 14, color: COLORS.gray500, marginBottom: 4 },
-  heroTitle: { fontSize: 26, fontWeight: '800', color: COLORS.secondary, letterSpacing: -0.5, marginBottom: 8 },
-  heroSubtitle: { fontSize: 14, color: COLORS.gray500, textAlign: 'center', lineHeight: 20, paddingHorizontal: 20 },
+  heroEmoji: { fontSize: 34 },
+  greeting: { fontSize: 13, color: 'rgba(255,255,255,0.85)', marginBottom: 6, fontWeight: '500', letterSpacing: 0.3 },
+  heroTitle: { fontSize: 26, fontWeight: '800', color: COLORS.white, letterSpacing: -0.5, marginBottom: 8, textAlign: 'center' },
+  heroSubtitle: { fontSize: 14, color: 'rgba(255,255,255,0.8)', textAlign: 'center', lineHeight: 21, paddingHorizontal: 12 },
   heroSignInButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#4285F4',
+    backgroundColor: COLORS.white,
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 12,
-    marginTop: 20,
+    marginTop: 22,
     gap: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
   },
-  heroSignInText: { color: COLORS.white, fontWeight: '600', fontSize: 15 },
+  heroSignInText: { color: COLORS.primary, fontWeight: '700', fontSize: 15 },
 
   // Sections
   section: { paddingHorizontal: 20, marginBottom: 24 },
@@ -356,20 +382,24 @@ const styles = StyleSheet.create({
   actionCard: {
     flex: 1,
     backgroundColor: COLORS.white,
-    borderRadius: 14,
-    padding: 14,
+    borderRadius: 16,
+    padding: 16,
     alignItems: 'center',
     elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.gray100,
   },
   actionIcon: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
+    width: 56,
+    height: 56,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   actionTitle: { fontSize: 13, fontWeight: '600', color: COLORS.secondary, marginBottom: 2 },
   actionDesc: { fontSize: 11, color: COLORS.gray400 },
@@ -379,18 +409,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.white,
-    borderRadius: 14,
+    borderRadius: 16,
     padding: 14,
     marginBottom: 10,
     borderWidth: 1,
     borderColor: COLORS.gray100,
     elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
   },
   resumeCardLeft: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
   resumeIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
+    width: 46,
+    height: 46,
+    borderRadius: 14,
     backgroundColor: COLORS.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
@@ -409,11 +443,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.white,
-    borderRadius: 14,
+    borderRadius: 16,
     padding: 14,
     borderWidth: 1,
     borderColor: COLORS.gray100,
     gap: 12,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
   },
   featureIcon: {
     width: 44,

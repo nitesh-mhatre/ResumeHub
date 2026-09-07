@@ -1,46 +1,5 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { Platform, View } from 'react-native';
-
-// Lazy-load the native module — fails gracefully in Expo Go or when plugin is not configured
-let MobileAds: any = null;
-let InterstitialAd: any = null;
-let AdEventType: any = null;
-let TestIds: any = null;
-let BannerAdSize: any = null;
-let BannerAd: any = null;
-let RewardedAd: any = null;
-let RewardedAdEventType: any = null;
-
-let nativeAdsAvailable = false;
-
-try {
-  const adsModule = require('react-native-google-mobile-ads');
-  MobileAds = adsModule.MobileAds;
-  InterstitialAd = adsModule.InterstitialAd;
-  AdEventType = adsModule.AdEventType;
-  TestIds = adsModule.TestIds;
-  BannerAdSize = adsModule.BannerAdSize;
-  BannerAd = adsModule.BannerAd;
-  RewardedAd = adsModule.RewardedAd;
-  RewardedAdEventType = adsModule.RewardedAdEventType;
-  nativeAdsAvailable = !!(MobileAds && InterstitialAd && BannerAd);
-} catch (e) {
-  // Native ads not available — using fallback placeholder banners
-}
-
-const BANNER_AD_UNIT_ID = __DEV__
-  ? TestIds?.BANNER || 'ca-app-pub-2889632845666311/5648358555'
-  : Platform.select({
-      ios: 'ca-app-pub-2889632845666311/5648358555',
-      android: 'ca-app-pub-2889632845666311/5648358555',
-    }) || 'ca-app-pub-2889632845666311/5648358555';
-
-const INTERSTITIAL_AD_UNIT_ID = __DEV__
-  ? TestIds?.INTERSTITIAL || 'ca-app-pub-3940256099942544/1033173712'
-  : Platform.select({
-      ios: 'ca-app-pub-2889632845666311/TODO_INTERSTITIAL_IOS',
-      android: 'ca-app-pub-2889632845666311/TODO_INTERSTITIAL_ANDROID',
-    }) || 'ca-app-pub-2889632845666311/TODO_INTERSTITIAL_ANDROID';
+import React, { createContext, useContext, ReactNode } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 
 interface AdMobContextType {
   isInitialized: boolean;
@@ -58,7 +17,6 @@ const AdMobContext = createContext<AdMobContextType>({
 
 export const useAds = () => useContext(AdMobContext);
 
-// Fallback banner that just shows a gradient placeholder
 const FallbackBanner: React.FC<{ style?: any }> = ({ style }) => (
   <View
     style={[
@@ -82,97 +40,18 @@ const FallbackBanner: React.FC<{ style?: any }> = ({ style }) => (
   </View>
 );
 
-export function AdMobProvider({ children }: { children: React.ReactNode }) {
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [nativeAdsReady, setNativeAdsReady] = useState(false);
+export function AdMobProvider({ children }: { children: ReactNode }) {
+  const showInterstitial = async () => {};
 
-  useEffect(() => {
-    if (!nativeAdsAvailable || !MobileAds) {
-      setIsInitialized(true);
-      return;
-    }
-
-    MobileAds()
-      .initialize()
-      .then(() => {
-        setIsInitialized(true);
-        setNativeAdsReady(true);
-        console.log('AdMob initialized successfully');
-      })
-      .catch((error: any) => {
-        console.warn('AdMob initialization failed:', error);
-        setIsInitialized(true);
-      });
-  }, []);
-
-  const showInterstitial = useCallback(async () => {
-    if (!nativeAdsAvailable || !InterstitialAd || !AdEventType) {
-      // No native ads — do nothing, the AdModal handles the fallback
-      return;
-    }
-
-    try {
-      const interstitial = InterstitialAd.createForAdRequest(INTERSTITIAL_AD_UNIT_ID, {
-        requestNonPersonalizedAdsOnly: true,
-      });
-
-      await new Promise<void>((resolve) => {
-        const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
-          interstitial.show();
-        });
-
-        const unsubscribeClosed = interstitial.addAdEventListener(AdEventType.CLOSED, () => {
-          unsubscribeLoaded();
-          unsubscribeClosed();
-          resolve();
-        });
-
-        const unsubscribeError = interstitial.addAdEventListener(AdEventType.ERROR, () => {
-          unsubscribeLoaded();
-          unsubscribeClosed();
-          unsubscribeError();
-          resolve();
-        });
-
-        interstitial.load();
-      });
-    } catch (error) {
-      console.warn('Interstitial ad error:', error);
-    }
-  }, []);
-
-  const BannerAdComponent = useCallback(
-    ({ style }: { style?: any }) => {
-      if (!nativeAdsAvailable || !BannerAd || !BannerAdSize) {
-        return <FallbackBanner style={style} />;
-      }
-
-      return (
-        <View style={style}>
-          <BannerAd
-            unitId={BANNER_AD_UNIT_ID}
-            size={BannerAdSize.FULL_BANNER}
-            requestOptions={{
-              requestNonPersonalizedAdsOnly: true,
-            }}
-            onAdLoaded={() => {
-              console.log('Banner ad loaded');
-            }}
-            onAdFailedToLoad={(error: any) => {
-              console.warn('Banner ad failed to load:', error);
-            }}
-          />
-        </View>
-      );
-    },
-    []
+  const BannerAdComponent = ({ style }: { style?: any }) => (
+    <FallbackBanner style={style} />
   );
 
   return (
     <AdMobContext.Provider
       value={{
-        isInitialized,
-        nativeAdsReady,
+        isInitialized: true,
+        nativeAdsReady: false,
         showInterstitial,
         BannerAdComponent,
       }}

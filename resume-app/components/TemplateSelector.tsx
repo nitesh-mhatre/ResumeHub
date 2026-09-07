@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TemplateType, CustomTemplateConfig } from '../types';
@@ -52,6 +53,24 @@ const builtinTemplates = [
     { id: 'bold', name: 'Bold', colors: ['#7f1d1d', '#fca5a5', '#ffffff'], category: 'Hand-Crafted' },
     { id: 'monochrome', name: 'Monochrome', colors: ['#374151', '#9ca3af', '#ffffff'], category: 'Hand-Crafted' },
     { id: 'borderless', name: 'Borderless', colors: ['#ffffff', '#e2e8f0', '#f8fafc'], category: 'Hand-Crafted' },
+    { id: 'double-column', name: 'Double Column', colors: ['#1f2937', '#facc15', '#ffffff'], category: 'Hand-Crafted' },
+    { id: 'single-column', name: 'Single Column', colors: ['#111827', COLORS.primary, '#ffffff'], category: 'Hand-Crafted' },
+  ]},
+  { name: 'Color Themes', templates: [
+    { id: 'ocean', name: 'Ocean Blue', colors: ['#0369a1', '#7dd3fc', '#f0f9ff'], category: 'Color Themes' },
+    { id: 'forest', name: 'Forest Green', colors: ['#166534', '#86efac', '#f0fdf4'], category: 'Color Themes' },
+    { id: 'sunset', name: 'Sunset Orange', colors: ['#c2410c', '#fdba74', '#fff7ed'], category: 'Color Themes' },
+    { id: 'lavender', name: 'Lavender', colors: ['#6d28d9', '#c4b5fd', '#f5f3ff'], category: 'Color Themes' },
+    { id: 'slate', name: 'Slate Gray', colors: ['#475569', '#94a3b8', '#f8fafc'], category: 'Color Themes' },
+    { id: 'charcoal', name: 'Charcoal', colors: ['#1e293b', '#475569', '#fafafa'], category: 'Color Themes' },
+    { id: 'midnight', name: 'Midnight', colors: ['#312e81', '#a5b4fc', '#eef2ff'], category: 'Color Themes' },
+    { id: 'ruby', name: 'Ruby Red', colors: ['#991b1b', '#fca5a5', '#fef2f2'], category: 'Color Themes' },
+    { id: 'emerald', name: 'Emerald', colors: ['#047857', '#6ee7b7', '#ecfdf5'], category: 'Color Themes' },
+    { id: 'cobalt', name: 'Cobalt', colors: ['#1e3a8a', '#93c5fd', '#eff6ff'], category: 'Color Themes' },
+    { id: 'gold', name: 'Gold Amber', colors: ['#b45309', '#fcd34d', '#fffbeb'], category: 'Color Themes' },
+    { id: 'pink', name: 'Pink', colors: ['#be185d', '#f9a8d4', '#fdf2f8'], category: 'Color Themes' },
+    { id: 'teal', name: 'Teal', colors: ['#0f766e', '#5eead4', '#f0fdfa'], category: 'Color Themes' },
+    { id: 'indigo', name: 'Indigo', colors: ['#3730a3', '#a5b4fc', '#eef2ff'], category: 'Color Themes' },
   ]}
 ];
 
@@ -209,15 +228,15 @@ function TemplateSelectorInner({ currentTemplate, onSelect, onBack }: TemplateSe
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <View style={styles.header}>
+      <LinearGradient colors={[COLORS.primary, COLORS.primaryDark]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={22} color={COLORS.gray700} />
+          <Ionicons name="arrow-back" size={22} color={COLORS.white} />
         </TouchableOpacity>
         <View style={styles.headerText}>
           <Text style={styles.headerTitle}>Choose Template</Text>
           <Text style={styles.headerSubtitle}>{filteredTemplates.length} templates available</Text>
         </View>
-      </View>
+      </LinearGradient>
 
       {/* Search Bar */}
       <View style={styles.searchContainer}>
@@ -370,12 +389,12 @@ function TemplateSelectorInner({ currentTemplate, onSelect, onBack }: TemplateSe
       {/* Preview Modal */}
       <Modal visible={previewTemplate !== null} animationType="slide">
         <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
+          <LinearGradient colors={[COLORS.primary, COLORS.primaryDark]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.modalHeader}>
             <Text style={styles.modalTitle}>Template Preview</Text>
             <TouchableOpacity onPress={() => setPreviewTemplate(null)} style={styles.closeButton}>
-              <Ionicons name="close" size={24} color={COLORS.gray700} />
+              <Ionicons name="close" size={24} color={COLORS.white} />
             </TouchableOpacity>
-          </View>
+          </LinearGradient>
           <ScrollView style={styles.modalContent} contentContainerStyle={{ padding: 16 }}>
             {previewTemplate && <LazyPreview template={previewTemplate} />}
           </ScrollView>
@@ -385,9 +404,9 @@ function TemplateSelectorInner({ currentTemplate, onSelect, onBack }: TemplateSe
       {/* Custom Template Modal */}
       <Modal visible={showCustomTemplate} animationType="slide">
         <SafeAreaView style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
+          <LinearGradient colors={[COLORS.primary, COLORS.primaryDark]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.modalHeader}>
             <TouchableOpacity onPress={() => setShowCustomTemplate(false)}>
-              <Ionicons name="close" size={24} color={COLORS.gray700} />
+              <Ionicons name="close" size={24} color={COLORS.white} />
             </TouchableOpacity>
             <Text style={styles.modalTitle}>Create Custom Template</Text>
             <TouchableOpacity onPress={() => {
@@ -395,9 +414,9 @@ function TemplateSelectorInner({ currentTemplate, onSelect, onBack }: TemplateSe
               onSelect(customId as TemplateType);
               setShowCustomTemplate(false);
             }}>
-              <Text style={{ color: COLORS.primary, fontWeight: '700', fontSize: 14 }}>Save</Text>
+              <Text style={{ color: COLORS.white, fontWeight: '700', fontSize: 14 }}>Save</Text>
             </TouchableOpacity>
-          </View>
+          </LinearGradient>
           <ScrollView style={styles.modalContent} contentContainerStyle={{ padding: 16, gap: 16 }}>
             {/* Template Name */}
             <View>
@@ -475,7 +494,7 @@ const ErrorFallback = ({ onBack }: { onBack: () => void }) => {
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={22} color={COLORS.gray700} />
+          <Ionicons name="arrow-back" size={22} color={COLORS.white} />
         </TouchableOpacity>
         <View style={styles.headerText}>
           <Text style={styles.headerTitle}>Choose Template</Text>
@@ -521,35 +540,35 @@ export default function TemplateSelector(props: TemplateSelectorProps) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.gray50 },
-  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 8, backgroundColor: COLORS.white, borderBottomWidth: 1, borderBottomColor: COLORS.gray200, gap: 6 },
-  backButton: { width: 36, height: 36, borderRadius: 8, justifyContent: 'center', alignItems: 'center', flexShrink: 0 },
+  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 10, backgroundColor: COLORS.primary, gap: 6, elevation: 3, shadowColor: COLORS.primaryDark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 6 },
+  backButton: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center', flexShrink: 0, backgroundColor: 'rgba(255,255,255,0.12)' },
   headerText: { flex: 1 },
-  headerTitle: { fontSize: 15, fontWeight: '700', color: COLORS.secondary },
-  headerSubtitle: { fontSize: 9, color: COLORS.gray500 },
-  searchContainer: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 12, marginTop: 10, marginBottom: 6, backgroundColor: COLORS.white, borderRadius: 10, paddingHorizontal: 12, borderWidth: 1, borderColor: COLORS.gray200, gap: 8 },
-  searchInput: { flex: 1, paddingVertical: 8, fontSize: 13, color: COLORS.gray800 },
+  headerTitle: { fontSize: 16, fontWeight: '700', color: COLORS.white },
+  headerSubtitle: { fontSize: 10, color: 'rgba(255,255,255,0.75)' },
+  searchContainer: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 12, marginTop: 12, marginBottom: 8, backgroundColor: COLORS.white, borderRadius: 12, paddingHorizontal: 12, borderWidth: 1, borderColor: COLORS.gray200, gap: 8, elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4 },
+  searchInput: { flex: 1, paddingVertical: 9, fontSize: 13, color: COLORS.gray800 },
   categoryBar: { maxHeight: 40 },
   categoryBarContent: { paddingHorizontal: 12, paddingBottom: 6, gap: 6 },
   categoryTab: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, backgroundColor: COLORS.white, borderWidth: 1, borderColor: COLORS.gray200 },
-  categoryTabActive: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
+  categoryTabActive: { backgroundColor: COLORS.primary, borderColor: COLORS.primary, elevation: 1 },
   categoryTabText: { fontSize: 11, fontWeight: '600', color: COLORS.gray600 },
   categoryTabTextActive: { color: COLORS.white },
   scrollContent: { padding: 12, paddingBottom: 40 },
   templateGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  templateCard: { width: '31%', backgroundColor: COLORS.white, borderRadius: 10, borderWidth: 2, borderColor: COLORS.gray100, padding: 8, position: 'relative' },
+  templateCard: { width: '31%', backgroundColor: COLORS.white, borderRadius: 14, borderWidth: 2, borderColor: COLORS.gray100, padding: 8, position: 'relative', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6 },
   templateCardActive: { borderColor: COLORS.primary, backgroundColor: COLORS.primaryLight },
-  templatePreview: { flexDirection: 'row', height: 32, borderRadius: 6, overflow: 'hidden', marginBottom: 6, borderWidth: 1, borderColor: COLORS.gray100 },
+  templatePreview: { flexDirection: 'row', height: 44, borderRadius: 9, overflow: 'hidden', marginBottom: 6, borderWidth: 1, borderColor: COLORS.gray100 },
   colorBar: {},
   templateName: { fontSize: 11, fontWeight: '600', color: COLORS.gray800 },
   templateCategory: { fontSize: 8, color: COLORS.gray400, marginTop: 1 },
-  checkBadge: { position: 'absolute', top: 6, right: 6, width: 18, height: 18, borderRadius: 9, backgroundColor: COLORS.primary, justifyContent: 'center', alignItems: 'center' },
-  previewButton: { position: 'absolute', bottom: 6, right: 6, padding: 4, backgroundColor: COLORS.gray50, borderRadius: 4, borderWidth: 1, borderColor: COLORS.gray200 },
+  checkBadge: { position: 'absolute', top: 6, right: 6, width: 18, height: 18, borderRadius: 9, backgroundColor: COLORS.primary, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: COLORS.white },
+  previewButton: { position: 'absolute', bottom: 6, right: 6, padding: 4, backgroundColor: COLORS.gray50, borderRadius: 6, borderWidth: 1, borderColor: COLORS.gray200 },
   emptyState: { alignItems: 'center', paddingTop: 60, gap: 8 },
   emptyText: { fontSize: 16, fontWeight: '600', color: COLORS.gray500 },
   emptySubtext: { fontSize: 12, color: COLORS.gray400 },
   modalContainer: { flex: 1, backgroundColor: COLORS.white },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: COLORS.gray200 },
-  modalTitle: { fontSize: 18, fontWeight: '700', color: COLORS.secondary },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, elevation: 3, shadowColor: COLORS.primaryDark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 6 },
+  modalTitle: { fontSize: 18, fontWeight: '700', color: COLORS.white },
   closeButton: { padding: 8 },
   modalContent: { flex: 1, backgroundColor: COLORS.gray100, padding: 16 },
   buildCustomButton: {

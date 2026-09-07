@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   HeaderConfig,
@@ -545,22 +546,22 @@ export default function TemplateBuilderScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       {/* Header */}
-      <View style={styles.header}>
+      <LinearGradient colors={[COLORS.primary, COLORS.primaryDark]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={22} color={COLORS.gray700} />
+          <Ionicons name="arrow-back" size={22} color={COLORS.white} />
         </TouchableOpacity>
         <View style={styles.headerText}>
           <Text style={styles.headerTitle}>Template Builder</Text>
           <Text style={styles.headerSubtitle}>Customize your resume layout</Text>
         </View>
         <TouchableOpacity style={styles.resetButton} onPress={resetToDefaults}>
-          <Ionicons name="refresh" size={16} color={COLORS.gray500} />
+          <Ionicons name="refresh" size={16} color={COLORS.white} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Ionicons name="checkmark" size={20} color={COLORS.white} />
+          <Ionicons name="checkmark" size={20} color={COLORS.primary} />
           <Text style={styles.saveButtonText}>Done</Text>
         </TouchableOpacity>
-      </View>
+      </LinearGradient>
 
       {/* Template Name */}
       <View style={styles.nameContainer}>
@@ -1077,22 +1078,23 @@ function ToggleRow({ label, value, onToggle }: { label: string; value: boolean; 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.gray50 },
   header: {
-    flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 8,
-    backgroundColor: COLORS.white, borderBottomWidth: 1, borderBottomColor: COLORS.gray200, gap: 6,
+    flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 10,
+    backgroundColor: COLORS.primary, gap: 6, elevation: 3,
+    shadowColor: COLORS.primaryDark, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 6,
   },
-  backButton: { width: 36, height: 36, borderRadius: 8, justifyContent: 'center', alignItems: 'center', flexShrink: 0 },
+  backButton: { width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center', flexShrink: 0, backgroundColor: 'rgba(255,255,255,0.12)' },
   headerText: { flex: 1 },
-  headerTitle: { fontSize: 15, fontWeight: '700', color: COLORS.secondary },
-  headerSubtitle: { fontSize: 9, color: COLORS.gray500 },
+  headerTitle: { fontSize: 16, fontWeight: '700', color: COLORS.white },
+  headerSubtitle: { fontSize: 10, color: 'rgba(255,255,255,0.75)' },
   resetButton: {
-    width: 36, height: 36, borderRadius: 8, justifyContent: 'center', alignItems: 'center',
-    backgroundColor: COLORS.gray100,
+    width: 36, height: 36, borderRadius: 10, justifyContent: 'center', alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.12)',
   },
   saveButton: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.primary,
-    paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8, gap: 4,
+    flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.white,
+    paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10, gap: 4,
   },
-  saveButtonText: { color: COLORS.white, fontWeight: '700', fontSize: 13 },
+  saveButtonText: { color: COLORS.primary, fontWeight: '700', fontSize: 13 },
 
   // Template name
   nameContainer: {
