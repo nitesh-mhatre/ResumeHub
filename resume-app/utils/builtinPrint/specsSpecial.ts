@@ -339,23 +339,23 @@ function renderDoubleColumn(data: ResumeData, paper: PaperBox, font: FontOptions
   const ff = cssFontFamily(font?.fontFamily);
   
   const css = `
-.dc-container{display:flex;gap:0;align-items:stretch}
-.dc-left{width:140px;background:#1f2937;padding:16px;color:#fff;min-width:0}
-.dc-right{flex:1;padding:16px;min-width:0}
-.dc-header{padding-bottom:12px;margin-bottom:12px;border-bottom:2px solid #334155}
-.dc-name{font-size:16px;font-weight:800;color:#fff;display:block}
-.dc-job{font-size:9px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-top:2px;display:block}
-.dc-contact{display:flex;flex-direction:column;gap:2px;margin-top:8px}
-.dc-contact span{font-size:9px;color:#d1d5db;display:block}
+.dc-container{display:flex;gap:0;align-items:stretch;width:100%;overflow:hidden;min-width:0}
+.dc-left{width:185px;background:#1f2937;padding:16px;color:#fff;min-width:0;flex-shrink:0}
+.dc-right{flex:1;padding:16px;min-width:0;min-width:0}
+.dc-header{padding-bottom:12px;margin-bottom:12px;border-bottom:2px solid #334155;word-wrap:break-word;overflow-wrap:break-word}
+.dc-name{font-size:16px;font-weight:800;color:#fff;display:block;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;line-height:1.3;max-width:100%;word-break:break-all}
+.dc-job{font-size:9px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-top:2px;display:block;word-wrap:break-word;overflow-wrap:break-word;max-width:100%;word-break:break-all}
+.dc-contact{display:flex;flex-direction:column;gap:2px;margin-top:8px;max-width:100%;overflow-wrap:break-word;word-break:break-word}
+.dc-contact span{font-size:9px;color:#d1d5db;display:block;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;line-height:1.3;max-width:100%;word-break:break-all;overflow-wrap:break-word;word-break:break-word}
 .dc-section{margin-bottom:14px}
 .dc-sec-title{font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block}
-.dc-school{font-size:12px;font-weight:700;color:#fff;display:block}
-.dc-degree{font-size:10px;color:#9ca3af;display:block}
+.dc-school{font-size:12px;font-weight:700;color:#fff;display:block;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all}
+.dc-degree{font-size:10px;color:#9ca3af;display:block;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all}
 .dc-item{margin-bottom:6px}
-.dc-item-title{font-size:13px;font-weight:700;color:#1f2937;display:block}
-.dc-item-date{font-size:10px;color:#94a3af;display:block;margin-top:2px}
-.dc-item-company{font-size:11px;color:#374151;font-weight:600;display:block;margin-top:2px}
-.dc-item-desc{font-size:11px;color:#475569;line-height:14px;white-space:pre-line;display:block;margin-top:2px}
+.dc-item-title{font-size:13px;font-weight:700;color:#1f2937;display:block;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all}
+.dc-item-date{font-size:10px;color:#94a3af;display:block;margin-top:2px;word-wrap:break-word;overflow-wrap:break-word}
+.dc-item-company{font-size:11px;color:#374151;font-weight:600;display:block;margin-top:2px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all}
+.dc-item-desc{font-size:11px;color:#475569;line-height:14px;white-space:pre-line;display:block;margin-top:2px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;max-width:100%;overflow:hidden}
 .dc-exp-section{margin-bottom:14px}
 .dc-exp-title{font-size:13px;font-weight:700;color:#111827;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:block}
 .dc-extra-sec-title{font-size:${d.secTitle.fs}px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#111827;margin-bottom:8px;display:block}
@@ -439,7 +439,7 @@ function renderSingleColumn(data: ResumeData, paper: PaperBox, font: FontOptions
 .sc-job{font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:2px;margin-top:4px;display:block}
 .sc-divider{width:50px;height:2px;background:#374151;margin:8px auto}
 .sc-contact-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
-.sc-contact{font-size:11px;color:#6b7280}
+.sc-contact{font-size:11px;color:#6b7280;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;max-width:100%;overflow:hidden}
 .sc-section{margin-bottom:14px}
 .sc-sec-title{font-size:12px;font-weight:800;color:#1e3a5f;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;border-bottom:1px solid #d1d5db;padding-bottom:4px;display:block}
 .sc-item{margin-bottom:8px}
@@ -447,7 +447,7 @@ function renderSingleColumn(data: ResumeData, paper: PaperBox, font: FontOptions
 .sc-item-title{font-size:13px;font-weight:700;color:#111827;flex:1}
 .sc-item-date{font-size:10px;color:#94a3af}
 .sc-item-company{font-size:12px;color:#1e3a5f;font-weight:600;margin-top:2px}
-.sc-item-desc{font-size:12px;color:#475569;line-height:18px;white-space:pre-line;margin-top:2px}
+.sc-item-desc{font-size:12px;color:#475569;line-height:18px;white-space:pre-line;margin-top:2px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;max-width:100%;overflow:hidden}
 .sc-skills-text{font-size:12px;color:#475569}
 ${sideCss(bodyPx)}
 `;
