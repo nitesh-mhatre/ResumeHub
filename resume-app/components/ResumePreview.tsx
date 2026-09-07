@@ -371,7 +371,7 @@ const CorporateTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
       </View>
     </View>
     <View style={tStyles.corp.body}>
-      <View style={{ flex: 2 }}>
+      <View style={{ flex: 1.7 }}>
         {data.summary ? <View style={dyn.section}><Text style={[tStyles.corp.secTitle, ff]}>Professional Summary</Text><Text style={dyn.bodyText}>{data.summary}</Text></View> : null}
         <View style={dyn.section}>
           <Text style={[tStyles.corp.secTitle, ff]}>Experience</Text>
@@ -1691,11 +1691,11 @@ const DoubleColumnTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
       </View>
       <View style={tStyles.doubleCol.section}>
         <Text style={[tStyles.doubleCol.secTitle, ff]}>SUMMARY</Text>
-        <Text style={dyn.bodyText}>{formatText(data.summary)}</Text>
+        <Text style={[dyn.bodyText, { color: '#cbd5e1' }]}>{formatText(data.summary)}</Text>
       </View>
       <View style={tStyles.doubleCol.section}>
         <Text style={[tStyles.doubleCol.secTitle, ff]}>SKILLS</Text>
-        <Text style={dyn.bodyText}>{data.skills.join(' • ')}</Text>
+        <Text style={[dyn.bodyText, { color: '#cbd5e1' }]}>{data.skills.join(' • ')}</Text>
       </View>
       <View style={tStyles.doubleCol.section}>
         <Text style={[tStyles.doubleCol.secTitle, ff]}>EDUCATION</Text>
@@ -1709,7 +1709,7 @@ const DoubleColumnTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
     </View>
     <View style={tStyles.doubleCol.rightCol}>
       <View style={tStyles.doubleCol.section}>
-        <Text style={[tStyles.doubleCol.secTitle, ff]}>EXPERIENCE</Text>
+        <Text style={[tStyles.doubleCol.secTitle, { color: '#111827' }, ff]}>EXPERIENCE</Text>
         {data.experience.map(exp => (
           <View key={exp.id} style={{ marginBottom: 8 }}>
             <View style={dyn.itemHeader}><Text style={[tStyles.doubleCol.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
@@ -2103,6 +2103,9 @@ const templateMap: Record<string, React.FC<{ data: ResumeData }>> = {
   pink: PinkTemplate,
   teal: TealTemplate,
   indigo: IndigoTemplate,
+  // Layout variants
+  'double-column': DoubleColumnTemplate,
+  'single-column': SingleColumnTemplate,
 };
 
 // ─── Custom Template Renderer ───
@@ -2472,7 +2475,7 @@ const tStyles = {
     contact: { fontSize: 10, color: '#cbd5e1' },
     body: { flexDirection: 'row', padding: 20, gap: 16 },
     secTitle: { fontSize: 14, fontWeight: '700', color: '#1f2937', textTransform: 'uppercase', borderBottomWidth: 2, borderBottomColor: '#1f2937', paddingBottom: 4, marginBottom: 8 },
-    sidebar: { flex: 1, backgroundColor: '#f3f4f6', padding: 12, borderRadius: 8 },
+    sidebar: { flex: 1.15, backgroundColor: '#f3f4f6', padding: 12, borderRadius: 8 },
     sideTitle: { fontSize: 11, fontWeight: '700', color: '#1f2937', textTransform: 'uppercase', marginBottom: 8 },
     skillItem: { fontSize: 11, color: '#475569', marginBottom: 4 },
     eduSchool: { fontSize: 12, fontWeight: '700', color: '#1f2937' },
@@ -2480,7 +2483,7 @@ const tStyles = {
   }),
   swiss: StyleSheet.create({
     container: { backgroundColor: '#ffffff', borderRadius: 12, flexDirection: 'row', overflow: 'hidden', elevation: 4 },
-    sidebar: { width: 140, backgroundColor: '#ffffff', borderRightWidth: 4, borderRightColor: '#dc2626', padding: 16 },
+    sidebar: { width: 160, backgroundColor: '#ffffff', borderRightWidth: 4, borderRightColor: '#dc2626', padding: 16 },
     main: { flex: 1, padding: 16 },
     name: { fontSize: 22, fontWeight: '800', color: '#000000', marginBottom: 4 },
     jobTitle: { fontSize: 10, fontWeight: '700', color: '#dc2626', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 16 },
@@ -2549,7 +2552,7 @@ const tStyles = {
   }),
   artistic: StyleSheet.create({
     container: { backgroundColor: '#ffffff', borderRadius: 12, flexDirection: 'row', overflow: 'hidden', elevation: 4 },
-    sidebar: { width: 130, backgroundColor: '#f97316', padding: 16 },
+    sidebar: { width: 160, backgroundColor: '#f97316', padding: 16 },
     main: { flex: 1, padding: 16 },
     name: { fontSize: 20, fontWeight: '900', color: '#ffffff', marginBottom: 4 },
     jobTitle: { fontSize: 10, fontWeight: '700', color: '#fed7aa', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 },
@@ -2694,7 +2697,7 @@ const tStyles = {
   }),
   urban: StyleSheet.create({
     container: { backgroundColor: '#ffffff', borderRadius: 12, flexDirection: 'row', overflow: 'hidden', elevation: 4 },
-    sidebar: { width: 140, backgroundColor: '#1f2937', padding: 16 },
+    sidebar: { width: 170, backgroundColor: '#1f2937', padding: 16 },
     main: { flex: 1, padding: 16 },
     avatar: { width: 50, height: 50, borderRadius: 25, backgroundColor: '#facc15', justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
     avatarText: { fontSize: 18, fontWeight: '900', color: '#1f2937' },
@@ -2935,7 +2938,7 @@ const tStyles = {
   }),
   doubleCol: StyleSheet.create({
     container: { backgroundColor: '#ffffff', borderRadius: 12, flexDirection: 'row', overflow: 'hidden', elevation: 4 },
-    leftCol: { width: 145, backgroundColor: '#1f2937', padding: 16, justifyContent: 'flex-start' },
+    leftCol: { width: 170, backgroundColor: '#1f2937', padding: 16, justifyContent: 'flex-start' },
     rightCol: { flex: 1, padding: 16 },
     header: { paddingBottom: 12, marginBottom: 12, borderBottomWidth: 2, borderBottomColor: '#334155' },
     name: { fontSize: 16, fontWeight: '800', color: '#ffffff' },
@@ -2954,10 +2957,10 @@ const tStyles = {
     header: { alignItems: 'center', paddingBottom: 12, marginBottom: 8 },
     name: { fontSize: 26, fontWeight: '900', color: '#111827', letterSpacing: 0.5 },
     jobTitle: { fontSize: 12, fontWeight: '700', color: '#6b7280', textTransform: 'uppercase', letterSpacing: 2, marginTop: 4 },
-    divider: { width: 50, height: 2, backgroundColor: COLORS.primary, marginTop: 8, marginBottom: 8 },
+    divider: { width: 50, height: 2, backgroundColor: '#374151', marginTop: 8, marginBottom: 8 },
     contactRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center' },
     contact: { fontSize: 11, color: '#6b7280' },
-    secTitle: { fontSize: 12, fontWeight: '800', color: COLORS.primary, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 8, borderBottomWidth: 1, borderBottomColor: '#d1d5db', paddingBottom: 4 },
+    secTitle: { fontSize: 12, fontWeight: '800', color: '#1e3a5f', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 8, borderBottomWidth: 1, borderBottomColor: '#d1d5db', paddingBottom: 4 },
     itemTitle: { fontSize: 13, fontWeight: '700', color: '#111827' },
   }),
 };
