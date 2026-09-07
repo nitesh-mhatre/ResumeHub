@@ -46,6 +46,23 @@ const BUILTIN_COLORS: Record<string, TemplateColors> = {
   urban: { bg: '#ffffff', headerBg: '#1f2937', headerColor: '#ffffff', accent: '#facc15', accentLight: '#fef3c7', text: '#1f2937', subtext: '#4b5563', date: '#9ca3af', border: '#f3f4f6', chipBg: '#fef3c7', chipText: '#1f2937', isDark: false },
   nature: { bg: '#f7fee7', headerBg: '#f7fee7', headerColor: '#166534', accent: '#65a30d', accentLight: '#ecfccb', text: '#166534', subtext: '#4d7c0f', date: '#86efac', border: '#bef264', chipBg: '#ecfccb', chipText: '#3f6212', isDark: false },
   bold: { bg: '#ffffff', headerBg: '#7f1d1d', headerColor: '#ffffff', accent: '#7f1d1d', accentLight: '#fef2f2', text: '#1e293b', subtext: '#475569', date: '#94a3b8', border: '#fecaca', chipBg: '#fef2f2', chipText: '#991b1b', isDark: false },
+  // New professional color variants
+  ocean: { bg: '#f0f9ff', headerBg: '#f0f9ff', headerColor: '#0369a1', accent: '#0284c7', accentLight: '#bae6fd', text: '#0c4a6e', subtext: '#0c4a6e', date: '#0284c7', border: '#bae6fd', chipBg: '#e0f2fe', chipText: '#0369a1', isDark: false },
+  forest: { bg: '#f0fdf4', headerBg: '#f0fdf4', headerColor: '#14532d', accent: '#16a34a', accentLight: '#bbf7d0', text: '#14532d', subtext: '#166534', date: '#16a34a', border: '#bbf7d0', chipBg: '#dcfce7', chipText: '#14532d', isDark: false },
+  sunset: { bg: '#fff7ed', headerBg: '#fff7ed', headerColor: '#9a3412', accent: '#ea580c', accentLight: '#fed7aa', text: '#9a3412', subtext: '#9a3412', date: '#ea580c', border: '#fed7aa', chipBg: '#ffedd5', chipText: '#9a3412', isDark: false },
+  lavender: { bg: '#faf5ff', headerBg: '#faf5ff', headerColor: '#6b21a8', accent: '#a855f7', accentLight: '#e9d5ff', text: '#6b21a8', subtext: '#7e22ce', date: '#a855f7', border: '#e9d5ff', chipBg: '#f3e8ff', chipText: '#6b21a8', isDark: false },
+  slate: { bg: '#1e293b', headerBg: '#1e293b', headerColor: '#f8fafc', accent: '#38bdf8', accentLight: '#7dd3fc', text: '#f1f5f9', subtext: '#94a3b8', date: '#94a3b8', border: '#475569', chipBg: '#334155', chipText: '#e2e8f0', isDark: true },
+  charcoal: { bg: '#18181b', headerBg: '#18181b', headerColor: '#fafafa', accent: '#a1a1aa', accentLight: '#d4d4d8', text: '#fafafa', subtext: '#a1a1aa', date: '#a1a1aa', border: '#3f3f46', chipBg: '#27272a', chipText: '#e4e4e7', isDark: true },
+  midnight: { bg: '#0f172a', headerBg: '#0f172a', headerColor: '#f8fafc', accent: '#38bdf8', accentLight: '#7dd3fc', text: '#f1f5f9', subtext: '#94a3b8', date: '#38bdf8', border: '#0c4a6e', chipBg: '#1e293b', chipText: '#7dd3fc', isDark: true },
+  ruby: { bg: '#450a0a', headerBg: '#450a0a', headerColor: '#fce7f3', accent: '#f43f5e', accentLight: '#fecdd3', text: '#fce7f3', subtext: '#fda4af', date: '#f43f5e', border: '#be123c', chipBg: '#450a0a', chipText: '#fecdd3', isDark: true },
+  emerald: { bg: '#022c22', headerBg: '#022c22', headerColor: '#d1fae5', accent: '#10b981', accentLight: '#6ee7b7', text: '#d1fae5', subtext: '#6ee7b7', date: '#10b981', border: '#065f46', chipBg: '#022c22', chipText: '#6ee7b7', isDark: true },
+  cobalt: { bg: '#0c1929', headerBg: '#0c1929', headerColor: '#e0f2fe', accent: '#38bdf8', accentLight: '#7dd3fc', text: '#e0f2fe', subtext: '#7dd3fc', date: '#38bdf8', border: '#1e3a5f', chipBg: '#0c1929', chipText: '#7dd3fc', isDark: true },
+  gold: { bg: '#fffbeb', headerBg: '#fffbeb', headerColor: '#92400e', accent: '#f59e0b', accentLight: '#fcd34d', text: '#92400e', subtext: '#fde68a', date: '#f59e0b', border: '#fcd34d', chipBg: '#fef3c7', chipText: '#92400e', isDark: false },
+  pink: { bg: '#fdf2f8', headerBg: '#fdf2f8', headerColor: '#9d174d', accent: '#ec4899', accentLight: '#fbcfe8', text: '#9d174d', subtext: '#be185d', date: '#ec4899', border: '#fbcfe8', chipBg: '#fce7f3', chipText: '#9d174d', isDark: false },
+  teal: { bg: '#f0fdfa', headerBg: '#f0fdfa', headerColor: '#115e59', accent: '#0d9488', accentLight: '#99f6e4', text: '#115e59', subtext: '#0f766e', date: '#0d9488', border: '#99f6e4', chipBg: '#ccfbf1', chipText: '#115e59', isDark: false },
+  indigo: { bg: '#eef2ff', headerBg: '#eef2ff', headerColor: '#312e81', accent: '#4f46e5', accentLight: '#c7d2fe', text: '#312e81', subtext: '#4338ca', date: '#4f46e5', border: '#c7d2fe', chipBg: '#e0e7ff', chipText: '#312e81', isDark: false },
+  'double-column': { bg: '#ffffff', headerBg: '#1f2937', headerColor: '#ffffff', accent: '#facc15', accentLight: '#fef3c7', text: '#1f2937', subtext: '#6b7280', date: '#9ca3af', border: '#f3f4f6', chipBg: '#fef3c7', chipText: '#1f2937', isDark: false },
+  'single-column': { bg: '#ffffff', headerBg: '#ffffff', headerColor: '#111827', accent: '#374151', accentLight: '#f3f4f6', text: '#111827', subtext: '#6b7280', date: '#94a3b8', border: '#e5e7eb', chipBg: '#f3f4f6', chipText: '#374151', isDark: false },
 };
 
 function getTemplateColors(templateId: string): TemplateColors {
@@ -166,10 +183,11 @@ function generateCustomTemplateHTML(
     'Verdana': 'Verdana, sans-serif',
   };
   const bodyFontFamily = FONT_CSS_FALLBACKS[rawFontFamily] || rawFontFamily;
-  // Uniform page margin, implemented with the .page box's own padding:
-  // @page margins and the print width/height options are ignored (or applied
-  // inconsistently) by expo-print on Android, so margins must come from CSS.
-  const marginPx = 45; // ~12mm at 96dpi
+  // The resume is a single continuous flow the PDF engine paginates into
+  // ${paper.heightMm}mm sheets. Page 1 stays edge-to-edge (header starts at the
+  // very top); box-decoration-break: clone re-applies .content's top padding at
+  // the start of every later page fragment, so content overflowing onto page 2+
+  // gets a clean 12mm top margin instead of touching the top page edge.
 
   // Build header HTML
   const h = config.header;
@@ -331,24 +349,28 @@ function generateCustomTemplateHTML(
 <meta charset="UTF-8">
 <style>
 ${paper.css}
-/* The .page box fills the entire page with the theme background.
-   Page margins are handled by @page to ensure consistent spacing on all pages. */
+/* Whole document: zero @page margins; page size is set by the print call */
 @page { margin: 0; size: ${paper.widthMm}mm ${paper.heightMm}mm; }
-@page :first { margin: 0; size: ${paper.widthMm}mm ${paper.heightMm}mm; }
 *{margin:0;padding:0;box-sizing:border-box}
 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
-body{font-family:${bodyFontFamily};color:${textColor};line-height:1.5;font-size:${bodyFontSize};background:${bg};}
-.page{width:100%;min-height:100vh;background:${bg};padding:0;box-sizing:border-box}
-.content{padding:25px 40px;box-sizing:border-box}
+html, body { margin: 0; padding: 0; background:${bg}; }
+body{font-family:${bodyFontFamily};color:${textColor};line-height:1.5;font-size:${bodyFontSize};}
+/* .content flows continuously; the PDF engine cuts it into ${paper.heightMm}mm
+   pages. box-decoration-break: clone re-applies the top padding at the start
+   of every page fragment so page 2+ starts 12mm below the page edge. */
+.content{
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding-top:12mm;
+}
+/* Keep page 1 edge-to-edge: pull the header (first child) back over the padding */
+.content > :first-child{ margin-top:-12mm; }
 strong{font-weight:800;}
 </style>
 </head>
 <body>
-<div class="page">
 <div class="content">
 ${bodyHtml}
-</div>
 </div>
 </body>
 </html>`;
@@ -513,13 +535,20 @@ function generateCreativeTemplateHTML(
 <style>
 ${paper.css}
 @page { margin: 0; size: ${paper.widthMm}mm ${paper.heightMm}mm; }
-@page :first { margin: 0; size: ${paper.widthMm}mm ${paper.heightMm}mm; }
 *{margin:0;padding:0;box-sizing:border-box}
 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
-body{font-family:${bodyFontFamily};color:#475569;line-height:1.5;background:#fdf6e3;}
-.page{width:100%;min-height:100vh;background:#fdf6e3;padding:0;box-sizing:border-box}
-.content{padding:25px 40px;box-sizing:border-box}
+html, body { margin: 0; padding: 0; background:#fdf6e3; }
+body{font-family:${bodyFontFamily};color:#475569;line-height:1.5;}
+/* .content flows continuously; the PDF engine cuts it into ${paper.heightMm}mm
+   pages. box-decoration-break: clone re-applies the top padding at the start
+   of every page fragment so page 2+ starts 12mm below the page edge. */
+.content{
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding-top:12mm;
+}
+/* Keep page 1 edge-to-edge: pull the header (first child) back over the padding */
+.content > :first-child{ margin-top:-12mm; }
 strong{font-weight:800;}
 
 /* Header: name, title-case job title, wrapped contact row */
@@ -559,11 +588,9 @@ strong{font-weight:800;}
 </style>
 </head>
 <body>
-<div class="page">
 <div class="content">
 ${headerHtml}
 ${bodyHtml}
-</div>
 </div>
 </body>
 </html>`;
@@ -967,6 +994,112 @@ const BUILTIN_TEMPLATE_SPECS: Record<string, BuiltInTemplateSpec> = {
     chipStyle: 'rounded',
     itemStyle: 'default',
   },
+  // ── New color variants ──
+  ocean: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#0284c7',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+  forest: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#16a34a',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+  sunset: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#ea580c',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+  lavender: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#a855f7',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+  slate: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#475569',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+  charcoal: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#3f3f46',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+  midnight: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#0c4a6e',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+  ruby: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#be123c',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+  emerald: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#065f46',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+  cobalt: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#1e3a5f',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+  gold: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#f59e0b',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+  pink: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#ec4899',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+  teal: {
+    headerLayout: 'full-width',
+    headerBorderColor: '#0d9488',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+  // ── Layout variants ──
+  'double-column': {
+    headerLayout: 'boxed',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
+  'single-column': {
+    headerLayout: 'full-width',
+    headerBorderColor: '#374151',
+    sectionStyle: 'underline',
+    chipStyle: 'rounded',
+    itemStyle: 'default',
+  },
 };
 
 // ─── Mappers: translate factory TemplateConfig values to CustomTemplateConfig values ───
@@ -1119,13 +1252,19 @@ function generateFallbackHTML(
 <style>
 ${paper.css}
 @page { margin: 0; size: ${paper.widthMm}mm ${paper.heightMm}mm; }
-@page :first { margin: 0; size: ${paper.widthMm}mm ${paper.heightMm}mm; }
 *{margin:0;padding:0;box-sizing:border-box}
 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
-body{font-family:${bodyFontFamily};color:${textColor};line-height:1.5;font-size:${bodyFontSize};background:${c.bg};orphans:3;widows:3}
-.page{width:100%;min-height:100vh;background:${c.bg};padding:0;box-sizing:border-box}
-.content{padding:25px 40px;box-sizing:border-box}
+html, body { margin: 0; padding: 0; background:${c.bg}; }
+body{font-family:${bodyFontFamily};color:${textColor};line-height:1.5;font-size:${bodyFontSize};orphans:3;widows:3}
+/* Continuous flow paginated by the PDF engine; box-decoration-break: clone
+   re-applies .content's padding on every page fragment so each printed page
+   keeps the same margins instead of page 2+ touching the page edges. */
+.content{
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding:25px 40px;
+  box-sizing:border-box;
+}
 strong{font-weight:800;}
 h1{font-size:${headerFontSize};font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;page-break-after:avoid;break-after:avoid}
 .job-title{font-size:${jobTitleFontSize};font-weight:700;color:${c.accent};text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;page-break-after:avoid;break-after:avoid}
@@ -1141,7 +1280,6 @@ h1{font-size:${headerFontSize};font-weight:800;text-transform:uppercase;letter-s
 </style>
 </head>
 <body>
-<div class="page">
 <div class="content">
 <h1 style="color:${c.headerColor}">${escapeHTML(data.personalInfo.fullName)}</h1>
 <div class="job-title">${escapeHTML(data.personalInfo.jobTitle)}</div>
@@ -1177,7 +1315,6 @@ ${data.interests.length > 0 ? `<div class="section"><div class="section-title">I
 
 ${data.customSections && data.customSections.length > 0 ? data.customSections.map(s => `<div class="section"><div class="section-title">${escapeHTML(s.title)}</div><div class="item-desc">${nl2br(s.content)}</div></div>`).join('\n') : ''}
 
-</div>
 </div>
 </body>
 </html>`;

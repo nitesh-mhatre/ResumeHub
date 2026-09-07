@@ -184,10 +184,6 @@ export function stdSheet(spec: StdSpec, bodyPx: number): string {
   out.push(`.skl{font-size:12px;color:#111827;font-weight:600}`);
   out.push(`.skl2{font-size:11px;color:#6b7280}`);
   if (spec.extraCss) out.push(spec.extraCss);
-  // Page content padding — keeps text away from the page edges while the
-  // .page box itself has zero padding so coloured backgrounds / sidebars
-  // reach the very edge of the printed page.
-  out.push('.content{padding:25px 40px;box-sizing:border-box}');
   return out.join('\n');
 }
 
@@ -419,6 +415,6 @@ export function renderStd(
     css,
     fontFamily: cssFontFamily(fontOptions?.fontFamily),
     pageBg: spec.pageBg,
-    body: `<div class="content">${header + body}</div>`,
+    body: header + body,
   });
 }

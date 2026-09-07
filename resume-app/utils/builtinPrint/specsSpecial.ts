@@ -264,7 +264,6 @@ function renderTechDark(data: ResumeData, paper: PaperBox, font: FontOptions | u
 .xdate{font-size:${d.itemDate}px;color:#64748b;white-space:nowrap;font-family:'Courier New',monospace}
 .chipb{display:inline-block;border:1px solid #a78bfa;background:#1e293b;border-radius:14px;padding:5px 12px;font-size:${d.chipText}px;font-weight:600;color:#a78bfa;margin:0 8px 8px 0}  .two{display:flex;gap:20px}.half{flex:1;min-width:0;padding:12px;background:#1e293b;border-radius:8px}
 strong{color:#fde68a;font-weight:800;}
-.content{padding:25px 40px;box-sizing:border-box}
 `;
   let body = '';
   if (data.summary) {
@@ -319,7 +318,7 @@ strong{color:#fde68a;font-weight:800;}
   };
   body += extra(data);
   const htmlBody = `<header class="hd"><div class="nm">&gt; ${escapeHTML(pi.fullName)}</div><div class="jt">// ${escapeHTML(pi.jobTitle)}</div>${contactLines ? `<div class="ctc">${contactLines}</div>` : ''}</header>${body}`;
-  return wrapDoc({ paper, css, fontFamily: cssFontFamily(font?.fontFamily), pageBg: '#0f172a', body: `<div class="content">${htmlBody}</div>` });
+  return wrapDoc({ paper, css, fontFamily: cssFontFamily(font?.fontFamily), pageBg: '#0f172a', body: htmlBody });
 }
 
 export const BESPOKE_RENDERERS: Record<string, (data: ResumeData, paper: PaperBox, font: FontOptions | undefined) => string> = {
@@ -328,4 +327,181 @@ export const BESPOKE_RENDERERS: Record<string, (data: ResumeData, paper: PaperBo
   artistic: renderArtistic,
   urban: renderUrban,
   'tech-dark': renderTechDark,
+  'double-column': renderDoubleColumn,
+  'single-column': renderSingleColumn,
 };
+
+// ─── Double Column Template (two-column layout) ─────────────────────────────
+function renderDoubleColumn(data: ResumeData, paper: PaperBox, font: FontOptions | undefined): string {
+  const bodyPx = bodyPxFrom(font);
+  const d = dynSizes(bodyPx);
+  const pi = data.personalInfo;
+  const ff = cssFontFamily(font?.fontFamily);
+  
+  const css = `
+.dc-container{display:flex;gap:0;align-items:stretch}
+.dc-left{width:140px;background:#1f2937;padding:16px;color:#fff;min-width:0}
+.dc-right{flex:1;padding:16px;min-width:0}
+.dc-header{padding-bottom:12px;margin-bottom:12px;border-bottom:2px solid #334155}
+.dc-name{font-size:16px;font-weight:800;color:#fff;display:block}
+.dc-job{font-size:9px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-top:2px;display:block}
+.dc-contact{display:flex;flex-direction:column;gap:2px;margin-top:8px}
+.dc-contact span{font-size:9px;color:#d1d5db;display:block}
+.dc-section{margin-bottom:14px}
+.dc-sec-title{font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block}
+.dc-school{font-size:12px;font-weight:700;color:#fff;display:block}
+.dc-degree{font-size:10px;color:#9ca3af;display:block}
+.dc-item{margin-bottom:6px}
+.dc-item-title{font-size:13px;font-weight:700;color:#1f2937;display:block}
+.dc-item-date{font-size:10px;color:#94a3af;display:block;margin-top:2px}
+.dc-item-company{font-size:11px;color:#374151;font-weight:600;display:block;margin-top:2px}
+.dc-item-desc{font-size:11px;color:#475569;line-height:14px;white-space:pre-line;display:block;margin-top:2px}
+.dc-exp-section{margin-bottom:14px}
+.dc-exp-title{font-size:13px;font-weight:700;color:#111827;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:block}
+.dc-extra-sec-title{font-size:${d.secTitle.fs}px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#111827;margin-bottom:8px;display:block}
+.dc-chip{display:inline-block;background:#f3f4f6;border-radius:4px;padding:2px 8px;font-size:10px;color:#475569;margin:2px 4px 2px 0}
+.dc-skills{display:flex;flex-wrap:wrap;gap:4px}
+.dc-divider{width:50px;height:2px;background:#374151;margin:8px auto}
+.dc-contact-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.dc-contact-text{font-size:11px;color:#6b7280}
+${sideCss(bodyPx)}
+`;
+
+  // Left column content
+  let leftHtml = `
+    <div class="dc-header">
+      <span class="dc-name">${escapeHTML(pi.fullName)}</span>
+      ${pi.jobTitle ? `<span class="dc-job">${escapeHTML(pi.jobTitle)}</span>` : ''}
+      <div class="dc-contact">
+        ${pi.email ? `<span>${escapeHTML(pi.email)}</span>` : ''}
+        ${pi.phone ? `<span>${escapeHTML(pi.phone)}</span>` : ''}
+        ${pi.location ? `<span>${escapeHTML(pi.location)}</span>` : ''}
+      </div>
+    </div>
+    <div class="dc-section">
+      <span class="dc-sec-title">SUMMARY</span>
+      <div class="dc-item-desc">${nl2br(plain(data.summary))}</div>
+    </div>
+    <div class="dc-section">
+      <span class="dc-sec-title">SKILLS</span>
+      <div class="dc-skills">
+        ${data.skills.map(s => `<span class="dc-chip">${escapeHTML(s)}</span>`).join('')}
+      </div>
+    </div>
+    <div class="dc-section">
+      <span class="dc-sec-title">EDUCATION</span>
+      ${data.education.map(edu => `
+        <div class="dc-item">
+          <span class="dc-school">${escapeHTML(edu.school)}</span>
+          <span class="dc-degree">${escapeHTML(edu.degree)} • ${escapeHTML(edu.startDate)} – ${escapeHTML(edu.endDate)}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  // Right column content
+  let rightHtml = `
+    <div class="dc-exp-section">
+      <span class="dc-exp-title">EXPERIENCE</span>
+      ${data.experience.map(exp => `
+        <div class="dc-item">
+          <span class="dc-item-title">${escapeHTML(exp.title)}</span>
+          <span class="dc-item-date">${escapeHTML(exp.startDate)} – ${exp.current ? 'Present' : escapeHTML(exp.endDate)}</span>
+          <span class="dc-item-company">${escapeHTML(exp.company)}</span>
+          <span class="dc-item-desc">${nl2br(plain(exp.description))}</span>
+        </div>
+      `).join('')}
+    </div>
+    ${stdExtraHtml(data, minimalSpec('#111827'))}
+  `;
+
+  const body = `
+<div class="dc-container">
+  <div class="dc-left">${leftHtml}</div>
+  <div class="dc-right">${rightHtml}</div>
+</div>
+  `;
+
+  return wrapDoc({ paper, css, fontFamily: ff, pageBg: '#ffffff', body });
+}
+
+// ─── Single Column Template ─────────────────────────────────────────────────
+function renderSingleColumn(data: ResumeData, paper: PaperBox, font: FontOptions | undefined): string {
+  const bodyPx = bodyPxFrom(font);
+  const d = dynSizes(bodyPx);
+  const pi = data.personalInfo;
+  const ff = cssFontFamily(font?.fontFamily);
+  
+  const css = `
+.sc-container{background:#fff;padding:20px;border-radius:12px}
+.sc-header{text-align:center;padding-bottom:12px;margin-bottom:8px}
+.sc-name{font-size:26px;font-weight:900;color:#111827;letter-spacing:0.5px;display:block}
+.sc-job{font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:2px;margin-top:4px;display:block}
+.sc-divider{width:50px;height:2px;background:#374151;margin:8px auto}
+.sc-contact-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.sc-contact{font-size:11px;color:#6b7280}
+.sc-section{margin-bottom:14px}
+.sc-sec-title{font-size:12px;font-weight:800;color:#1e3a5f;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px;border-bottom:1px solid #d1d5db;padding-bottom:4px;display:block}
+.sc-item{margin-bottom:8px}
+.sc-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.sc-item-title{font-size:13px;font-weight:700;color:#111827;flex:1}
+.sc-item-date{font-size:10px;color:#94a3af}
+.sc-item-company{font-size:12px;color:#1e3a5f;font-weight:600;margin-top:2px}
+.sc-item-desc{font-size:12px;color:#475569;line-height:18px;white-space:pre-line;margin-top:2px}
+.sc-skills-text{font-size:12px;color:#475569}
+${sideCss(bodyPx)}
+`;
+
+  let html = `
+<div class="sc-container">
+  <div class="sc-header">
+    <span class="sc-name">${escapeHTML(pi.fullName)}</span>
+    <span class="sc-job">${escapeHTML(pi.jobTitle)}</span>
+    <div class="sc-divider"></div>
+    <div class="sc-contact-row">
+      ${pi.email ? `<span class="sc-contact">${escapeHTML(pi.email)}</span>` : ''}
+      ${pi.phone ? `<span class="sc-contact">${escapeHTML(pi.phone)}</span>` : ''}
+      ${pi.location ? `<span class="sc-contact">${escapeHTML(pi.location)}</span>` : ''}
+    </div>
+  </div>
+  ${data.summary ? `
+    <div class="sc-section">
+      <span class="sc-sec-title">PROFILE</span>
+      <div class="sc-item-desc">${nl2br(plain(data.summary))}</div>
+    </div>
+  ` : ''}
+  <div class="sc-section">
+    <span class="sc-sec-title">EXPERIENCE</span>
+    ${data.experience.map(exp => `
+      <div class="sc-item">
+        <div class="sc-item-header">
+          <span class="sc-item-title">${escapeHTML(exp.title)}</span>
+          <span class="sc-item-date">${escapeHTML(exp.startDate)} – ${exp.current ? 'Present' : escapeHTML(exp.endDate)}</span>
+        </div>
+        <div class="sc-item-company">${escapeHTML(exp.company)}</div>
+        <div class="sc-item-desc">${nl2br(plain(exp.description))}</div>
+      </div>
+    `).join('')}
+  </div>
+  <div class="sc-section">
+    <span class="sc-sec-title">EDUCATION</span>
+    ${data.education.map(edu => `
+      <div class="sc-item">
+        <div class="sc-item-header">
+          <span class="sc-item-title">${escapeHTML(edu.school)}</span>
+          <span class="sc-item-date">${escapeHTML(edu.startDate)} – ${escapeHTML(edu.endDate)}</span>
+        </div>
+        <div class="sc-item-company">${escapeHTML(edu.degree)}</div>
+      </div>
+    `).join('')}
+  </div>
+  <div class="sc-section">
+    <span class="sc-sec-title">SKILLS</span>
+    <div class="sc-skills-text">${data.skills.join('  •  ')}</div>
+  </div>
+  ${stdExtraHtml(data, minimalSpec('#374151'))}
+</div>
+  `;
+
+  return wrapDoc({ paper, css, fontFamily: ff, pageBg: '#ffffff', body: html });
+}

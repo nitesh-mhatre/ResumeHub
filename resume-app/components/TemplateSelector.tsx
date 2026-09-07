@@ -53,6 +53,24 @@ const builtinTemplates = [
     { id: 'bold', name: 'Bold', colors: ['#7f1d1d', '#fca5a5', '#ffffff'], category: 'Hand-Crafted' },
     { id: 'monochrome', name: 'Monochrome', colors: ['#374151', '#9ca3af', '#ffffff'], category: 'Hand-Crafted' },
     { id: 'borderless', name: 'Borderless', colors: ['#ffffff', '#e2e8f0', '#f8fafc'], category: 'Hand-Crafted' },
+    { id: 'double-column', name: 'Double Column', colors: ['#1f2937', '#facc15', '#ffffff'], category: 'Hand-Crafted' },
+    { id: 'single-column', name: 'Single Column', colors: ['#111827', COLORS.primary, '#ffffff'], category: 'Hand-Crafted' },
+  ]},
+  { name: 'Color Themes', templates: [
+    { id: 'ocean', name: 'Ocean Blue', colors: ['#0369a1', '#7dd3fc', '#f0f9ff'], category: 'Color Themes' },
+    { id: 'forest', name: 'Forest Green', colors: ['#166534', '#86efac', '#f0fdf4'], category: 'Color Themes' },
+    { id: 'sunset', name: 'Sunset Orange', colors: ['#c2410c', '#fdba74', '#fff7ed'], category: 'Color Themes' },
+    { id: 'lavender', name: 'Lavender', colors: ['#6d28d9', '#c4b5fd', '#f5f3ff'], category: 'Color Themes' },
+    { id: 'slate', name: 'Slate Gray', colors: ['#475569', '#94a3b8', '#f8fafc'], category: 'Color Themes' },
+    { id: 'charcoal', name: 'Charcoal', colors: ['#1e293b', '#475569', '#fafafa'], category: 'Color Themes' },
+    { id: 'midnight', name: 'Midnight', colors: ['#312e81', '#a5b4fc', '#eef2ff'], category: 'Color Themes' },
+    { id: 'ruby', name: 'Ruby Red', colors: ['#991b1b', '#fca5a5', '#fef2f2'], category: 'Color Themes' },
+    { id: 'emerald', name: 'Emerald', colors: ['#047857', '#6ee7b7', '#ecfdf5'], category: 'Color Themes' },
+    { id: 'cobalt', name: 'Cobalt', colors: ['#1e3a8a', '#93c5fd', '#eff6ff'], category: 'Color Themes' },
+    { id: 'gold', name: 'Gold Amber', colors: ['#b45309', '#fcd34d', '#fffbeb'], category: 'Color Themes' },
+    { id: 'pink', name: 'Pink', colors: ['#be185d', '#f9a8d4', '#fdf2f8'], category: 'Color Themes' },
+    { id: 'teal', name: 'Teal', colors: ['#0f766e', '#5eead4', '#f0fdfa'], category: 'Color Themes' },
+    { id: 'indigo', name: 'Indigo', colors: ['#3730a3', '#a5b4fc', '#eef2ff'], category: 'Color Themes' },
   ]}
 ];
 

@@ -75,7 +75,7 @@ export default function BuilderScreen() {
     setIsExporting(true);
     try {
       const html = generateHTML(resumeData, paperSize);
-      // Convert mm to points (1mm = 2.835pt)
+      // Convert mm to points (1mm = 2.835pt) for expo-print
       const mmToPoint = 72 / 25.4;
       const pdfWidth = currentPaper.widthMm * mmToPoint;
       const pdfHeight = currentPaper.heightMm * mmToPoint;
@@ -83,6 +83,10 @@ export default function BuilderScreen() {
         html,
         width: pdfWidth,
         height: pdfHeight,
+        // Margins must be 0 because the HTML handles page sizing internally
+        // (page 1 is edge-to-edge; overflow pages get their top spacing from
+        // the CSS). Without this, expo-print may add its own margins that
+        // shift content.
         margins: { left: 0, right: 0, top: 0, bottom: 0 },
       };
       // Ask expo-print for the PDF as base64: on Android/Expo Go the file URI

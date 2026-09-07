@@ -118,25 +118,42 @@ export function wrapDoc(opts: {
   pageBg: string;
   body: string;
 }): string {
+  // The resume is a single continuous flow that the PDF engine paginates into
+  // ${paper.heightMm}mm sheets. Page 1 stays edge-to-edge (the header starts at the
+  // very top edge). box-decoration-break: clone makes the engine re-apply
+  // .content's top padding at the start of every later page fragment, giving
+  // content that overflows onto page 2+ a clean 12mm top margin instead of
+  // starting flush against the top edge.
   return `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <style>
 ${opts.paper.css}
+/* Whole document: zero @page margins; page size is set by the print call */
 @page { margin: 0; size: ${opts.paper.widthMm}mm ${opts.paper.heightMm}mm; }
-@page :first { margin: 0; size: ${opts.paper.widthMm}mm ${opts.paper.heightMm}mm; }
 *{margin:0;padding:0;box-sizing:border-box}
 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
-body{font-family:${opts.fontFamily};color:#475569;line-height:1.5;background:${opts.pageBg};}
-.page{width:100%;min-height:100vh;background:${opts.pageBg};padding:0;box-sizing:border-box}
+html, body { margin: 0; padding: 0; background:${opts.pageBg}; }
+body{font-family:${opts.fontFamily};color:#475569;line-height:1.5;}
+/* .content flows continuously; the PDF engine cuts it into
+   ${opts.paper.heightMm}mm pages. box-decoration-break: clone makes the engine
+   re-apply .content's top padding at the start of every page fragment, so
+   content that overflows onto page 2+ starts 12mm below the page edge. */
+.content{
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding-top:12mm;
+}
+/* Keep page 1 edge-to-edge: pull the header (first child) back over that
+   padding so it still begins flush at the very top of the first page. */
+.content > :first-child{ margin-top:-12mm; }
 strong{font-weight:800;}
 ${opts.css}
 </style>
 </head>
 <body>
-<div class="page">
+<div class="content">
 ${opts.body}
 </div>
 </body>
