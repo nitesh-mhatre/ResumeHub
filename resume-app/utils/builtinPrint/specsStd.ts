@@ -38,9 +38,7 @@ const BANDED_THEME_PALETTES: BandedThemePalette[] = [
   { id: 'pink', pageBg: '#fdf2f8', band: '#be185d', jobTint: '#fbcfe8', contactTint: '#fce7f3', border: '#f9a8d4', itemTitle: '#9d174d', company: '#db2777', chipBg: '#fce7f3', chipTxt: '#be185d', extra: '#be185d' },
   { id: 'teal', pageBg: '#f0fdfa', band: '#0f766e', jobTint: '#99f6e4', contactTint: '#ccfbf1', border: '#5eead4', itemTitle: '#134e4a', company: '#0d9488', chipBg: '#ccfbf1', chipTxt: '#0f766e', extra: '#0f766e' },
   { id: 'indigo', pageBg: '#eef2ff', band: '#3730a3', jobTint: '#c7d2fe', contactTint: '#ddd6fe', border: '#a5b4fc', itemTitle: '#1e1b4b', company: '#4f46e5', chipBg: '#e0e7ff', chipTxt: '#3730a3', extra: '#3730a3' },
-];
-
-function makeBandedColorThemeSpec(p: BandedThemePalette): StdSpec {
+];  function makeBandedColorThemeSpec(p: BandedThemePalette): StdSpec {
   return {
     pageBg: p.pageBg,
     head: {
@@ -50,7 +48,7 @@ function makeBandedColorThemeSpec(p: BandedThemePalette): StdSpec {
       mgB: 16,
       name: { fs: 24, w: 800, c: '#ffffff', up: true, ls: 0.5 },
       job: { fs: 13, w: 700, c: p.jobTint, up: true, ls: 1, mt: 4, mb: 12 },
-      contact: { keys: ['email', 'phone', 'location'], fs: 11, c: p.contactTint, gap: 12 },
+      contact: { keys: ['email', 'phone', 'location', 'linkedin', 'website'], fs: 11, c: p.contactTint, gap: 12 },
     },
     secs: [
       { t: 'sum', label: 'ABOUT' },

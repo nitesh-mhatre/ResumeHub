@@ -1674,48 +1674,56 @@ const TealTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
 };
 
 const DoubleColumnTemplate: React.FC<{ data: ResumeData }> = ({ data }) => {
-  const { fontFamily, dyn } = useFont();
+  const { fontFamily, offset, dyn } = useFont();
   const ff = fontFamily ? { fontFamily } : {};
+  const off = typeof offset === 'number' ? offset : 0;
+  const s = (n: number) => n + off;
+  // Sidebar width is a fraction of the page set by the builder's Column Ratio
+  // option (0.25 = 1:3). Preview and PDF read the same value.
+  const raw = data.globalStyles?.columnRatio;
+  const share = typeof raw === 'number' && raw > 0 && raw <= 0.5 ? raw : 0.25;
+  const leftW = `${Math.round(share * 1000) / 10}%` as `${number}%`;
   return (
   <View style={tStyles.doubleCol.container}>
-    <View style={tStyles.doubleCol.leftCol}>
+    <View style={[tStyles.doubleCol.leftCol, { width: leftW }]}>
       <View style={tStyles.doubleCol.header}>
-        <Text style={[tStyles.doubleCol.name, ff]} numberOfLines={2}>{data.personalInfo.fullName}</Text>
-        {data.personalInfo.jobTitle ? <Text style={[tStyles.doubleCol.jobTitle, ff]} numberOfLines={2}>{data.personalInfo.jobTitle}</Text> : null}
+        <Text style={[tStyles.doubleCol.name, { fontSize: s(16) }, ff]} numberOfLines={2}>{data.personalInfo.fullName}</Text>
+        {data.personalInfo.jobTitle ? <Text style={[tStyles.doubleCol.jobTitle, { fontSize: s(9) }, ff]} numberOfLines={2}>{data.personalInfo.jobTitle}</Text> : null}
         <View style={tStyles.doubleCol.contactRow}>
-          {data.personalInfo.email ? <Text style={[tStyles.doubleCol.contact, ff]} numberOfLines={2}>{data.personalInfo.email}</Text> : null}
-          {data.personalInfo.phone ? <Text style={[tStyles.doubleCol.contact, ff]} numberOfLines={2}>{data.personalInfo.phone}</Text> : null}
-          {data.personalInfo.location ? <Text style={[tStyles.doubleCol.contact, ff]} numberOfLines={2}>{data.personalInfo.location}</Text> : null}
+          {data.personalInfo.email ? <Text style={[tStyles.doubleCol.contact, { fontSize: s(9) }, ff]} numberOfLines={2}>{data.personalInfo.email}</Text> : null}
+          {data.personalInfo.phone ? <Text style={[tStyles.doubleCol.contact, { fontSize: s(9) }, ff]} numberOfLines={2}>{data.personalInfo.phone}</Text> : null}
+          {data.personalInfo.location ? <Text style={[tStyles.doubleCol.contact, { fontSize: s(9) }, ff]} numberOfLines={2}>{data.personalInfo.location}</Text> : null}
         </View>
       </View>
       {data.summary ? (
         <View style={tStyles.doubleCol.section}>
-          <Text style={[tStyles.doubleCol.secTitle, ff]}>SUMMARY</Text>
+          <Text style={[tStyles.doubleCol.secTitle, { fontSize: s(11) }, ff]}>SUMMARY</Text>
           <Text style={[dyn.bodyText, { color: '#475569' }]}>{formatText(data.summary)}</Text>
         </View>
       ) : null}
       <View style={tStyles.doubleCol.section}>
-        <Text style={[tStyles.doubleCol.secTitle, ff]}>SKILLS</Text>
+        <Text style={[tStyles.doubleCol.secTitle, { fontSize: s(11) }, ff]}>SKILLS</Text>
         <Text style={[dyn.bodyText, { color: '#475569' }]}>{data.skills.join('  •  ')}</Text>
       </View>
       <View style={tStyles.doubleCol.section}>
-        <Text style={[tStyles.doubleCol.secTitle, ff]}>EDUCATION</Text>
+        <Text style={[tStyles.doubleCol.secTitle, { fontSize: s(11) }, ff]}>EDUCATION</Text>
         {data.education.map(edu => (
           <View key={edu.id} style={{ marginBottom: 6 }}>
-            <Text style={[tStyles.doubleCol.eduSchool, ff]}>{edu.school}</Text>
-            <Text style={[tStyles.doubleCol.eduDegree, ff]}>{edu.degree}</Text>
+            <Text style={[tStyles.doubleCol.eduSchool, { fontSize: s(12) }, ff]}>{edu.school}</Text>
+            <Text style={[tStyles.doubleCol.eduDegree, { fontSize: s(10) }, ff]}>{edu.degree}</Text>
+            <Text style={[dyn.itemDate, { fontSize: s(10) }, ff]}>{edu.startDate} – {edu.endDate}</Text>
           </View>
         ))}
       </View>
     </View>
     <View style={tStyles.doubleCol.rightCol}>
       <View style={tStyles.doubleCol.section}>
-        <Text style={[tStyles.doubleCol.secTitle, ff]}>EXPERIENCE</Text>
+        <Text style={[tStyles.doubleCol.secTitle, { fontSize: s(11) }, ff]}>EXPERIENCE</Text>
         {data.experience.map(exp => (
           <View key={exp.id} style={{ marginBottom: 6 }}>
-            <View style={dyn.itemHeader}><Text style={[tStyles.doubleCol.itemTitle, ff]}>{exp.title}</Text><Text style={dyn.itemDate}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
-            <Text style={[tStyles.doubleCol.itemCompany, ff]}>{exp.company}</Text>
-            <Text style={{ fontSize: 11, color: '#475569', lineHeight: 14, ...ff }}>{formatText(exp.description)}</Text>
+            <View style={dyn.itemHeader}><Text style={[tStyles.doubleCol.itemTitle, { fontSize: s(13) }, ff]}>{exp.title}</Text><Text style={[dyn.itemDate, ff]}>{exp.startDate} – {exp.current ? 'Present' : exp.endDate}</Text></View>
+            <Text style={[tStyles.doubleCol.itemCompany, { fontSize: s(11) }, ff]}>{exp.company}</Text>
+            <Text style={{ fontSize: s(11), color: '#475569', lineHeight: s(14), ...ff }}>{formatText(exp.description)}</Text>
           </View>
         ))}
       </View>
@@ -2939,7 +2947,7 @@ const tStyles = {
   }),
   doubleCol: StyleSheet.create({
     container: { backgroundColor: '#ffffff', borderRadius: 12, flexDirection: 'row', overflow: 'hidden', elevation: 4 },
-    leftCol: { width: 250, backgroundColor: '#f3f4f6', padding: 16, justifyContent: 'flex-start' },
+    leftCol: { width: '25%', backgroundColor: '#f3f4f6', padding: 16, justifyContent: 'flex-start' },
     rightCol: { flex: 1, padding: 16 },
     header: { paddingBottom: 12, marginBottom: 12, borderBottomWidth: 2, borderBottomColor: '#d1d5db' },
     name: { fontSize: 16, fontWeight: '800', color: '#1f2937' },

@@ -32,7 +32,7 @@ export function stdSheet(spec: StdSpec, bodyPx: number): string {
   const s = spec.secTitle;
   const out: string[] = [];
 
-  // Header wrapper
+  // Header wrapper — maintain page-break integrity
   let hd = '';
   if (h.band) hd += `background:${h.band};`;
   if (h.bandRadius !== undefined) hd += `border-radius:${h.bandRadius}px;`;
@@ -42,6 +42,8 @@ export function stdSheet(spec: StdSpec, bodyPx: number): string {
   if (h.mgB !== undefined) hd += `margin-bottom:${h.mgB}px;`;
   if (h.alignC) hd += 'text-align:center;';
   out.push(`.hd{${hd}page-break-after:avoid;break-after:avoid}`);
+  // Prevent page break right after header (keeps header with at least some content)
+  out.push(`.hd + * { page-break-before: avoid; break-before: avoid; }`);
 
   // Avatar
   if (h.avatar) {
@@ -119,22 +121,22 @@ export function stdSheet(spec: StdSpec, bodyPx: number): string {
   const extraC = spec.extra.color;
   out.push(`.xt{font-size:${d.secTitle.fs}px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:${extraC};margin-bottom:${d.secTitle.mb}px;page-break-after:avoid;break-after:avoid}`);
 
-  // Body / summary / description text
+  // Body / summary / description text — professional line-height
   const bodyC = spec.bodyC || '#475569';
-  out.push(`.bd{font-size:${d.bodyText.fs}px;line-height:${d.bodyText.lh}px;color:${bodyC};white-space:pre-line}${spec.mono ? 'font-family:Courier New,monospace;' : ''}`);
-  out.push(`.id{font-size:${d.itemDesc.fs}px;line-height:${d.itemDesc.lh}px;color:${bodyC};white-space:pre-line}${spec.mono ? 'font-family:Courier New,monospace;' : ''}`);
+  out.push(`.bd{font-size:${d.bodyText.fs}px;line-height:${d.bodyText.lh}px;color:${bodyC};white-space:pre-line;max-width:100%}${spec.mono ? 'font-family:Courier New,monospace;' : ''}`);
+  out.push(`.id{font-size:${d.itemDesc.fs}px;line-height:${d.itemDesc.lh}px;color:${bodyC};white-space:pre-line;max-width:100%}${spec.mono ? 'font-family:Courier New,monospace;' : ''}`);
 
-  // Section blocks
-  out.push(`.sec{margin-bottom:16px;page-break-inside:auto}`);
-  // Plain items (education + extra sections)
-  out.push(`.it{margin-bottom:12px;page-break-inside:avoid;break-inside:avoid}`);
+  // Section blocks — 14px gap for tight professional rhythm
+  out.push(`.sec{margin-bottom:14px;page-break-inside:auto}`);
+  // Plain items (education + extra sections) — avoid breaking across pages
+  out.push(`.it{margin-bottom:10px;page-break-inside:avoid;break-inside:avoid}`);
   out.push(`.ih{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:2px}`);
   out.push(`.tt{font-size:${d.itemTitle}px;font-weight:700;color:#1e293b;flex:1;min-width:0}`);
   out.push(`.dt{font-size:${d.itemDate}px;color:#94a3b8;white-space:nowrap}`);
-  out.push(`.dd{font-size:${d.itemDesc.fs}px;line-height:${d.itemDesc.lh}px;color:#475569}`);
+  out.push(`.dd{font-size:${d.itemDesc.fs}px;line-height:${d.itemDesc.lh}px;color:#475569;max-width:100%;overflow-wrap:break-word;word-break:break-word}`);
 
-  // Experience items (may carry template-specific container decoration)
-  let eit = `margin-bottom:12px;page-break-inside:avoid;break-inside:avoid;`;
+  // Experience items — avoid breaking across pages, professional spacing
+  let eit = `margin-bottom:10px;page-break-inside:avoid;break-inside:avoid;`;
   if (spec.item?.cont) eit += spec.item.cont;
   out.push(`.eit{${eit}}`);
   out.push(`.eit .ih{${''}}`);
@@ -148,10 +150,10 @@ export function stdSheet(spec: StdSpec, bodyPx: number): string {
   const coC = spec.coC || spec.item?.companyC || '#4f46e5';
   const coFs = spec.item?.companyFs;
   out.push(`.co{font-size:${coFs || d.itemCompany}px;color:${coC};margin-bottom:4px;font-weight:600}`);
-  out.push(`.eit .id{font-size:${d.itemDesc.fs}px;line-height:${d.itemDesc.lh}px;color:${bodyC};white-space:pre-line}${spec.mono ? 'font-family:Courier New,monospace;' : ''}`);
+  out.push(`.eit .id{font-size:${d.itemDesc.fs}px;line-height:${d.itemDesc.lh}px;color:${bodyC};white-space:pre-line;max-width:100%;overflow-wrap:break-word;word-break:break-word}${spec.mono ? 'font-family:Courier New,monospace;' : ''}`);
 
-  // Timeline item style
-  out.push(`.tli{position:relative;margin-bottom:16px;padding-left:24px;page-break-inside:avoid;break-inside:avoid}`);
+  // Timeline item style — tighter spacing for professional look
+  out.push(`.tli{position:relative;margin-bottom:12px;padding-left:22px;page-break-inside:avoid;break-inside:avoid}`);
   out.push(`.tli::before{content:'';position:absolute;left:5px;top:20px;bottom:-14px;width:2px;background:#dbeafe}`);
   out.push(`.tldot{position:absolute;left:0;top:4px;width:12px;height:12px;border-radius:6px;background:${spec.secTitle.c || '#2563eb'};}`);
   out.push(`.tl-date{font-size:${d.itemDate}px;font-weight:600;color:${spec.secTitle.c || '#2563eb'};margin-bottom:2px}`);
@@ -173,15 +175,15 @@ export function stdSheet(spec: StdSpec, bodyPx: number): string {
     out.push(`.chips{display:flex;flex-wrap:wrap;gap:6px}`);
   }
   // Extras chips (bordered, accent-colored — preview dyn.chip with titleColor)
-  out.push(`.chipb{display:inline-block;border:1px solid ${extraC};border-radius:12px;padding:4px 10px;font-size:${d.chipText}px;font-weight:600;color:${extraC}}`);
+  out.push(`.chipb{display:inline-block;border:1px solid ${extraC};border-radius:10px;padding:3px 9px;font-size:${d.chipText}px;font-weight:600;color:${extraC};margin:2px 4px 2px 0}`);
   out.push(`.two{display:flex;gap:16px}.half{flex:1;min-width:0}`);
-  out.push(`.xcert{border-left:2px solid ${extraC};padding-left:12px;margin-bottom:12px;page-break-inside:avoid;break-inside:avoid}`);
+  out.push(`.xcert{border-left:2px solid ${extraC};padding-left:12px;margin-bottom:10px;page-break-inside:avoid;break-inside:avoid}`);
   out.push(`.xl{font-size:${d.itemLink}px;color:#94a3b8}`);
   out.push(`.xsub{font-size:${d.itemSub}px;color:#94a3b8;margin-top:2px}`);
   out.push(`.xdate{font-size:${d.itemDate}px;color:#94a3b8;white-space:nowrap}`);
   out.push(`.co2{font-size:${d.itemSub}px;color:${spec.coC || coC};font-weight:600;margin:2px 0 4px}`);
   // Academic education extra line
-  out.push(`.skl{font-size:12px;color:#111827;font-weight:600}`);
+  out.push(`.skl{font-size:12px;color:#111827;font-weight:600;margin-bottom:4px}`);
   out.push(`.skl2{font-size:11px;color:#6b7280}`);
   if (spec.extraCss) out.push(spec.extraCss);
   return out.join('\n');
@@ -312,21 +314,30 @@ export function stdExtraHtml(data: ResumeData, spec: StdSpec): string {
   if (data.projects && data.projects.length > 0) {
     pushSec('Projects');
     for (const p of data.projects) {
-      out += `<div class="it"><div class="ih"><span class="tt">${escapeHTML(p.name)}</span>${p.link ? `<span class="xl">${escapeHTML(p.link)}</span>` : ''}</div><div class="id">${nl2br(plain(p.description))}</div></div>`;
+      out += `<div class="it" style="page-break-inside:avoid;break-inside:avoid">`;
+      out += `<div class="ih"><span class="tt" style="font-size:${d.itemTitle}px;font-weight:700;color:${spec.extra.color}">${escapeHTML(p.name)}</span>`;
+      if (p.link) out += `<span class="xl" style="font-size:${d.itemLink}px">${escapeHTML(p.link)}</span>`;
+      out += `</div>`;
+      out += `<div class="id">${nl2br(plain(p.description))}</div></div>`;
     }
     closeSec();
   }
   if (data.certificates && data.certificates.length > 0) {
     pushSec('Certificates');
     for (const c of data.certificates) {
-      out += `<div class="xcert"><div class="tt">${escapeHTML(c.name)}</div><div class="xsub">${escapeHTML(c.issuer)} • ${escapeHTML(c.date)}</div></div>`;
+      out += `<div class="xcert"><div class="tt" style="font-size:${d.itemTitle}px;font-weight:700;color:${spec.extra.color}">${escapeHTML(c.name)}</div>`;
+      out += `<div class="xsub">${escapeHTML(c.issuer)} • ${escapeHTML(c.date)}${c.link ? ` <a style="color:${spec.extra.color};text-decoration:underline">${escapeHTML(c.link)}</a>` : ''}</div></div>`;
     }
     closeSec();
   }
   if (data.awards && data.awards.length > 0) {
     pushSec('Awards');
     for (const a of data.awards) {
-      out += `<div class="it"><div class="ih"><span class="tt">${escapeHTML(a.name)}</span><span class="xdate">${escapeHTML(a.date)}</span></div>${a.issuer ? `<div class="xsub">${escapeHTML(a.issuer)}</div>` : ''}<div class="id">${nl2br(plain(a.description))}</div></div>`;
+      out += `<div class="it" style="page-break-inside:avoid;break-inside:avoid">`;
+      out += `<div class="ih"><span class="tt" style="font-size:${d.itemTitle}px;font-weight:700;color:${spec.extra.color}">${escapeHTML(a.name)}</span>`;
+      out += `<span class="xdate">${escapeHTML(a.date)}</span></div>`;
+      if (a.issuer) out += `<div class="xsub" style="font-size:${d.itemSub}px;color:${spec.extra.color};font-weight:600">${escapeHTML(a.issuer)}</div>`;
+      out += `<div class="id">${nl2br(plain(a.description))}</div></div>`;
     }
     closeSec();
   }

@@ -144,8 +144,11 @@ body{font-family:${opts.fontFamily};color:#475569;line-height:1.5;}
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
   padding:12mm 14mm 12mm 14mm;
+  overflow-wrap:break-word;
+  word-wrap:break-word;
 }
 strong{font-weight:800;}
+h1, h2, h3, h4 { page-break-after:avoid; }
 ${opts.css}
 </style>
 </head>

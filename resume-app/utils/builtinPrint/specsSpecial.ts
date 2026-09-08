@@ -38,7 +38,7 @@ function sideCss(bodyPx: number): string {
 .side .ed-degree{font-size:11px;color:#64748b}
 .side .ed-block{margin-bottom:14px}
 /* swiss / artistic / urban sidebars */
-.sbar{border-right:5px solid #dc2626;padding:20px;width:250px;flex:none}
+.sbar{border-right:5px solid #dc2626;padding:20px;width:24%;flex:none}
 .sbar .nm{font-size:24px;font-weight:800;color:#000;margin-bottom:6px;display:block}
 .sbar .sj{font-size:11px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:20px;display:block}
 .sbar .scon{font-size:11px;color:#000;font-weight:700;margin-bottom:5px;display:block}
@@ -53,7 +53,7 @@ function sideCss(bodyPx: number): string {
 .swiss-item .item-content{flex:1;min-width:0}
 .swiss-item .sjob{font-size:15px;font-weight:800;color:#111827}
 .swiss-item .scomp{font-size:13px;font-weight:700;color:#475569;margin:3px 0 5px}
-.art-side{background:#f97316;padding:20px;width:265px;flex:none;color:#fff}
+.art-side{background:#f97316;padding:20px;width:25%;flex:none;color:#fff}
 .art-side .nm{font-size:22px;font-weight:900;color:#fff;margin-bottom:6px;display:block}
 .art-side .sj{font-size:11px;font-weight:700;color:#fed7aa;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;display:block}
 .art-side .sd-title{font-size:12px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:1.5px;margin:20px 0 8px;display:block}
@@ -64,7 +64,7 @@ function sideCss(bodyPx: number): string {
 .art-item .acontent{flex:1;min-width:0}
 .art-title{font-size:14px;font-weight:700;color:#1c1917}
 .art-company{font-size:12px;color:#f97316;font-weight:600;margin-bottom:4px}
-.urban-side{background:#1f2937;padding:20px;width:265px;flex:none;border-radius:12px}
+.urban-side{background:#1f2937;padding:20px;width:25%;flex:none;border-radius:12px}
 .urban-side .av{width:56px;height:56px;border-radius:28px;background:#facc15;display:flex;align-items:center;justify-content:center;color:#1f2937;font-size:20px;font-weight:900;margin-bottom:12px}
 .urban-side .nm{font-size:18px;font-weight:800;color:#fff;margin-bottom:3px;display:block}
 .urban-side .sj{font-size:10px;font-weight:700;color:#facc15;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px;display:block}
@@ -336,63 +336,83 @@ function renderDoubleColumn(data: ResumeData, paper: PaperBox, font: FontOptions
   const bodyPx = bodyPxFrom(font);
   const d = dynSizes(bodyPx);
   const pi = data.personalInfo;
+  // Font-size option: scale every text size by the same additive offset the
+  // RN preview applies (offset = body px − 12), so choosing a larger font
+  // grows this layout in the exported PDF the same way it does on screen.
+  const off = bodyPx - 12;
+  // Column ratio picked in the builder (sidebar width as a fraction of the
+  // page content width). The content area is page width minus 28mm (14mm each side).
+  // 0.25 = a 1:3 split; when absent the same 1:3 look is used.
+  const rawRatio = data.globalStyles?.columnRatio;
+  // Support decimal ratios like 33.6755 - convert from 1:N format to fraction
+  const ratioValue = typeof rawRatio === 'number' && rawRatio > 0 && rawRatio <= 50 ? rawRatio : 3;
+  // colRatioX represents the "N" in "1:N" ratio. share = 1 / (1 + N)
+  const share = 1 / (1 + ratioValue);
+  // Calculate width as percentage of content area (page minus margins)
+  // Content width = paper width - 28mm (14mm padding each side)
+  const contentWidthMM = paper.widthMm - 28;
+  const leftWidthMM = contentWidthMM * share;
+  // Ensure minimum width of 30mm for the sidebar
+  const finalLeftWidthMM = Math.max(30, Math.min(leftWidthMM, contentWidthMM * 0.45));
+  const leftWPercent = (finalLeftWidthMM / contentWidthMM) * 100;
+  
   const ff = cssFontFamily(font?.fontFamily);
   
   const css = `
 .dc-container{display:flex;gap:0;align-items:stretch;width:100%;overflow:hidden;min-width:0}
-.dc-left{min-width:230px;max-width:320px;width:max-content;max-width:320px;background:#1f2937;padding:16px;color:#fff;flex-shrink:0}
-.dc-right{flex:1;padding:16px;min-width:0}
+.dc-left{width:${leftWPercent}%;background:#1f2937;padding:16px;color:#fff;flex-shrink:0;font-family:${ff}}
+.dc-right{flex:1;padding:16px;min-width:0;font-family:${ff}}
 .dc-header{padding-bottom:12px;margin-bottom:12px;border-bottom:2px solid #334155;word-wrap:break-word;overflow-wrap:break-word}
-.dc-name{font-size:16px;font-weight:800;color:#fff;display:block;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;line-height:1.3;max-width:100%;word-break:break-all}
-.dc-job{font-size:9px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-top:2px;display:block;word-wrap:break-word;overflow-wrap:break-word;max-width:100%;word-break:break-all}
+.dc-name{font-size:${16 + off}px;font-weight:800;color:#fff;display:block;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;line-height:1.3;max-width:100%;word-break:break-all}
+.dc-job{font-size:${9 + off}px;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-top:2px;display:block;word-wrap:break-word;overflow-wrap:break-word;max-width:100%;word-break:break-all}
 .dc-contact{display:flex;flex-direction:column;gap:2px;margin-top:8px;max-width:100%;overflow-wrap:break-word;word-break:break-all;line-height:1.3}
-.dc-contact span{font-size:9px;color:#d1d5db;display:block;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;line-height:1.3;max-width:100%;word-break:break-all}
+.dc-contact span{font-size:${9 + off}px;color:#d1d5db;display:block;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;line-height:1.3;max-width:100%;word-break:break-all}
 .dc-section{margin-bottom:14px}
-.dc-sec-title{font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block}
-.dc-school{font-size:12px;font-weight:700;color:#fff;display:block;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all}
-.dc-degree{font-size:10px;color:#9ca3af;display:block;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all}
+.dc-sec-title{font-size:${11 + off}px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block}
+.dc-school{font-size:${12 + off}px;font-weight:700;color:#fff;display:block;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all}
+.dc-degree{font-size:${10 + off}px;color:#9ca3af;display:block;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all}
 .dc-item{margin-bottom:6px}
-.dc-item-title{font-size:13px;font-weight:700;color:#1f2937;display:block;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all}
-.dc-item-date{font-size:10px;color:#94a3b8;display:block;margin-top:2px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all}
-.dc-item-company{font-size:11px;color:#374151;font-weight:600;display:block;margin-top:2px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all}
-.dc-item-desc{font-size:11px;color:#475569;line-height:14px;white-space:pre-line;display:block;margin-top:2px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all;max-width:100%;overflow:hidden}
-.dc-left-body{font-size:11px;color:#cbd5e1;line-height:16px;display:block;margin-top:2px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;max-width:100%}
+.dc-item-title{font-size:${13 + off}px;font-weight:700;color:#1f2937;display:block;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all}
+.dc-item-date{font-size:${10 + off}px;color:#94a3b8;display:block;margin-top:2px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all}
+.dc-item-company{font-size:${11 + off}px;color:#374151;font-weight:600;display:block;margin-top:2px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all}
+.dc-item-desc{font-size:${11 + off}px;color:#475569;line-height:${14 + off}px;white-space:pre-line;display:block;margin-top:2px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-all;max-width:100%;overflow:hidden}
+.dc-left-body{font-size:${11 + off}px;color:#cbd5e1;line-height:${16 + off}px;display:block;margin-top:2px;word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;max-width:100%}
 .dc-exp-section{margin-bottom:14px}
-.dc-exp-title{font-size:13px;font-weight:700;color:#111827;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:block}
+.dc-exp-title{font-size:${13 + off}px;font-weight:700;color:#111827;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:block}
 .dc-extra-sec-title{font-size:${d.secTitle.fs}px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#111827;margin-bottom:8px;display:block}
-.dc-chip{display:inline-block;background:#f3f4f6;border-radius:4px;padding:2px 8px;font-size:10px;color:#475569;margin:2px 4px 2px 0}
+.dc-chip{display:inline-block;background:#f3f4f6;border-radius:4px;padding:2px 8px;font-size:${10 + off}px;color:#475569;margin:2px 4px 2px 0}
 .dc-skills{display:flex;flex-wrap:wrap;gap:4px}
 .dc-divider{width:50px;height:2px;background:#374151;margin:8px auto}
 .dc-contact-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
-.dc-contact-text{font-size:11px;color:#6b7280}
+.dc-contact-text{font-size:${11 + off}px;color:#6b7280}
 ${sideCss(bodyPx)}
 `;
 
   // Left column content
   let leftHtml = `
     <div class="dc-header">
-      <span class="dc-name">${escapeHTML(pi.fullName)}</span>
-      ${pi.jobTitle ? `<span class="dc-job">${escapeHTML(pi.jobTitle)}</span>` : ''}
+      <span class="dc-name" style="font-family:${ff}">${escapeHTML(pi.fullName)}</span>
+      ${pi.jobTitle ? `<span class="dc-job" style="font-family:${ff}">${escapeHTML(pi.jobTitle)}</span>` : ''}
       <div class="dc-contact">
-        ${pi.email ? `<span>${escapeHTML(pi.email)}</span>` : ''}
-        ${pi.phone ? `<span>${escapeHTML(pi.phone)}</span>` : ''}
-        ${pi.location ? `<span>${escapeHTML(pi.location)}</span>` : ''}
+        ${pi.email ? `<span style="font-family:${ff}">${escapeHTML(pi.email)}</span>` : ''}
+        ${pi.phone ? `<span style="font-family:${ff}">${escapeHTML(pi.phone)}</span>` : ''}
+        ${pi.location ? `<span style="font-family:${ff}">${escapeHTML(pi.location)}</span>` : ''}
       </div>
     </div>
     <div class="dc-section">
       <span class="dc-sec-title">SUMMARY</span>
-      <div class="dc-left-body">${nl2br(plain(data.summary))}</div>
+      <div class="dc-left-body" style="font-family:${ff}">${nl2br(plain(data.summary))}</div>
     </div>
     <div class="dc-section">
       <span class="dc-sec-title">SKILLS</span>
-      <div class="dc-left-body">${data.skills.map(s => escapeHTML(s)).join(' • ')}</div>
+      <div class="dc-left-body" style="font-family:${ff}">${data.skills.map(s => escapeHTML(s)).join(' • ')}</div>
     </div>
     <div class="dc-section">
       <span class="dc-sec-title">EDUCATION</span>
       ${data.education.map(edu => `
         <div class="dc-item">
-          <span class="dc-school">${escapeHTML(edu.school)}</span>
-          <span class="dc-degree">${escapeHTML(edu.degree)} • ${escapeHTML(edu.startDate)} – ${escapeHTML(edu.endDate)}</span>
+          <span class="dc-school" style="font-family:${ff}">${escapeHTML(edu.school)}</span>
+          <span class="dc-degree" style="font-family:${ff}">${escapeHTML(edu.degree)} • <span style="font-family:${ff}">${escapeHTML(edu.startDate)} – ${escapeHTML(edu.endDate)}</span></span>
         </div>
       `).join('')}
     </div>
@@ -404,10 +424,10 @@ ${sideCss(bodyPx)}
       <span class="dc-exp-title">EXPERIENCE</span>
       ${data.experience.map(exp => `
         <div class="dc-item">
-          <span class="dc-item-title">${escapeHTML(exp.title)}</span>
-          <span class="dc-item-date">${escapeHTML(exp.startDate)} – ${exp.current ? 'Present' : escapeHTML(exp.endDate)}</span>
-          <span class="dc-item-company">${escapeHTML(exp.company)}</span>
-          <span class="dc-item-desc">${nl2br(plain(exp.description))}</span>
+          <span class="dc-item-title" style="font-family:${ff}">${escapeHTML(exp.title)}</span>
+          <span class="dc-item-date" style="font-family:${ff}">${escapeHTML(exp.startDate)} – ${exp.current ? 'Present' : escapeHTML(exp.endDate)}</span>
+          <span class="dc-item-company" style="font-family:${ff}">${escapeHTML(exp.company)}</span>
+          <span class="dc-item-desc" style="font-family:${ff}">${nl2br(plain(exp.description))}</span>
         </div>
       `).join('')}
     </div>

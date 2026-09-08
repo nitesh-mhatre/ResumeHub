@@ -276,30 +276,30 @@ function generateCustomTemplateHTML(
     switch (section.type) {
       case 'header': bodyHtml += headerHtml; break;
       case 'summary':
-        if (data.summary) bodyHtml += `<div style="margin-bottom:12px;">${sectionTitleHtml(title, i)}<div style="font-size:${itemDescFontSize};color:${subtext};white-space:pre-line;">${escapeHTML(data.summary)}</div></div>`;
+        if (data.summary) bodyHtml += `<div style="margin-bottom:12px;page-break-inside:avoid;">${sectionTitleHtml(title, i)}<div style="font-size:${itemDescFontSize};color:${subtext};white-space:pre-line;overflow-wrap:break-word;word-break:break-word;">${escapeHTML(data.summary)}</div></div>`;
         break;
       case 'experience':
         bodyHtml += `<div style="margin-bottom:12px;page-break-inside:avoid;">${sectionTitleHtml(title, i)}`;
         for (const exp of data.experience) {
-          bodyHtml += `<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;"><span style="font-weight:700;font-size:${itemTitleFontSize};color:${textColor};">${escapeHTML(exp.title)}</span><span style="font-size:${itemDateFontSize};color:${subtext};">${escapeHTML(exp.startDate)} – ${exp.current ? 'Present' : escapeHTML(exp.endDate)}</span></div><div style="font-size:${itemDescFontSize};color:${accent};margin-bottom:3px;">${escapeHTML(exp.company)}</div><div style="font-size:${itemDescFontSize};color:${subtext};white-space:pre-line;">${nl2br(formatBoldText(exp.description))}</div></div>`;
+          bodyHtml += `<div style="margin-bottom:8px;page-break-inside:avoid;break-inside:avoid;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;"><span style="font-weight:700;font-size:${itemTitleFontSize};color:${textColor};">${escapeHTML(exp.title)}</span><span style="font-size:${itemDateFontSize};color:${subtext};">${escapeHTML(exp.startDate)} – ${exp.current ? 'Present' : escapeHTML(exp.endDate)}</span></div><div style="font-size:${itemDescFontSize};color:${accent};margin-bottom:3px;">${escapeHTML(exp.company)}</div><div style="font-size:${itemDescFontSize};color:${subtext};white-space:pre-line;overflow-wrap:break-word;word-break:break-word;">${nl2br(formatBoldText(exp.description))}</div></div>`;
         }
         bodyHtml += `</div>`;
         break;
       case 'education':
         bodyHtml += `<div style="margin-bottom:12px;page-break-inside:avoid;">${sectionTitleHtml(title, i)}`;
         for (const edu of data.education) {
-          bodyHtml += `<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-weight:700;font-size:${itemTitleFontSize};color:${textColor};">${escapeHTML(edu.school)}</span><span style="font-size:${itemDateFontSize};color:${subtext};">${escapeHTML(edu.startDate)} – ${escapeHTML(edu.endDate)}</span></div><div style="font-size:${itemDescFontSize};color:${subtext};">${escapeHTML(edu.degree)}</div></div>`;
+          bodyHtml += `<div style="margin-bottom:8px;page-break-inside:avoid;break-inside:avoid;"><div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-weight:700;font-size:${itemTitleFontSize};color:${textColor};">${escapeHTML(edu.school)}</span><span style="font-size:${itemDateFontSize};color:${subtext};">${escapeHTML(edu.startDate)} – ${escapeHTML(edu.endDate)}</span></div><div style="font-size:${itemDescFontSize};color:${subtext};overflow-wrap:break-word;word-break:break-word;">${escapeHTML(edu.degree)}</div></div>`;
         }
         bodyHtml += `</div>`;
         break;
       case 'skills':
-        bodyHtml += `<div style="margin-bottom:12px;">${sectionTitleHtml(title, i)}<div style="display:flex;flex-wrap:wrap;gap:4px;">${data.skills.map(s => skillChipHtml(s)).join('')}</div></div>`;
+        bodyHtml += `<div style="margin-bottom:12px;">${sectionTitleHtml(title, i)}<div style="display:flex;flex-wrap:wrap;gap:5px;">${data.skills.map(s => skillChipHtml(s)).join('')}</div></div>`;
         break;
       case 'projects':
         if (data.projects && data.projects.length > 0) {
           bodyHtml += `<div style="margin-bottom:12px;page-break-inside:avoid;">${sectionTitleHtml(title, i)}`;
           for (const p of data.projects) {
-            bodyHtml += `<div style="margin-bottom:8px;"><span style="font-weight:700;font-size:${itemTitleFontSize};color:${textColor};">${escapeHTML(p.name)}</span><div style="font-size:${itemDescFontSize};color:${subtext};white-space:pre-line;">${nl2br(formatBoldText(p.description))}</div></div>`;
+            bodyHtml += `<div style="margin-bottom:8px;page-break-inside:avoid;break-inside:avoid;"><span style="font-weight:700;font-size:${itemTitleFontSize};color:${textColor};">${escapeHTML(p.name)}</span>${p.link ? `<span style="font-size:${itemDescFontSize};color:${accent};margin-left:8px;">${escapeHTML(p.link)}</span>` : ''}<div style="font-size:${itemDescFontSize};color:${subtext};white-space:pre-line;overflow-wrap:break-word;word-break:break-word;margin-top:2px;">${nl2br(formatBoldText(p.description))}</div></div>`;
           }
           bodyHtml += `</div>`;
         }
@@ -308,7 +308,7 @@ function generateCustomTemplateHTML(
         if (data.certificates && data.certificates.length > 0) {
           bodyHtml += `<div style="margin-bottom:12px;page-break-inside:avoid;">${sectionTitleHtml(title, i)}`;
           for (const c of data.certificates) {
-            bodyHtml += `<div style="margin-bottom:6px;"><span style="font-weight:700;font-size:${itemTitleFontSize};color:${textColor};">${escapeHTML(c.name)}</span><div style="font-size:${itemDescFontSize};color:${accent};">${escapeHTML(c.issuer)} • ${escapeHTML(c.date)}</div></div>`;
+            bodyHtml += `<div style="margin-bottom:6px;page-break-inside:avoid;break-inside:avoid;"><span style="font-weight:700;font-size:${itemTitleFontSize};color:${textColor};">${escapeHTML(c.name)}</span><div style="font-size:${itemDescFontSize};color:${accent};margin-top:1px;">${escapeHTML(c.issuer)} • ${escapeHTML(c.date)}${c.link ? ` <span style="color:${accent};text-decoration:underline;">${escapeHTML(c.link)}</span>` : ''}</div></div>`;
           }
           bodyHtml += `</div>`;
         }
@@ -317,26 +317,26 @@ function generateCustomTemplateHTML(
         if (data.awards && data.awards.length > 0) {
           bodyHtml += `<div style="margin-bottom:12px;page-break-inside:avoid;">${sectionTitleHtml(title, i)}`;
           for (const a of data.awards) {
-            bodyHtml += `<div style="margin-bottom:6px;"><div style="display:flex;justify-content:space-between;"><span style="font-weight:700;font-size:${itemTitleFontSize};color:${textColor};">${escapeHTML(a.name)}</span><span style="font-size:${itemDateFontSize};color:${subtext};">${escapeHTML(a.date)}</span></div><div style="font-size:${itemDescFontSize};color:${subtext};">${escapeHTML(a.description)}</div></div>`;
+            bodyHtml += `<div style="margin-bottom:6px;page-break-inside:avoid;break-inside:avoid;"><div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-weight:700;font-size:${itemTitleFontSize};color:${textColor};">${escapeHTML(a.name)}</span><span style="font-size:${itemDateFontSize};color:${subtext};">${escapeHTML(a.date)}</span></div>${a.issuer ? `<div style="font-size:${itemDescFontSize};color:${accent};margin-top:1px;font-weight:600;">${escapeHTML(a.issuer)}</div>` : ''}<div style="font-size:${itemDescFontSize};color:${subtext};white-space:pre-line;overflow-wrap:break-word;word-break:break-word;margin-top:2px;">${escapeHTML(a.description)}</div></div>`;
           }
           bodyHtml += `</div>`;
         }
         break;
       case 'languages':
         if (data.languages && data.languages.length > 0) {
-          bodyHtml += `<div style="margin-bottom:12px;">${sectionTitleHtml(title, i)}<div style="display:flex;flex-wrap:wrap;gap:4px;">${data.languages.map(l => skillChipHtml(l)).join('')}</div></div>`;
+          bodyHtml += `<div style="margin-bottom:12px;">${sectionTitleHtml(title, i)}<div style="display:flex;flex-wrap:wrap;gap:5px;">${data.languages.map(l => skillChipHtml(l)).join('')}</div></div>`;
         }
         break;
       case 'interests':
         if (data.interests && data.interests.length > 0) {
-          bodyHtml += `<div style="margin-bottom:12px;">${sectionTitleHtml(title, i)}<div style="display:flex;flex-wrap:wrap;gap:4px;">${data.interests.map(i => skillChipHtml(i)).join('')}</div></div>`;
+          bodyHtml += `<div style="margin-bottom:12px;">${sectionTitleHtml(title, i)}<div style="display:flex;flex-wrap:wrap;gap:5px;">${data.interests.map(i => skillChipHtml(i)).join('')}</div></div>`;
         }
         break;
       case 'custom':
         if (data.customSections && data.customSections.length > 0) {
           const custom = data.customSections.find(cs => cs.id === section.id) || data.customSections[0];
           if (custom) {
-            bodyHtml += `<div style="margin-bottom:12px;">${sectionTitleHtml(title, i)}<div style="font-size:${itemDescFontSize};color:${subtext};white-space:pre-line;">${nl2br(formatBoldText(custom.content))}</div></div>`;
+            bodyHtml += `<div style="margin-bottom:12px;page-break-inside:avoid;">${sectionTitleHtml(title, i)}<div style="font-size:${itemDescFontSize};color:${subtext};white-space:pre-line;overflow-wrap:break-word;word-break:break-word;">${nl2br(formatBoldText(custom.content))}</div></div>`;
   }
         }
         break;
@@ -363,8 +363,11 @@ body{font-family:${bodyFontFamily};color:${textColor};line-height:1.5;font-size:
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
   padding:12mm 14mm 12mm 14mm;
+  overflow-wrap:break-word;
+  word-wrap:break-word;
 }
 strong{font-weight:800;}
+h1, h2, h3, h4 { page-break-after:avoid; }
 </style>
 </head>
 <body>
@@ -546,8 +549,11 @@ body{font-family:${bodyFontFamily};color:#475569;line-height:1.5;}
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
   padding:12mm 14mm 12mm 14mm;
+  overflow-wrap:break-word;
+  word-wrap:break-word;
 }
 strong{font-weight:800;}
+h1, h2, h3, h4 { page-break-after:avoid; }
 
 /* Header: name, title-case job title, wrapped contact row */
 .hdr{margin-bottom:20px;page-break-after:avoid;break-after:avoid}
@@ -888,7 +894,7 @@ body{font-family:${bodyFontFamily};color:${config.textColor};line-height:1.5;}
   padding:12mm 14mm 12mm 14mm;
 }
 .sb{display:flex;align-items:stretch;}
-.sb-side{flex:none;width:300px;padding:14px;background:${headerBg};${sideBorder}min-width:0;}
+.sb-side{flex:none;width:26%;padding:14px;background:${headerBg};${sideBorder}min-width:0;}
 .sb-side .sb-name{font-size:16px;font-weight:900;line-height:1.3;color:${textOn(headerBg)};word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;}
 .sb-side .sb-job{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-top:2px;margin-bottom:12px;color:${accent};word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;}
 .sb-side .sb-h{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-top:14px;margin-bottom:6px;color:${accent};}

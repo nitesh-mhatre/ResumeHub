@@ -64,16 +64,45 @@ export default function BuilderScreen() {
   const [fontFamily, setFontFamily] = useState<FontFamilyOption>(FONT_FAMILY_OPTIONS[0].value);
   const [showFontSizePicker, setShowFontSizePicker] = useState(false);
   const [showFontFamilyPicker, setShowFontFamilyPicker] = useState(false);
+  // Double Column layout: sidebar width as a "1 : x" ratio (x = main parts).
+  // Supports decimal values like 33.6755 for custom ratios.
+  const [colRatioX, setColRatioX] = useState<number>(3); // default 1:3 → 25% sidebar
+  const [showRatioPicker, setShowRatioPicker] = useState(false);
+  const colShare = Math.max(0.06, Math.min(0.5, 1 / (1 + (Number(colRatioX) || 3))));
 
   const currentPaper = PAPER_SIZES.find(p => p.id === paperSize) || PAPER_SIZES[0];
 
+  // Validate resume data before PDF generation — catch missing critical fields
+  const validateResumeData = (data: ResumeData): { valid: boolean; message?: string } => {
+    const name = (data.personalInfo?.fullName || '').trim();
+    if (!name || name.length < 2) {
+      return { valid: false, message: 'Please enter your full name before exporting.' };
+    }
+    // At least one contact method should be present
+    const hasContact = !!(data.personalInfo?.email || data.personalInfo?.phone || data.personalInfo?.location);
+    if (!hasContact) {
+      return { valid: false, message: 'Please add at least one contact method (email, phone, or location).' };
+    }
+    return { valid: true };
+  };
+
   const generateHTML = (data: ResumeData, size: PaperSize): string => {
-    return generateResumeHTML(data, template, size, { fontSize, fontFamily }, customTemplateConfig ?? undefined);
+    // Carry the Double Column ratio through to the PDF renderer via globalStyles.
+    const exportData = template === 'double-column'
+      ? { ...data, globalStyles: { ...data.globalStyles, columnRatio: colShare } }
+      : data;
+    return generateResumeHTML(exportData, template, size, { fontSize, fontFamily }, customTemplateConfig ?? undefined);
   };
 
   const handleExportPDF = async () => {
     setIsExporting(true);
     try {
+      // Validate before generating — catch missing critical data early
+      const validation = validateResumeData(resumeData);
+      if (!validation.valid) {
+        Alert.alert('Export Validation', validation.message || 'Please fix the issues before exporting.');
+        return;
+      }
       const html = generateHTML(resumeData, paperSize);
       // Convert mm to points (1mm = 2.835pt) for expo-print
       const mmToPoint = 72 / 25.4;
@@ -240,7 +269,7 @@ export default function BuilderScreen() {
           <Ionicons name="chevron-down" size={14} color={COLORS.gray400} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.paperSelector, styles.selectorLast]} onPress={() => setShowFontFamilyPicker(true)} activeOpacity={0.6}>
+        <TouchableOpacity style={[styles.paperSelector, template === 'double-column' ? {} : styles.selectorLast]} onPress={() => setShowFontFamilyPicker(true)} activeOpacity={0.6}>
           <View style={styles.selectorIcon}>
             <Ionicons name="color-fill-outline" size={16} color={COLORS.primary} />
           </View>
@@ -248,11 +277,22 @@ export default function BuilderScreen() {
           <Text style={styles.paperSelectorValue}>{FONT_FAMILY_OPTIONS.find(f => f.value === fontFamily)?.label || fontFamily}</Text>
           <Ionicons name="chevron-down" size={14} color={COLORS.gray400} />
         </TouchableOpacity>
+
+        {template === 'double-column' && (
+          <TouchableOpacity style={[styles.paperSelector, styles.selectorLast]} onPress={() => setShowRatioPicker(true)} activeOpacity={0.6}>
+            <View style={styles.selectorIcon}>
+              <Ionicons name="resize-outline" size={16} color={COLORS.primary} />
+            </View>
+            <Text style={styles.paperSelectorText}>Column Ratio</Text>
+            <Text style={styles.paperSelectorValue}>1 : {colRatioX} · {Math.round(colShare * 100)}% sidebar</Text>
+            <Ionicons name="chevron-down" size={14} color={COLORS.gray400} />
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Resume Preview */}
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <ResumePreview data={{ ...resumeData, globalStyles: { ...resumeData.globalStyles, fontFamily, bodySize: fontSize.replace('px', '') } }} template={template} customTemplateConfig={customTemplateConfig} />
+        <ResumePreview data={{ ...resumeData, globalStyles: { ...resumeData.globalStyles, fontFamily, bodySize: fontSize.replace('px', ''), columnRatio: template === 'double-column' ? colShare : undefined } }} template={template} customTemplateConfig={customTemplateConfig} />
       </ScrollView>
 
       {/* Banner Ad */}
@@ -401,6 +441,63 @@ export default function BuilderScreen() {
           </View>
         </TouchableOpacity>
       </Modal>
+
+      {/* Column Ratio Picker Modal (Double Column only) */}
+      <Modal visible={showRatioPicker} transparent animationType="fade">
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowRatioPicker(false)}>
+          <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
+            <Text style={styles.modalTitle}>Column Ratio</Text>
+            <Text style={styles.ratioHint}>Colored sidebar : main content width. Smaller sidebars (1:3, 1:4) leave more room for the main column.</Text>
+            {/* Presets: 1 : 2 → 33%, 1 : 3 → 25%, 1 : 4 → 20% */}
+            {[{ label: '1 : 2', x: 2 }, { label: '1 : 3', x: 3 }, { label: '1 : 4', x: 4 }].map(preset => (
+              <TouchableOpacity
+                key={preset.label}
+                style={[styles.paperOption, colRatioX === preset.x && styles.paperOptionActive]}
+                onPress={() => { setColRatioX(preset.x); setShowRatioPicker(false); }}
+              >
+                <View style={styles.paperOptionLeft}>
+                  <Text style={[styles.paperOptionName, colRatioX === preset.x && styles.paperOptionNameActive]}>{preset.label}</Text>
+                  <Text style={styles.paperOptionDimensions}>{Math.round((1 / (1 + preset.x)) * 100)}% sidebar · {(1 - 1 / (1 + preset.x)) * 100}% main</Text>
+                </View>
+                {colRatioX === preset.x && <Ionicons name="checkmark-circle" size={22} color={COLORS.primary} />}
+              </TouchableOpacity>
+            ))}
+            {/* Custom ratio: 1 : N (supports decimal values) */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4, borderWidth: 2, borderColor: COLORS.gray200, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8 }}>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: COLORS.gray700, marginRight: 8 }}>Custom 1:</Text>
+              <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ flex: 1 }}>
+                  <Text
+                    style={{ fontSize: 16, color: COLORS.secondary, paddingVertical: 4 }}
+                    numberOfLines={1}
+                  >{typeof colRatioX === 'number' && !Number.isInteger(colRatioX) ? colRatioX.toFixed(4) : colRatioX}</Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <TouchableOpacity
+                    onPress={() => setColRatioX(prev => Math.max(1, Math.min(50, (Number(prev) || 3) - 0.1)))}
+                    style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: COLORS.gray100, justifyContent: 'center', alignItems: 'center' }}
+                  >
+                    <Ionicons name="remove" size={18} color={COLORS.gray600} />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setColRatioX(prev => Math.max(1, Math.min(50, (Number(prev) || 3) + 0.1)))}
+                    style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: COLORS.gray100, justifyContent: 'center', alignItems: 'center' }}
+                  >
+                    <Ionicons name="add" size={18} color={COLORS.gray600} />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setShowRatioPicker(false)}
+                    style={{ marginLeft: 4, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, backgroundColor: COLORS.primary }}
+                  >
+                    <Text style={{ color: COLORS.white, fontWeight: '600', fontSize: 13 }}>Apply</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+            <Text style={styles.ratioHint}>Larger numbers make the colored column narrower ({Math.round(colShare * 100)}% of the page width now). Use +/− buttons for fine-tuning with decimals (e.g., 1:33.6755).</Text>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -442,4 +539,5 @@ const styles = StyleSheet.create({
   paperOptionName: { fontSize: 15, fontWeight: '600', color: COLORS.gray800 },
   paperOptionNameActive: { color: COLORS.primary },
   paperOptionDimensions: { fontSize: 12, color: COLORS.gray400, marginTop: 2 },
+  ratioHint: { fontSize: 11, color: COLORS.gray400, marginBottom: 12, textAlign: 'center', lineHeight: 15 },
 });

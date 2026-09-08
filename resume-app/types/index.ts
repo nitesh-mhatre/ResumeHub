@@ -32,6 +32,8 @@ export interface GlobalStyle {
   backgroundColor?: string;
   backgroundImage?: string;
   lineHeight?: number;
+  /** For the Double Column template: sidebar width as a fraction of the total page width (e.g. 0.25 = 1:3). */
+  columnRatio?: number;
 }
 
 export interface ResumeTheme {
